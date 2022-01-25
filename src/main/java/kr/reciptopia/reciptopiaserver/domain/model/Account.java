@@ -13,6 +13,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.BoardNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.FavoriteNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.HistoryNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.ReplyNotFoundException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -83,5 +89,100 @@ public class Account extends TimeEntity {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+    }
+
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public void addBorad(Board board) {
+        boards.add(board);
+        if (!this.equals(board.getOwner())) {
+            board.setOwner(this);
+        }
+    }
+
+    public void removeBoard(Board board) {
+        if (!boards.contains(board))
+            throw new BoardNotFoundException();
+
+        boards.remove(board);
+        if (this.equals(board.getOwner())) {
+            board.setOwner(null);
+        }
+    }
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        if (!this.equals(comment.getOwner())) {
+            comment.setOwner(this);
+        }
+    }
+
+    public void removeComment(Comment comment) {
+        if (!comments.contains(comment))
+            throw new CommentNotFoundException();
+
+        comments.remove(comment);
+        if (this.equals(comment.getOwner())) {
+            comment.setOwner(null);
+        }
+    }
+
+    public void addReply(Reply reply) {
+        replies.add(reply);
+        if (!this.equals(reply.getOwner())) {
+            reply.setOwner(this);
+        }
+    }
+
+    public void removeReply(Reply reply) {
+        if (!replies.contains(reply))
+            throw new ReplyNotFoundException();
+
+        replies.remove(reply);
+        if (this.equals(reply.getOwner())) {
+            reply.setOwner(null);
+        }
+    }
+
+    public void addLikeTag(LikeTag likeTag) {
+        likeTags.add(likeTag);
+        if (!this.equals(likeTag.getOwner())) {
+            likeTag.setOwner(this);
+        }
+    }
+
+    public void removeLikeTag(LikeTag likeTag) {
+        if (!likeTags.contains(likeTag))
+            throw new LikeTagNotFoundException();
+
+        likeTags.remove(likeTag);
+        if (this.equals(likeTag.getOwner())) {
+            likeTag.setOwner(null);
+        }
+    }
+
+    public void addFavorite(Favorite favorite) {
+        favorites.add(favorite);
+    }
+
+    public void removeFavorite(Favorite favorite) {
+        if (!favorites.contains(favorite))
+            throw new FavoriteNotFoundException();
+
+        favorites.remove(favorite);
+    }
+
+    public void addHistory(History history) {
+        histories.add(history);
+    }
+
+    public void removeHistory(History history) {
+        if (!histories.contains(history))
+            throw new HistoryNotFoundException();
+
+        histories.remove(history);
     }
 }
