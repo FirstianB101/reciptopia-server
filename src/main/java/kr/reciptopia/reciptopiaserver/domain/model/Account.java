@@ -2,7 +2,7 @@ package kr.reciptopia.reciptopiaserver.domain.model;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -39,6 +39,7 @@ public class Account extends TimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "account_id")
     private Long id;
 
     @Email(message = "이메일 형식이 아닙니다.")
