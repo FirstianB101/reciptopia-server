@@ -15,8 +15,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import kr.reciptopia.reciptopiaserver.domain.error.exception.AlreadyRegisteredFavoriteException;
-import kr.reciptopia.reciptopiaserver.domain.error.exception.AlreadyRegisteredHistoryException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.BoardNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.FavoriteNotFoundException;
@@ -170,11 +168,8 @@ public class Account extends TimeEntity {
     }
 
     public void addFavorite(Favorite favorite) {
-        Account favoriteOwner = favorite.getOwner();
-        if (favoriteOwner != null && !favoriteOwner.equals(this))
-            throw new AlreadyRegisteredFavoriteException();
         favorites.add(favorite);
-        if (!this.equals(favoriteOwner)) {
+        if (!this.equals(favorite.getOwner())) {
             favorite.setOwner(this);
         }
     }
@@ -187,11 +182,8 @@ public class Account extends TimeEntity {
     }
 
     public void addHistory(History history) {
-        Account historyOwner = history.getOwner();
-        if (historyOwner != null && !historyOwner.equals(this))
-            throw new AlreadyRegisteredHistoryException();
         histories.add(history);
-        if (!this.equals(historyOwner)) {
+        if (!this.equals(history.getOwner())) {
             history.setOwner(this);
         }
     }
