@@ -1,11 +1,13 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.Email;
@@ -13,6 +15,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.AlreadyRegisteredHistoryException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.BoardNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.FavoriteNotFoundException;
@@ -38,7 +41,7 @@ import lombok.With;
 public class Account extends TimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     @Column(name = "account_id")
     private Long id;
 
@@ -55,32 +58,32 @@ public class Account extends TimeEntity {
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "account", cascade = ALL, orphanRemoval = true)
     private Set<Board> boards = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "account", cascade = ALL, orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "account", cascade = ALL, orphanRemoval = true)
     private Set<Reply> replies = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "account", cascade = ALL, orphanRemoval = true)
     private Set<LikeTag> likeTags = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = ALL, orphanRemoval = true)
     private Set<Favorite> favorites = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = ALL, orphanRemoval = true)
     private Set<History> histories = new HashSet<>();
 
     private String profilePictureUrl;
