@@ -47,13 +47,13 @@ public class History extends TimeEntity {
 
     @Builder
     public History(Account owner, Set<String> ingredients) {
-        this.owner = owner;
+        setOwner(owner);
         this.ingredients = ingredients;
     }
 
     @Builder
     public History(Account owner, String recipeName) {
-        this.owner = owner;
+        setOwner(owner);
         this.recipeName = recipeName;
     }
 
