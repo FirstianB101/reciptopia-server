@@ -15,6 +15,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.AlreadyRegisteredFavoriteException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.AlreadyRegisteredHistoryException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.BoardNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
@@ -78,7 +79,7 @@ public class Account extends TimeEntity {
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(cascade = ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = ALL, orphanRemoval = true)
     private Set<Favorite> favorites = new HashSet<>();
 
     @NotNull
@@ -169,7 +170,13 @@ public class Account extends TimeEntity {
     }
 
     public void addFavorite(Favorite favorite) {
+        Account favoriteOwner = favorite.getOwner();
+        if (favoriteOwner != null && !favoriteOwner.equals(this))
+            throw new AlreadyRegisteredFavoriteException();
         favorites.add(favorite);
+        if (!this.equals(favoriteOwner)) {
+            favorite.setOwner(this);
+        }
     }
 
     public void removeFavorite(Favorite favorite) {
