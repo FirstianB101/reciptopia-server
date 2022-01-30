@@ -79,7 +79,7 @@ public class Account extends TimeEntity {
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<History> histories = new HashSet<>();
 
     private String profilePictureUrl;
@@ -176,7 +176,13 @@ public class Account extends TimeEntity {
     }
 
     public void addHistory(History history) {
+        Account historyOwner = history.getOwner();
+        if (historyOwner != null && !historyOwner.equals(this))
+            throw new AlreadyRegisteredHistoryException();
         histories.add(history);
+        if (!this.equals(historyOwner)) {
+            history.setOwner(this);
+        }
     }
 
     public void removeHistory(History history) {
