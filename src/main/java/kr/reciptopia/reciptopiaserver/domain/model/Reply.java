@@ -77,8 +77,8 @@ public class Reply {
 
 	public void addLikeTag(LikeTag liketag) {
 		likes.add(likeTag);
-		if (!this.equals(likeTag.getOwner())) {
-			likeTag.setOwner(this);
+		if (!this.equals(likeTag.getReply())) {
+			likeTag.setReply(this);
 		}
 	}
 
@@ -87,8 +87,8 @@ public class Reply {
 			throw new LikeTagNotFoundException();
 
 		likes.remove(likeTag);
-		if (this.equals(likeTag.getOwner())) {
-			likeTag.setOwner(null);
+		if (this.equals(likeTag.getReply())) {
+			likeTag.setReply(null);
 		}
 	}
 }
