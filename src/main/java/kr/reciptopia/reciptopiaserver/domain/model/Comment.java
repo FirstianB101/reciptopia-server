@@ -63,8 +63,8 @@ public class Comment extends TimeEntity {
 
 	public void addLikeTag(LikeTag likeTag) {
 		likes.add(likeTag);
-		if (!this.equals(likeTag.getOwner())) {
-			likeTag.setOwner(this);
+		if (!this.equals(likeTag.getComment())) {
+			likeTag.setComment(this);
 		}
 	}
 
@@ -73,15 +73,15 @@ public class Comment extends TimeEntity {
 			throw new LikeTagNotFoundException();
 
 		likes.remove(likeTag);
-		if (this.equals(likeTag.getOwner())) {
-			likeTag.setOwner(null);
+		if (this.equals(likeTag.getComment())) {
+			likeTag.setComment(null);
 		}
 	}
 
 	public void addReply(Reply reply) {
 		replies.add(reply);
-		if (!this.equals(reply.getOwner())) {
-			reply.setOwner(this);
+		if (!this.equals(reply.getComment())) {
+			reply.setComment(this);
 		}
 	}
 
@@ -90,8 +90,8 @@ public class Comment extends TimeEntity {
 			throw new ReplyNotFoundException();
 
 		replies.remove(reply);
-		if (this.equals(reply.getOwner())) {
-			reply.setOwner(null);
+		if (this.equals(reply.getComment())) {
+			reply.setComment(null);
 		}
 	}
 }
