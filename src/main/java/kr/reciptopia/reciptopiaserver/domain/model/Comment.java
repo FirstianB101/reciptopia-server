@@ -90,5 +90,8 @@ public class Comment extends TimeEntity {
 			throw new ReplyNotFoundException();
 
 		replies.remove(reply);
+		if (this.equals(reply.getComment())) {
+			reply.setComment(null);
+		}
 	}
 }
