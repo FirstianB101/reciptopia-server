@@ -60,6 +60,27 @@ public class Comment extends TimeEntity {
 		setContent(content);
 	}
 
+	public void setOwner(Account owner) {
+		if (this.owner != owner) {
+			if (this.owner != null)
+				this.owner.removeComment(this);
+			this.owner = owner;
+			if (owner != null) {
+				owner.addComment(this);
+			}
+		}
+	}
+
+	public void setBoard(Board board) {
+		if (this.board != board) {
+			if (this.board != null)
+				this.board.removeComment(this);
+			this.board = board;
+			if (board != null) {
+				board.addComment(this);
+			}
+		}
+	}
 
 	public void addLikeTag(LikeTag likeTag) {
 		likes.add(likeTag);
