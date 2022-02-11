@@ -22,7 +22,7 @@ import java.util.Set;
 @ToString
 @With
 @Entity
-public class Comment extends TimeEntity {
+public class Comment {
 
 	@Id
 	@Column(name = "comment_id")
@@ -51,7 +51,7 @@ public class Comment extends TimeEntity {
 	@NotNull
 	@ToString.Exclude
 	@OneToMany(mappedBy = "comment", cascade = ALL, orphanRemoval = true)
-	private Set<LikeTag> likes = new HashSet<>();
+	private Set<CommentLikeTag> commentLikeTags = new HashSet<>();
 
 	@Builder
 	public Comment(Account owner, Board board, String content) {
@@ -82,18 +82,18 @@ public class Comment extends TimeEntity {
 		}
 	}
 
-	public void addLikeTag(LikeTag likeTag) {
-		likes.add(likeTag);
+	public void addLikeTag(CommentLikeTag likeTag) {
+		commentLikeTags.add(likeTag);
 		if (!this.equals(likeTag.getComment())) {
 			likeTag.setComment(this);
 		}
 	}
 
-	public void removeLikeTag(LikeTag likeTag) {
-		if (!likes.contains(likeTag))
+	public void removeLikeTag(CommentLikeTag likeTag) {
+		if (!commentLikeTags.contains(likeTag))
 			throw new LikeTagNotFoundException();
 
-		likes.remove(likeTag);
+		commentLikeTags.remove(likeTag);
 		if (this.equals(likeTag.getComment())) {
 			likeTag.setComment(null);
 		}

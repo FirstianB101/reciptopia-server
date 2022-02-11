@@ -44,7 +44,7 @@ public class Reply {
 	@NotNull
 	@ToString.Exclude
 	@OneToMany(mappedBy = "reply", cascade = ALL, orphanRemoval = true)
-	private Set<LikeTag> likes = new HashSet<>();
+	private Set<ReplyLikeTag> replyLikeTags = new HashSet<>();
 
 	@Builder
 	public Reply(Account owner, Comment comment, String content) {
@@ -75,18 +75,18 @@ public class Reply {
 		}
 	}
 
-	public void addLikeTag(LikeTag liketag) {
-		likes.add(likeTag);
+	public void addLikeTag(ReplyLikeTag likeTag) {
+		replyLikeTags.add(likeTag);
 		if (!this.equals(likeTag.getReply())) {
 			likeTag.setReply(this);
 		}
 	}
 
-	public void removeLikeTag(LikeTag likeTag) {
-		if (!likes.contains(likeTag))
+	public void removeLikeTag(ReplyLikeTag likeTag) {
+		if (!replyLikeTags.contains(likeTag))
 			throw new LikeTagNotFoundException();
 
-		likes.remove(likeTag);
+		replyLikeTags.remove(likeTag);
 		if (this.equals(likeTag.getReply())) {
 			likeTag.setReply(null);
 		}
