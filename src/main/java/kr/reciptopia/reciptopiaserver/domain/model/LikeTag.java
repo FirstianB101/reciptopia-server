@@ -1,11 +1,12 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
+import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
-import lombok.*;
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @MappedSuperclass
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,6 +21,7 @@ public abstract class LikeTag {
 	private Long id;
 
 	@ToString.Exclude
+	@NotNull
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "account_id")
 	private Account owner;

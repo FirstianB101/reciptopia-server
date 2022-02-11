@@ -1,10 +1,13 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
-import static javax.persistence.FetchType.LAZY;
-
 import lombok.*;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
+
+import static javax.persistence.FetchType.LAZY;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -12,6 +15,7 @@ import javax.persistence.*;
 @Setter
 @ToString
 @With
+@NotNull
 @Entity
 public class ReplyLikeTag extends LikeTag {
 	@ManyToOne(fetch = LAZY)
