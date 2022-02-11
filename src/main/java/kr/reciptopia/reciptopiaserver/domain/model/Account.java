@@ -1,30 +1,15 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
-import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.GenerationType.IDENTITY;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.*;
+import lombok.*;
 
+import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
-import kr.reciptopia.reciptopiaserver.domain.error.exception.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.With;
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -175,19 +160,19 @@ public class Account extends TimeEntity {
     public void removeLikeTag(LikeTag likeTag) {
         if (likeTag instanceof BoardLikeTag) {
             if (!boardLikeTags.contains(likeTag))
-                throw new BoardLikeTagNotFoundException();
+                throw new LikeTagNotFoundException();
 
             boardLikeTags.remove(likeTag);
         }
         else if (likeTag instanceof CommentLikeTag) {
             if (!commentLikeTags.contains(likeTag))
-                throw new CommentLikeTagNotFoundException();
+                throw new LikeTagNotFoundException();
 
             commentLikeTags.remove(likeTag);
         }
         else if (likeTag instanceof ReplyLikeTag) {
             if (!replyLikeTags.contains(likeTag))
-                throw new ReplyLikeTagNotFoundException();
+                throw new LikeTagNotFoundException();
 
             replyLikeTags.remove(likeTag);
         }
