@@ -5,11 +5,20 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import lombok.Builder;
 import lombok.Data;
 import lombok.With;
 
 public interface AccountDto {
+
+    static Result of(Account entitiy) {
+        return Result.builder()
+            .email(entitiy.getEmail())
+            .nickname(entitiy.getNickname())
+            .profilePictureUrl(entitiy.getProfilePictureUrl())
+            .build();
+    }
 
     @Data
     @Builder
