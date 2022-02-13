@@ -15,11 +15,11 @@ import static javax.persistence.FetchType.LAZY;
 @Setter
 @ToString
 @With
-@NotNull
 @Entity
 public class ReplyLikeTag extends LikeTag {
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "reply_id")
+	@NotNull
 	private Reply reply;
 
 	@Builder
