@@ -19,6 +19,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+
 import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
 import lombok.AccessLevel;
@@ -64,7 +65,7 @@ public class Board {
     @NotNull
     @ToString.Exclude
     @OneToMany(mappedBy = "board", cascade = ALL, orphanRemoval = true)
-    private Set<LikeTag> likes = new HashSet<>();
+    private Set<BoardLikeTag> boardLikeTags = new HashSet<>();
 
     @ElementCollection
     private List<String> pictureUrls = new ArrayList<>();
@@ -124,18 +125,18 @@ public class Board {
         }
     }
 
-    public void addLikeTag(LikeTag likeTag) {
-        likeTags.add(likeTag);
+    public void addLikeTag(BoardLikeTag likeTag) {
+        boardLikeTags.add(likeTag);
         if (!this.equals(likeTag.getBoard())) {
             likeTag.setBoard(this);
         }
     }
 
-    public void removeLikeTag(LikeTag likeTag) {
-        if (!likeTags.contains(likeTag))
+    public void removeLikeTag(BoardLikeTag likeTag) {
+        if (!boardLikeTags.contains(likeTag))
             throw new LikeTagNotFoundException();
 
-        likeTags.remove(likeTag);
+        boardLikeTags.remove(likeTag);
         if (this.equals(likeTag.getBoard())) {
             likeTag.setBoard(null);
         }
