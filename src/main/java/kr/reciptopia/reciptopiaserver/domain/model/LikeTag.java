@@ -3,7 +3,6 @@ package kr.reciptopia.reciptopiaserver.domain.model;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
@@ -21,7 +20,6 @@ public abstract class LikeTag {
 	private Long id;
 
 	@ToString.Exclude
-	@NotNull
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "account_id")
 	private Account owner;
