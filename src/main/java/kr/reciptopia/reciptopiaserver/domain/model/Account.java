@@ -1,15 +1,35 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
-import kr.reciptopia.reciptopiaserver.domain.error.exception.*;
-import lombok.*;
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.CascadeType.REMOVE;
+import static javax.persistence.GenerationType.IDENTITY;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
 import java.util.HashSet;
 import java.util.Set;
-
-import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.GenerationType.IDENTITY;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.BoardNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.FavoriteNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.HistoryNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.ReplyNotFoundException;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.With;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -53,7 +73,7 @@ public class Account extends TimeEntity {
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "owner", cascade = ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = REMOVE, orphanRemoval = true)
     private Set<BoardLikeTag> boardLikeTags = new HashSet<>();
 
     @NotNull

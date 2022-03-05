@@ -1,6 +1,7 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
 import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -19,7 +20,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-
 import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
 import lombok.AccessLevel;
@@ -64,7 +64,7 @@ public class Board extends TimeEntity {
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "board", cascade = ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "board", cascade = REMOVE, orphanRemoval = true)
     private Set<BoardLikeTag> boardLikeTags = new HashSet<>();
 
     @ElementCollection
