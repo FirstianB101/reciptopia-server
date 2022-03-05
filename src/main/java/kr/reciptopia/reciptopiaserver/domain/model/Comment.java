@@ -22,7 +22,7 @@ import java.util.Set;
 @ToString
 @With
 @Entity
-public class Comment {
+public class Comment extends TimeEntity {
 
 	@Id
 	@Column(name = "comment_id")
