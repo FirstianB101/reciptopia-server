@@ -20,7 +20,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @ToString
 @With
 @Entity
-public class Reply {
+public class Reply extends TimeEntity {
 
 	@Id
 	@Column(name = "reply_id")

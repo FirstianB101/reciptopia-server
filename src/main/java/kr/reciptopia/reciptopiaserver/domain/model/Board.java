@@ -38,7 +38,7 @@ import lombok.With;
 @ToString
 @With
 @Entity
-public class Board {
+public class Board extends TimeEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
