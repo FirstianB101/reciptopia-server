@@ -1,17 +1,30 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
-import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
-import lombok.*;
-import javax.persistence.*;
+import static javax.persistence.CascadeType.REMOVE;
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.IDENTITY;
+
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.HashSet;
-import java.util.Set;
-
-import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.With;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -43,7 +56,7 @@ public class Reply extends TimeEntity {
 
 	@NotNull
 	@ToString.Exclude
-	@OneToMany(mappedBy = "reply", cascade = ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "reply", cascade = REMOVE, orphanRemoval = true)
 	private Set<ReplyLikeTag> replyLikeTags = new HashSet<>();
 
 	@Builder

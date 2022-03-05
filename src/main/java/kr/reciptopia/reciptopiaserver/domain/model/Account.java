@@ -83,7 +83,7 @@ public class Account extends TimeEntity {
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "owner", cascade = ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = REMOVE, orphanRemoval = true)
     private Set<ReplyLikeTag> replyLikeTags = new HashSet<>();
 
     @NotNull
