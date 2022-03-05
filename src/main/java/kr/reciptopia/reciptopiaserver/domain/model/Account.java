@@ -38,32 +38,32 @@ public class Account extends TimeEntity {
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "account", cascade = ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = ALL, orphanRemoval = true)
     private Set<Board> boards = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "account", cascade = ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = ALL, orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "account", cascade = ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = ALL, orphanRemoval = true)
     private Set<Reply> replies = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "account", cascade = ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = ALL, orphanRemoval = true)
     private Set<BoardLikeTag> boardLikeTags = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "account", cascade = ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = ALL, orphanRemoval = true)
     private Set<CommentLikeTag> commentLikeTags = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "account", cascade = ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = ALL, orphanRemoval = true)
     private Set<ReplyLikeTag> replyLikeTags = new HashSet<>();
 
     @NotNull
