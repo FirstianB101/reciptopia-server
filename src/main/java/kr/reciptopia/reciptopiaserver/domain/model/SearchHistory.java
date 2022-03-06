@@ -28,10 +28,10 @@ import lombok.With;
 @ToString
 @With
 @Entity
-public class History extends TimeEntity {
+public class SearchHistory extends TimeEntity {
 
     @Id
-    @Column(name = "history_id")
+    @Column(name = "search_history_id")
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
@@ -46,13 +46,13 @@ public class History extends TimeEntity {
     private String recipeName;
 
     @Builder
-    public History(Account owner, Set<String> ingredients) {
+    public SearchHistory(Account owner, Set<String> ingredients) {
         setOwner(owner);
         this.ingredients = ingredients;
     }
 
     @Builder
-    public History(Account owner, String recipeName) {
+    public SearchHistory(Account owner, String recipeName) {
         setOwner(owner);
         this.recipeName = recipeName;
     }
@@ -60,10 +60,10 @@ public class History extends TimeEntity {
     public void setOwner(Account owner) {
         if (this.owner != owner) {
             if (this.owner != null)
-                this.owner.removeHistory(this);
+                this.owner.removeSearchHistory(this);
             this.owner = owner;
             if (owner != null) {
-                owner.addHistory(this);
+                owner.addSearchHistory(this);
             }
         }
     }

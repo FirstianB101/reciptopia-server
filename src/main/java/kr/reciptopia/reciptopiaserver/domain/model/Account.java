@@ -19,7 +19,7 @@ import javax.validation.constraints.Size;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.PostNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.FavoriteNotFoundException;
-import kr.reciptopia.reciptopiaserver.domain.error.exception.HistoryNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.SearchHistoryNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.ReplyNotFoundException;
 import lombok.AccessLevel;
@@ -94,7 +94,7 @@ public class Account extends TimeEntity {
     @NotNull
     @ToString.Exclude
     @OneToMany(mappedBy = "owner", cascade = ALL, orphanRemoval = true)
-    private Set<History> histories = new HashSet<>();
+    private Set<SearchHistory> searchHistories = new HashSet<>();
 
     private String profilePictureUrl;
 
@@ -216,17 +216,17 @@ public class Account extends TimeEntity {
         favorites.remove(favorite);
     }
 
-    public void addHistory(History history) {
-        histories.add(history);
-        if (!this.equals(history.getOwner())) {
-            history.setOwner(this);
+    public void addSearchHistory(SearchHistory searchHistory) {
+        searchHistories.add(searchHistory);
+        if (!this.equals(searchHistory.getOwner())) {
+            searchHistory.setOwner(this);
         }
     }
 
-    public void removeHistory(History history) {
-        if (!histories.contains(history))
-            throw new HistoryNotFoundException();
+    public void removeSearchHistory(SearchHistory searchHistory) {
+        if (!searchHistories.contains(searchHistory))
+            throw new SearchHistoryNotFoundException();
 
-        histories.remove(history);
+        searchHistories.remove(searchHistory);
     }
 }

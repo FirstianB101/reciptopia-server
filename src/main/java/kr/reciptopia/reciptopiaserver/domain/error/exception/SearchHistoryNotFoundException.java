@@ -1,6 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.error.exception;
 
-public class HistoryNotFoundException extends
+public class SearchHistoryNotFoundException extends
     RuntimeException {
 
 }
