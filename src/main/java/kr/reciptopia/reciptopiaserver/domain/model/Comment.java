@@ -49,8 +49,8 @@ public class Comment extends TimeEntity {
 
 	@ToString.Exclude
 	@ManyToOne(fetch = LAZY)
-	@JoinColumn(name = "board_id")
-	private Board board;
+	@JoinColumn(name = "post_id")
+	private Post post;
 
 	@NotBlank
 	@Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
@@ -67,9 +67,9 @@ public class Comment extends TimeEntity {
 	private Set<CommentLikeTag> commentLikeTags = new HashSet<>();
 
 	@Builder
-	public Comment(Account owner, Board board, String content) {
+	public Comment(Account owner, Post post, String content) {
 		setOwner(owner);
-		setBoard(board);
+		setPost(post);
 		setContent(content);
 	}
 
@@ -84,13 +84,13 @@ public class Comment extends TimeEntity {
 		}
 	}
 
-	public void setBoard(Board board) {
-		if (this.board != board) {
-			if (this.board != null)
-				this.board.removeComment(this);
-			this.board = board;
-			if (board != null) {
-				board.addComment(this);
+	public void setPost(Post post) {
+		if (this.post != post) {
+			if (this.post != null)
+				this.post.removeComment(this);
+			this.post = post;
+			if (post != null) {
+				post.addComment(this);
 			}
 		}
 	}

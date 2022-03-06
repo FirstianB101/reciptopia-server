@@ -39,13 +39,13 @@ public class Favorite extends TimeEntity {
 
     @ToString.Exclude
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "board_id")
-    private Board board;
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     @Builder
-    public Favorite(Account owner, Board board) {
+    public Favorite(Account owner, Post post) {
         setOwner(owner);
-        setBoard(board);
+        setPost(post);
     }
 
     public void setOwner(Account owner) {

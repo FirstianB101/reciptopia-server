@@ -16,25 +16,25 @@ import static javax.persistence.FetchType.LAZY;
 @ToString
 @With
 @Entity
-public class BoardLikeTag extends LikeTag {
+public class PostLikeTag extends LikeTag {
 	@ManyToOne(fetch = LAZY)
-	@JoinColumn(name = "board_id")
+	@JoinColumn(name = "post_id")
 	@NotNull
-	private Board board;
+	private Post post;
 
 	@Builder
-	public BoardLikeTag(Account owner, Board board) {
+	public PostLikeTag(Account owner, Post post) {
 		setOwner(owner);
-		setBoard(board);
+		setPost(post);
 	}
 
-	public void setBoard(Board board) {
-		if (this.board != board) {
-			if (this.board != null)
-				this.board.removeLikeTag(this);
-			this.board = board;
-			if (board != null) {
-				board.addLikeTag(this);
+	public void setPost(Post post) {
+		if (this.post != post) {
+			if (this.post != null)
+				this.post.removeLikeTag(this);
+			this.post = post;
+			if (post != null) {
+				post.addLikeTag(this);
 			}
 		}
 	}

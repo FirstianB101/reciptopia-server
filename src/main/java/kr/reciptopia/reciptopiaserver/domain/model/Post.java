@@ -38,11 +38,11 @@ import lombok.With;
 @ToString
 @With
 @Entity
-public class Board extends TimeEntity {
+public class Post extends TimeEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "board_id")
+    @Column(name = "post_id")
     private Long id;
 
     @NotNull
@@ -59,13 +59,13 @@ public class Board extends TimeEntity {
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "board", cascade = ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = ALL, orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
-    @OneToMany(mappedBy = "board", cascade = REMOVE, orphanRemoval = true)
-    private Set<BoardLikeTag> boardLikeTags = new HashSet<>();
+    @OneToMany(mappedBy = "post", cascade = REMOVE, orphanRemoval = true)
+    private Set<PostLikeTag> postLikeTags = new HashSet<>();
 
     @ElementCollection
     private List<String> pictureUrls = new ArrayList<>();
@@ -78,8 +78,8 @@ public class Board extends TimeEntity {
     private Long views;
 
     @Builder
-    public Board(Recipe recipe, Account owner, List<String> pictureUrls, String title,
-        String content) {
+    public Post(Recipe recipe, Account owner, List<String> pictureUrls, String title,
+                String content) {
         setRecipe(recipe);
         setOwner(owner);
         this.pictureUrls = pictureUrls;
@@ -90,10 +90,10 @@ public class Board extends TimeEntity {
     public void setOwner(Account owner) {
         if (this.owner != owner) {
             if (this.owner != null)
-                this.owner.removeBoard(this);
+                this.owner.removePost(this);
             this.owner = owner;
             if (owner != null) {
-                owner.addBorad(this);
+                owner.addPost(this);
             }
         }
     }
@@ -101,17 +101,17 @@ public class Board extends TimeEntity {
     public void setRecipe(Recipe recipe) {
         if (this.recipe != recipe) {
             if (this.recipe != null)
-                this.recipe.setBoard(null);
+                this.recipe.setPost(null);
             this.recipe = recipe;
             if (recipe != null)
-                recipe.setBoard(this);
+                recipe.setPost(this);
         }
     }
 
     public void addComment(Comment comment) {
         comments.add(comment);
-        if (!this.equals(comment.getBoard())) {
-            comment.setBoard(this);
+        if (!this.equals(comment.getPost())) {
+            comment.setPost(this);
         }
     }
 
@@ -120,25 +120,25 @@ public class Board extends TimeEntity {
             throw new CommentNotFoundException();
 
         comments.remove(comment);
-        if (this.equals(comment.getBoard())) {
-            comment.setBoard(null);
+        if (this.equals(comment.getPost())) {
+            comment.setPost(null);
         }
     }
 
-    public void addLikeTag(BoardLikeTag likeTag) {
-        boardLikeTags.add(likeTag);
-        if (!this.equals(likeTag.getBoard())) {
-            likeTag.setBoard(this);
+    public void addLikeTag(PostLikeTag likeTag) {
+        postLikeTags.add(likeTag);
+        if (!this.equals(likeTag.getPost())) {
+            likeTag.setPost(this);
         }
     }
 
-    public void removeLikeTag(BoardLikeTag likeTag) {
-        if (!boardLikeTags.contains(likeTag))
+    public void removeLikeTag(PostLikeTag likeTag) {
+        if (!postLikeTags.contains(likeTag))
             throw new LikeTagNotFoundException();
 
-        boardLikeTags.remove(likeTag);
-        if (this.equals(likeTag.getBoard())) {
-            likeTag.setBoard(null);
+        postLikeTags.remove(likeTag);
+        if (this.equals(likeTag.getPost())) {
+            likeTag.setPost(null);
         }
     }
 }
