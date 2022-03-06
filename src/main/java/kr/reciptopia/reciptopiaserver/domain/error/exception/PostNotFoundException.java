@@ -1,6 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.error.exception;
 
-public class BoardNotFoundException extends
+public class PostNotFoundException extends
     RuntimeException {
 
 }

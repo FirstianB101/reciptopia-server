@@ -16,7 +16,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import kr.reciptopia.reciptopiaserver.domain.error.exception.BoardNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.PostNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.FavoriteNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.HistoryNotFoundException;
@@ -59,7 +59,7 @@ public class Account extends TimeEntity {
     @NotNull
     @ToString.Exclude
     @OneToMany(mappedBy = "owner", cascade = ALL, orphanRemoval = true)
-    private Set<Board> boards = new HashSet<>();
+    private Set<Post> posts = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
@@ -74,7 +74,7 @@ public class Account extends TimeEntity {
     @NotNull
     @ToString.Exclude
     @OneToMany(mappedBy = "owner", cascade = REMOVE, orphanRemoval = true)
-    private Set<BoardLikeTag> boardLikeTags = new HashSet<>();
+    private Set<PostLikeTag> postLikeTags = new HashSet<>();
 
     @NotNull
     @ToString.Exclude
@@ -110,20 +110,20 @@ public class Account extends TimeEntity {
         this.profilePictureUrl = profilePictureUrl;
     }
 
-    public void addBorad(Board board) {
-        boards.add(board);
-        if (!this.equals(board.getOwner())) {
-            board.setOwner(this);
+    public void addPost(Post post) {
+        posts.add(post);
+        if (!this.equals(post.getOwner())) {
+            post.setOwner(this);
         }
     }
 
-    public void removeBoard(Board board) {
-        if (!boards.contains(board))
-            throw new BoardNotFoundException();
+    public void removePost(Post post) {
+        if (!posts.contains(post))
+            throw new PostNotFoundException();
 
-        boards.remove(board);
-        if (this.equals(board.getOwner())) {
-            board.setOwner(null);
+        posts.remove(post);
+        if (this.equals(post.getOwner())) {
+            post.setOwner(null);
         }
     }
 
@@ -162,8 +162,8 @@ public class Account extends TimeEntity {
     }
 
     public void addLikeTag(LikeTag likeTag) {
-        if (likeTag instanceof BoardLikeTag) {
-            boardLikeTags.add((BoardLikeTag) likeTag);
+        if (likeTag instanceof PostLikeTag) {
+            postLikeTags.add((PostLikeTag) likeTag);
         }
         else if (likeTag instanceof CommentLikeTag) {
             commentLikeTags.add((CommentLikeTag) likeTag);
@@ -178,11 +178,11 @@ public class Account extends TimeEntity {
     }
 
     public void removeLikeTag(LikeTag likeTag) {
-        if (likeTag instanceof BoardLikeTag) {
-            if (!boardLikeTags.contains(likeTag))
+        if (likeTag instanceof PostLikeTag) {
+            if (!postLikeTags.contains(likeTag))
                 throw new LikeTagNotFoundException();
 
-            boardLikeTags.remove(likeTag);
+            postLikeTags.remove(likeTag);
         }
         else if (likeTag instanceof CommentLikeTag) {
             if (!commentLikeTags.contains(likeTag))
