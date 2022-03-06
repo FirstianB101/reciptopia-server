@@ -16,12 +16,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import kr.reciptopia.reciptopiaserver.domain.error.exception.PostNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.FavoriteNotFoundException;
-import kr.reciptopia.reciptopiaserver.domain.error.exception.SearchHistoryNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.PostNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.ReplyNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.SearchHistoryNotFoundException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,6 +45,7 @@ public class Account extends TimeEntity {
     @Column(name = "account_id")
     private Long id;
 
+    @NotNull
     @Email(message = "이메일 형식이 아닙니다.")
     private String email;
 
