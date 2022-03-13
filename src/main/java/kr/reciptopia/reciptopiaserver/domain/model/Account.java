@@ -53,7 +53,6 @@ public class Account extends TimeEntity {
     private String email;
 
     @NotEmpty
-    @Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!")
     private String password;
 
     @NotBlank
