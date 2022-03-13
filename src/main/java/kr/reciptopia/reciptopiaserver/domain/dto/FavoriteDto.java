@@ -11,6 +11,7 @@ public interface FavoriteDto {
 
 	static Result of(Favorite entity) {
 		return Result.builder()
+				.id(entity.getId())
 				.ownerId(entity.getOwner().getId())
 				.postId(entity.getPost().getId())
 				.build();
@@ -33,8 +34,8 @@ public interface FavoriteDto {
 	@With
 	class Result {
 
-//		@NotNull
-//		private Long favoriteId;
+		@NotNull
+		private Long id;
 
 		@NotNull
 		private Long ownerId;
