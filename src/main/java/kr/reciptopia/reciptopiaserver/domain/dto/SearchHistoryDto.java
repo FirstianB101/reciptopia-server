@@ -12,6 +12,7 @@ public interface SearchHistoryDto {
 
 	static Result of(SearchHistory entity) {
 		return Result.builder()
+				.id(entity.getId())
 				.ownerId(entity.getOwner().getId())
 				.ingredients(entity.getIngredients())
 				.recipeName(entity.getRecipeName())
@@ -35,6 +36,9 @@ public interface SearchHistoryDto {
 	@Builder
 	@With
 	class Result {
+
+		@NotNull
+		private Long id;
 
 		@NotNull
 		private Long ownerId;
