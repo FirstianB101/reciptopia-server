@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.With;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Set;
@@ -17,6 +16,7 @@ public interface CommentDto {
 
 	static Result of(Comment entity) {
 		return Result.builder()
+				.id(entity.getId())
 				.ownerId(entity.getOwner().getId())
 				.postId(entity.getPost().getId())
 				.content(entity.getContent())
@@ -39,12 +39,6 @@ public interface CommentDto {
 		@NotBlank
 		@Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
 		private String content;
-
-		@NotEmpty
-		private Set<Reply> replies;
-
-		@NotEmpty
-		private Set<CommentLikeTag> commentLikeTags;
 	}
 
 	@Data
@@ -65,8 +59,8 @@ public interface CommentDto {
 	@With
 	class Result {
 
-//		@NotNull
-//		private Long commentId;
+		@NotNull
+		private Long id;
 
 		@NotNull
 		private Long ownerId;
@@ -78,19 +72,8 @@ public interface CommentDto {
 		@Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
 		private String content;
 
-		@NotEmpty
 		private Set<Reply> replies;
 
-		@NotEmpty
 		private Set<CommentLikeTag> commentLikeTags;
-	}
-
-	@Data
-	@Builder
-	@With
-	class CheckDuplicationResult {
-
-		@NotNull
-		private Boolean exists;
 	}
 }
