@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -100,13 +102,18 @@ public class Account extends TimeEntity {
 
     private String profilePictureUrl;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
     @Builder
-    public Account(String email, String password, String nickname) {
+    public Account(String email, String password, String nickname,
+        UserRole role) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.role = role;
     }
-
 
     public void setProfilePictureUrl(String profilePictureUrl) {
         this.profilePictureUrl = profilePictureUrl;
