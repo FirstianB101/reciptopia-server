@@ -6,6 +6,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
+import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import lombok.Builder;
 import lombok.Data;
 import lombok.With;
@@ -14,9 +15,11 @@ public interface AccountDto {
 
     static Result of(Account entitiy) {
         return Result.builder()
+            .id(entitiy.getId())
             .email(entitiy.getEmail())
             .nickname(entitiy.getNickname())
             .profilePictureUrl(entitiy.getProfilePictureUrl())
+            .role(entitiy.getRole())
             .build();
     }
 
@@ -61,6 +64,9 @@ public interface AccountDto {
     class Result {
 
         @NotNull
+        private Long id;
+
+        @NotNull
         @Email(message = "이메일 형식이 아닙니다.")
         private String email;
 
@@ -69,6 +75,9 @@ public interface AccountDto {
         private String nickname;
 
         private String profilePictureUrl;
+
+        @NotEmpty
+        private UserRole role;
     }
 
     @Data
