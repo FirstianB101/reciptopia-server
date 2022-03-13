@@ -1,3 +1,6 @@
+server:
+  error:
+    include-message: always
 spring:
   h2:
     console:
@@ -20,5 +23,5 @@ logging:
 auth:
   jwt:
     key:
-      secret-string: ${JWT_SECRET}
-    expiration-interval: 604800   # a week 1
+      secret-string: Z1VrWHAyczV2OHkvQj9FKEgrTWJRZVNoVm1ZcTN0Nnc=
+    expiration-interval: 604800   # a week
