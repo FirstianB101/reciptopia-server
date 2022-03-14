@@ -1,7 +1,10 @@
 package kr.reciptopia.reciptopiaserver.helper;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Create;
+import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Result;
+import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Update;
+
 import java.util.UUID;
-import kr.reciptopia.reciptopiaserver.domain.dto.AccountDto;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 
@@ -30,25 +33,25 @@ public class AccountHelper {
         return account;
     }
 
-    public static AccountDto.Create anAccountCreateDto() {
-        return AccountDto.Create.builder()
+    public static Create anAccountCreateDto() {
+        return Create.builder()
             .email(getArbitraryEmail())
             .password(ARBITRARY_PASSWORD)
             .nickname(ARBITRARY_NICKNAME)
             .build();
     }
 
-    public static AccountDto.Update anAccountUpdateDto() {
-        return AccountDto.Update.builder()
+    public static Update anAccountUpdateDto() {
+        return Update.builder()
             .email(getArbitraryEmail())
             .password(ARBITRARY_PASSWORD)
             .nickname(ARBITRARY_NICKNAME)
             .build();
     }
 
-    public static AccountDto.Result anAccountResultDto() {
+    public static Result anAccountResultDto() {
         String uuid = UUID.randomUUID().toString().substring(8);
-        return AccountDto.Result.builder()
+        return Result.builder()
             .email(getArbitraryEmail())
             .nickname(ARBITRARY_NICKNAME)
             .role(UserRole.USER)
