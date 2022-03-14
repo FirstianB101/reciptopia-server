@@ -181,14 +181,12 @@ public class Account extends TimeEntity {
         replies.forEach(this::removeReply);
     }
 
-    public void addLikeTag(LikeTag likeTag) {
+    public <T extends LikeTag> void addLikeTag(T likeTag) {
         if (likeTag instanceof PostLikeTag) {
             postLikeTags.add((PostLikeTag) likeTag);
-        }
-        else if (likeTag instanceof CommentLikeTag) {
+        } else if (likeTag instanceof CommentLikeTag) {
             commentLikeTags.add((CommentLikeTag) likeTag);
-        }
-        else if (likeTag instanceof ReplyLikeTag) {
+        } else if (likeTag instanceof ReplyLikeTag) {
             replyLikeTags.add((ReplyLikeTag) likeTag);
         }
 
@@ -197,20 +195,18 @@ public class Account extends TimeEntity {
         }
     }
 
-    public void removeLikeTag(LikeTag likeTag) {
+    public <T extends LikeTag> void removeLikeTag(T likeTag) {
         if (likeTag instanceof PostLikeTag) {
             if (!postLikeTags.contains(likeTag))
                 throw new LikeTagNotFoundException();
 
             postLikeTags.remove(likeTag);
-        }
-        else if (likeTag instanceof CommentLikeTag) {
+        } else if (likeTag instanceof CommentLikeTag) {
             if (!commentLikeTags.contains(likeTag))
                 throw new LikeTagNotFoundException();
 
             commentLikeTags.remove(likeTag);
-        }
-        else if (likeTag instanceof ReplyLikeTag) {
+        } else if (likeTag instanceof ReplyLikeTag) {
             if (!replyLikeTags.contains(likeTag))
                 throw new LikeTagNotFoundException();
 
