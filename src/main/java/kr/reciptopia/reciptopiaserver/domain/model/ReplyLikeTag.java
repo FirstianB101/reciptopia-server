@@ -17,6 +17,7 @@ import static javax.persistence.FetchType.LAZY;
 @With
 @Entity
 public class ReplyLikeTag extends LikeTag {
+	@ToString.Exclude
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "reply_id")
 	@NotNull

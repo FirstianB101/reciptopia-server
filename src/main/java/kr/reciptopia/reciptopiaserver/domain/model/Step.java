@@ -2,12 +2,12 @@ package kr.reciptopia.reciptopiaserver.domain.model;
 
 import lombok.*;
 
-import static javax.persistence.GenerationType.IDENTITY;
-import static javax.persistence.FetchType.LAZY;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -22,6 +22,8 @@ public class Step {
 	@Column(name = "step_id")
 	private Long id;
 
+	@ToString.Exclude
+	@NotNull
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "recipe_id")
 	private Recipe recipe;
