@@ -1,5 +1,9 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import java.util.Set;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
@@ -7,23 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.With;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.Set;
-
 public interface CommentDto {
-
-	static Result of(Comment entity) {
-		return Result.builder()
-				.id(entity.getId())
-				.ownerId(entity.getOwner().getId())
-				.postId(entity.getPost().getId())
-				.content(entity.getContent())
-				.replies(entity.getReplies())
-				.commentLikeTags(entity.getCommentLikeTags())
-				.build();
-	}
 
 	@Data
 	@Builder
@@ -75,5 +63,16 @@ public interface CommentDto {
 		private Set<Reply> replies;
 
 		private Set<CommentLikeTag> commentLikeTags;
+
+		public static Result of(Comment entity) {
+			return Result.builder()
+				.id(entity.getId())
+				.ownerId(entity.getOwner().getId())
+				.postId(entity.getPost().getId())
+				.content(entity.getContent())
+				.replies(entity.getReplies())
+				.commentLikeTags(entity.getCommentLikeTags())
+				.build();
+		}
 	}
 }
