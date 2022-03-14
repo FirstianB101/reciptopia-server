@@ -29,6 +29,14 @@ public interface AccountDto {
         @NotBlank
         @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
         private String nickname;
+
+        public Account asEntity() {
+            return Account.builder()
+                .email(email)
+                .nickname(nickname)
+                .password(password)
+                .build();
+        }
     }
 
     @Data
