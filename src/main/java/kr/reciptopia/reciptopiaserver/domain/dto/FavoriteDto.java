@@ -1,21 +1,12 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import javax.validation.constraints.NotNull;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import lombok.Builder;
 import lombok.Data;
 import lombok.With;
 
-import javax.validation.constraints.NotNull;
-
 public interface FavoriteDto {
-
-	static Result of(Favorite entity) {
-		return Result.builder()
-				.id(entity.getId())
-				.ownerId(entity.getOwner().getId())
-				.postId(entity.getPost().getId())
-				.build();
-	}
 
 	@Data
 	@Builder
@@ -42,5 +33,13 @@ public interface FavoriteDto {
 
 		@NotNull
 		private Long postId;
+
+		public static Result of(Favorite entity) {
+			return Result.builder()
+				.id(entity.getId())
+				.ownerId(entity.getOwner().getId())
+				.postId(entity.getPost().getId())
+				.build();
+		}
 	}
 }

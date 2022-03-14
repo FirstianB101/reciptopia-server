@@ -34,7 +34,7 @@ public record AuthTokenService(
 
         return GenerateTokenResult.builder()
             .token(token)
-            .account(AccountDto.of(account))
+            .account(AccountDto.Result.of(account))
             .build();
     }
 
@@ -53,7 +53,7 @@ public record AuthTokenService(
     }
 
     private AccountDto.Result getAccountDtoIfExists(Long accountId) {
-        return AccountDto.of(repositoryHelper.findAccountOrThrow(accountId));
+        return AccountDto.Result.of(repositoryHelper.findAccountOrThrow(accountId));
     }
 
 }

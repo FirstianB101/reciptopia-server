@@ -13,16 +13,6 @@ import lombok.With;
 
 public interface AccountDto {
 
-    static Result of(Account entitiy) {
-        return Result.builder()
-            .id(entitiy.getId())
-            .email(entitiy.getEmail())
-            .nickname(entitiy.getNickname())
-            .profilePictureUrl(entitiy.getProfilePictureUrl())
-            .role(entitiy.getRole())
-            .build();
-    }
-
     @Data
     @Builder
     @With
@@ -78,6 +68,16 @@ public interface AccountDto {
 
         @NotEmpty
         private UserRole role;
+
+        public static Result of(Account entitiy) {
+            return Result.builder()
+                .id(entitiy.getId())
+                .email(entitiy.getEmail())
+                .nickname(entitiy.getNickname())
+                .profilePictureUrl(entitiy.getProfilePictureUrl())
+                .role(entitiy.getRole())
+                .build();
+        }
     }
 
     @Data
