@@ -135,6 +135,10 @@ public class Account extends TimeEntity {
         }
     }
 
+    public void removePosts() {
+        posts.forEach(this::removePost);
+    }
+
     public void addComment(Comment comment) {
         comments.add(comment);
         if (!this.equals(comment.getOwner())) {
@@ -152,6 +156,10 @@ public class Account extends TimeEntity {
         }
     }
 
+    public void removeComments() {
+        comments.forEach(this::removeComment);
+    }
+
     public void addReply(Reply reply) {
         replies.add(reply);
         if (!this.equals(reply.getOwner())) {
@@ -167,6 +175,10 @@ public class Account extends TimeEntity {
         if (this.equals(reply.getOwner())) {
             reply.setOwner(null);
         }
+    }
+
+    public void removeReplies() {
+        replies.forEach(this::removeReply);
     }
 
     public void addLikeTag(LikeTag likeTag) {
@@ -210,6 +222,10 @@ public class Account extends TimeEntity {
         }
     }
 
+    public <T extends Set<? extends LikeTag>> void removeLikeTags(T likeTags) {
+        likeTags.forEach(this::removeLikeTag);
+    }
+
     public void addFavorite(Favorite favorite) {
         favorites.add(favorite);
         if (!this.equals(favorite.getOwner())) {
@@ -224,6 +240,10 @@ public class Account extends TimeEntity {
         favorites.remove(favorite);
     }
 
+    public void removeFavorites() {
+        favorites.forEach(this::removeFavorite);
+    }
+
     public void addSearchHistory(SearchHistory searchHistory) {
         searchHistories.add(searchHistory);
         if (!this.equals(searchHistory.getOwner())) {
@@ -236,5 +256,19 @@ public class Account extends TimeEntity {
             throw new SearchHistoryNotFoundException();
 
         searchHistories.remove(searchHistory);
+    }
+
+    public void removeSearchHistories() {
+        searchHistories.forEach(this::removeSearchHistory);
+    }
+
+    public void removeAllCollections() {
+        removePosts();
+        removeComments();
+        removeLikeTags(postLikeTags);
+        removeLikeTags(commentLikeTags);
+        removeLikeTags(replyLikeTags);
+        removeFavorites();
+        removeSearchHistories();
     }
 }
