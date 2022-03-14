@@ -33,13 +33,6 @@ public abstract class Ingredient {
 	@NotEmpty
 	private String detail;
 
-	@Builder
-	public Ingredient(Recipe recipe, String name, String detail) {
-		setRecipe(recipe);
-		setName(name);
-		setDetail(detail);
-	}
-
 	public void setRecipe(Recipe recipe) {
 		if (this.recipe != recipe) {
 			if (this.recipe != null)
