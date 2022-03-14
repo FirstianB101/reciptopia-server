@@ -16,7 +16,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @ToString
 @With
 @Entity
-public class Step {
+public class Step extends TimeEntity {
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "step_id")

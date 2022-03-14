@@ -15,7 +15,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @ToString
 @Getter
 @Setter
-public abstract class Ingredient {
+public abstract class Ingredient extends TimeEntity {
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "ingredient_id")
