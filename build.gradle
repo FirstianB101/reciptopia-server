@@ -40,14 +40,23 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     testImplementation 'org.springframework.security:spring-security-test'
+    asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.6.RELEASE'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc:2.0.5.RELEASE'
 }
 
-tasks.named('test') {
+test {
     outputs.dir snippetsDir
     useJUnitPlatform()
 }
 
-tasks.named('asciidoctor') {
+asciidoctor {
     inputs.dir snippetsDir
     dependsOn test
+}
+
+bootJar {
+    dependsOn asciidoctor
+    from("${asciidoctor.outputDir}/html5") {
+        into 'static/docs'
+    }
 }
