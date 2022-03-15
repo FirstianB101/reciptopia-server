@@ -1,5 +1,6 @@
 package kr.reciptopia.reciptopiaserver;
 
+import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Update;
@@ -9,6 +10,10 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -22,6 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.SQLException;
 import javax.sql.DataSource;
+import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import kr.reciptopia.reciptopiaserver.helper.AuthHelper;
@@ -33,9 +39,13 @@ import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -43,8 +53,24 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+@ExtendWith(RestDocumentationExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 public class AccountIntegrationTest {
+
+    private static final FieldDescriptor DOC_FIELD_ID =
+        fieldWithPath("id").description("사용자 ID");
+    private static final FieldDescriptor DOC_FIELD_EMAIL =
+        fieldWithPath("email").description("사용자 이메일");
+    private static final FieldDescriptor DOC_FIELD_PASSWORD =
+        fieldWithPath("password").description("비밀번호");
+    private static final FieldDescriptor DOC_FIELD_NICKNAME =
+        fieldWithPath("nickname").description("닉네임");
+    private static final FieldDescriptor DOC_FIELD_ROLE =
+        fieldWithPath("role").description("시스템 역할 (`USER`, `ADMIN`)");
+    private static final FieldDescriptor DOC_FIELD_PICTURE_URL =
+        fieldWithPath("profilePictureUrl").description("프로필 사진 URL");
+    private static final FieldDescriptor DOC_FIELD_USERNAME_DUPLICATION =
+        fieldWithPath("exists").description("사용자 ID 중복 여부");
 
     private MockMvc mockMvc;
 
@@ -67,11 +93,13 @@ public class AccountIntegrationTest {
     private AuthHelper authHelper;
 
     @BeforeEach
-    void setUp(WebApplicationContext webApplicationContext) throws SQLException {
+    void setUp(WebApplicationContext webApplicationContext,
+        RestDocumentationContextProvider restDocumentation) throws SQLException {
         H2DbCleaner.clean(dataSource);
 
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
             .apply(springSecurity())
+            .apply(basicDocumentationConfiguration(restDocumentation))
             .build();
     }
 
@@ -117,6 +145,14 @@ public class AccountIntegrationTest {
                 return account.getPassword();
             });
             assertThat(passwordEncoder.matches("this!sPassw0rd", encodedPassword)).isTrue();
+
+            // Document
+            actions.andDo(document("account-create-example",
+                requestFields(
+                    DOC_FIELD_EMAIL,
+                    DOC_FIELD_PASSWORD,
+                    DOC_FIELD_NICKNAME
+                )));
         }
     }
 
@@ -191,6 +227,14 @@ public class AccountIntegrationTest {
                     accountAId.intValue(),
                     accountBId.intValue()
                 )));
+
+            // Document
+            actions.andDo(document("account-list-example",
+                requestParameters(
+                    ApiDocumentation.DOC_PARAMETER_PAGE,
+                    ApiDocumentation.DOC_PARAMETER_SIZE,
+                    ApiDocumentation.DOC_PARAMETER_SORT
+                )));
         }
 
         @Test
@@ -222,6 +266,9 @@ public class AccountIntegrationTest {
                     accountBId.intValue(),
                     accountAId.intValue()
                 )));
+
+            // Document
+            actions.andDo(document("account-list-with-paging-example"));
         }
 
     }

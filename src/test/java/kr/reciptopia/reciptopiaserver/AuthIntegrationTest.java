@@ -1,6 +1,12 @@
 package kr.reciptopia.reciptopiaserver;
 
+import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -25,7 +31,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -36,6 +44,15 @@ import org.springframework.web.context.WebApplicationContext;
 @ExtendWith(RestDocumentationExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 public class AuthIntegrationTest {
+
+    private static final FieldDescriptor DOC_FIELD_EMAIL =
+        fieldWithPath("email").description("사용자 이메일");
+    private static final FieldDescriptor DOC_FIELD_PASSWORD =
+        fieldWithPath("password").description("비밀번호");
+    private static final FieldDescriptor DOC_FIELD_TOKEN =
+        fieldWithPath("token").description("엑세스 토큰");
+    private static final FieldDescriptor DOC_FIELD_ACCOUNT = subsectionWithPath("account")
+        .type("Account").description("사용자 계정");
 
     private MockMvc mockMvc;
 
@@ -58,11 +75,13 @@ public class AuthIntegrationTest {
     private EntityHelper entityHelper;
 
     @BeforeEach
-    void setUp(WebApplicationContext webApplicationContext) throws SQLException {
+    void setUp(WebApplicationContext webApplicationContext,
+        RestDocumentationContextProvider restDocumentation) throws SQLException {
         H2DbCleaner.clean(dataSource);
 
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
             .apply(springSecurity())
+            .apply(basicDocumentationConfiguration(restDocumentation))
             .build();
     }
 
@@ -104,6 +123,17 @@ public class AuthIntegrationTest {
 
         UserPrincipal principal = jwtService.extractSubject(resultDto.getToken());
         assertThat(principal.getId()).isEqualTo(id);
+
+        // Document
+        actions.andDo(document("auth-generate-token-example",
+            requestFields(
+                DOC_FIELD_EMAIL,
+                DOC_FIELD_PASSWORD
+            ),
+            responseFields(
+                DOC_FIELD_TOKEN,
+                DOC_FIELD_ACCOUNT
+            )));
     }
 
     @Test
@@ -159,6 +189,11 @@ public class AuthIntegrationTest {
             .andExpect(jsonPath("$.account.id").value(id))
             .andReturn();
 
+        // Document
+        actions.andDo(document("auth-me-example",
+            responseFields(
+                DOC_FIELD_ACCOUNT
+            )));
     }
 
     private String toJson(Object object) throws JsonProcessingException {
