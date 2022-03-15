@@ -6,6 +6,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Update;
 
+import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.AbstractAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
@@ -13,6 +14,9 @@ import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,6 +57,11 @@ public class AccountService {
 
     public Result read(Long id) {
         return Result.of(repoHelper.findAccountOrThrow(id));
+    }
+
+    public List<Result> search(Specification<Account> spec, Pageable pageable) {
+        Page<Account> entities = accountRepository.findAll(spec, pageable);
+        return Result.of(entities);
     }
 
     @Transactional
