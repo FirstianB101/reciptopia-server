@@ -35,12 +35,12 @@ public class AccountController {
 
     @PostMapping("/accounts")
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountDto.Result post(@Valid @RequestBody AccountDto.Create dto) {
+    public Result post(@Valid @RequestBody Create dto) {
         return service.create(dto);
     }
 
     @GetMapping("accounts/{id}")
-    public AccountDto.Result get(@PathVariable Long id) {
+    public Result get(@PathVariable Long id) {
         return service.read(id);
     }
 
@@ -72,14 +72,14 @@ public class AccountController {
     }
 
     @PatchMapping("/accounts/{id}")
-    public AccountDto.Result patch(@PathVariable Long id,
-        @Valid @RequestBody AccountDto.Update dto, Authentication authentication) {
+    public Result patch(@PathVariable Long id,
+        @Valid @RequestBody Update dto, Authentication authentication) {
         return service.update(id, dto, authentication);
     }
 
     @GetMapping("/accounts/{email}/exists")
     @ResponseStatus(HttpStatus.OK)
-    public AccountDto.CheckDuplicationResult checkDuplicateUsername(@PathVariable String email) {
+    public CheckDuplicationResult checkDuplicateUsername(@PathVariable String email) {
         return service.checkDuplicateEmail(email);
     }
 }
