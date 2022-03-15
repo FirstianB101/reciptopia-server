@@ -5,7 +5,10 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccountUpdateDto;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -156,6 +159,69 @@ public class AccountIntegrationTest {
             // Then
             actions
                 .andExpect(status().isNotFound());
+        }
+
+    }
+
+    @Nested
+    class SearchAccounts {
+
+        @Test
+        void listAccounts() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account accountA = entityHelper.generateAccount();
+                Account accountB = entityHelper.generateAccount();
+
+                return new Struct()
+                    .withValue("accountAId", accountA.getId())
+                    .withValue("accountBId", accountB.getId());
+            });
+            Long accountAId = given.valueOf("accountAId");
+            Long accountBId = given.valueOf("accountBId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/accounts"));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(hasSize(2)))
+                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                    accountAId.intValue(),
+                    accountBId.intValue()
+                )));
+        }
+
+        @Test
+        void listAccountsWithPaging() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                entityHelper.generateAccount();
+                Account accountA = entityHelper.generateAccount();
+                Account accountB = entityHelper.generateAccount();
+
+                return new Struct()
+                    .withValue("accountAId", accountA.getId())
+                    .withValue("accountBId", accountB.getId());
+            });
+            Long accountAId = given.valueOf("accountAId");
+            Long accountBId = given.valueOf("accountBId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/accounts")
+                .param("size", "2")
+                .param("page", "0")
+                .param("sort", "id,desc"));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(hasSize(2)))
+                .andExpect(jsonPath("$.[*].id").value(contains(
+                    accountBId.intValue(),
+                    accountAId.intValue()
+                )));
         }
 
     }
