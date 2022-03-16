@@ -1,6 +1,7 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -33,12 +34,21 @@ public interface AccountDto {
         @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
         private String nickname;
 
-        public Account asEntity() {
-            return Account.builder()
+        public Account asEntity(
+            Function<? super Account, ? extends Account> initialize) {
+            return initialize.apply(Account.builder()
                 .email(email)
                 .nickname(nickname)
                 .password(password)
-                .build();
+                .build());
+        }
+
+        public Account asEntity() {
+            return asEntity(noInit());
+        }
+
+        private <T> Function<? super T, ? extends T> noInit() {
+            return (arg) -> arg;
         }
     }
 
