@@ -48,9 +48,10 @@ public class AccountService {
     @Transactional
     public Result create(Create dto) {
         throwExceptionWhenDuplicateEmail(dto.getEmail());
-        Account account = dto.asEntity();
-        account.setPassword(passwordEncoder.encode(dto.getPassword()));
-        account.setRole(UserRole.USER);
+        Account account = dto.asEntity(it -> it
+            .withRole(UserRole.USER)
+            .withPassword(passwordEncoder::encode)
+        );
 
         return Result.of(accountRepository.save(account));
     }
