@@ -6,6 +6,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -112,6 +113,32 @@ public class Account extends TimeEntity {
         this.password = password;
         this.nickname = nickname;
         this.role = role;
+    }
+
+    public void setPassword(Function<? super CharSequence, ? extends String> encoder,
+        String password) {
+        this.password = encoder.apply(password);
+    }
+
+    public Account withPassword(Function<? super CharSequence, ? extends String> encoder) {
+        String encodedPassword = encoder.apply(password);
+        return encodedPassword.equals(password) ? this : Account.builder()
+            .email(email)
+            .password(encodedPassword)
+            .nickname(nickname)
+            .role(role)
+            .build();
+    }
+
+    public Account withPassword(Function<? super CharSequence, ? extends String> encoder,
+        String password) {
+        String encodedPassword = encoder.apply(password);
+        return encodedPassword.equals(password) ? this : Account.builder()
+            .email(email)
+            .password(encodedPassword)
+            .nickname(nickname)
+            .role(role)
+            .build();
     }
 
     public void setProfilePictureUrl(String profilePictureUrl) {

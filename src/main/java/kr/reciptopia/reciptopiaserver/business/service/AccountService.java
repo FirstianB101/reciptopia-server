@@ -73,8 +73,7 @@ public class AccountService {
             entity.setEmail(dto.getEmail());
         }
         if (dto.getPassword() != null) {
-            String encodedPassword = passwordEncoder.encode(dto.getPassword());
-            entity.setPassword(encodedPassword);
+            entity.setPassword(passwordEncoder::encode, dto.getPassword());
         }
         if (dto.getNickname() != null) {
             entity.setNickname(dto.getNickname());
