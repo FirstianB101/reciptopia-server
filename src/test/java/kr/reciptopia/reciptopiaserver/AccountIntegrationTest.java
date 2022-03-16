@@ -92,6 +92,9 @@ public class AccountIntegrationTest {
     @Autowired
     private AuthHelper authHelper;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     @BeforeEach
     void setUp(WebApplicationContext webApplicationContext,
         RestDocumentationContextProvider restDocumentation) throws SQLException {
@@ -115,7 +118,7 @@ public class AccountIntegrationTest {
     class PostAccount {
 
         @Test
-        void postAccount(@Autowired PasswordEncoder passwordEncoder) throws Exception {
+        void postAccount() throws Exception {
             // When
             Create dto = Create.builder()
                 .email("test@email.com")
@@ -165,7 +168,7 @@ public class AccountIntegrationTest {
             Long id = trxHelper.doInTransaction(() -> {
                 Account account = entityHelper.generateAccount(it ->
                     it.withEmail("test@email.com")
-                        .withPassword("this!sPassw0rd")
+                        .withPassword(passwordEncoder::encode, "this!sPassw0rd")
                         .withNickname("pte1024")
                         .withProfilePictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
                         .withRole(UserRole.USER)
@@ -277,13 +280,13 @@ public class AccountIntegrationTest {
     class PatchAccount {
 
         @Test
-        void patchAccount(@Autowired PasswordEncoder passwordEncoder) throws Exception {
+        void patchAccount() throws Exception {
 
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
                 Account account = entityHelper.generateAccount(it ->
                     it.withEmail("test@email.com")
-                        .withPassword("this!sPassw0rd")
+                        .withPassword(passwordEncoder::encode, "this!sPassw0rd")
                         .withNickname("pte1024")
                         .withProfilePictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
                         .withRole(UserRole.USER)

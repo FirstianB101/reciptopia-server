@@ -91,7 +91,7 @@ public class AuthIntegrationTest {
         Struct given = trxHelper.doInTransaction(() -> {
             Account account = entityHelper.generateAccount(it ->
                 it.withEmail("test@email.com")
-                    .withPassword(encodedPassword("pAsSwOrD"))
+                    .withPassword(passwordEncoder::encode, "pAsSwOrD")
             );
 
             return new Struct()
@@ -142,7 +142,7 @@ public class AuthIntegrationTest {
         trxHelper.doInTransaction(() -> {
             Account account = entityHelper.generateAccount(it ->
                 it.withEmail("test@email.com")
-                    .withPassword(encodedPassword("pAsSwOrD"))
+                    .withPassword(passwordEncoder::encode, "pAsSwOrD")
             );
         });
 
@@ -169,7 +169,7 @@ public class AuthIntegrationTest {
         Struct given = trxHelper.doInTransaction(() -> {
             Account account = entityHelper.generateAccount(it ->
                 it.withEmail("test@email.com")
-                    .withPassword(encodedPassword("pAsSwOrD"))
+                    .withPassword(passwordEncoder::encode, "pAsSwOrD")
             );
 
             return new Struct()
@@ -203,9 +203,4 @@ public class AuthIntegrationTest {
     private <T> T fromJson(String json, Class<T> clazz) throws JsonProcessingException {
         return objectMapper.readValue(json, clazz);
     }
-
-    private String encodedPassword(String password) {
-        return passwordEncoder.encode(password);
-    }
-
 }
