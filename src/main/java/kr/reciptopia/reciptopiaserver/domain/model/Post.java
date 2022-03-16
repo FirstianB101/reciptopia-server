@@ -51,7 +51,7 @@ public class Post extends TimeEntity {
     @JoinColumn(name = "account_id")
     private Account owner;
 
-    @NotNull
+    //    @NotNull
     @ToString.Exclude
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "recipe_id")
