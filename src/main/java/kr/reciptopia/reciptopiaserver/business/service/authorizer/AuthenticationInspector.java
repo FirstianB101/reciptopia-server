@@ -19,7 +19,7 @@ public record AuthenticationInspector(
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-        return accountRepository.findById(principal.getId())
+        return accountRepository.findById(principal.id())
             .orElseThrow(() -> errorHelper.forbidden("Removed account"));
     }
 

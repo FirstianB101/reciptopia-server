@@ -36,7 +36,7 @@ public record JwtAuthenticationProvider(
             throw new BadCredentialsException(ex.getMessage());
         }
 
-        Account account = accountRepository.findById(principal.getId())
+        Account account = accountRepository.findById(principal.id())
             .orElseThrow(() -> new BadCredentialsException("Account not found"));
 
         List<GrantedAuthority> authorities = List.of(account.getRole().asAuthority());

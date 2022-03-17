@@ -44,7 +44,7 @@ public record AuthTokenService(
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-        Account account = accountRepository.findById(principal.getId())
+        Account account = accountRepository.findById(principal.id())
             .orElseThrow(() -> errorHelper.unauthorized("Removed account"));
 
         return MeResult.builder()
