@@ -30,10 +30,10 @@ public class JwtServiceTest {
         UserPrincipal principal = jwtService.extractSubject(jwt);
 
         // Then
-        assertThat(principal.getId())
+        assertThat(principal.id())
             .isEqualTo(account.getId());
 
-        assertThat(principal.getEmail())
+        assertThat(principal.email())
             .isEqualTo(account.getEmail());
     }
 }

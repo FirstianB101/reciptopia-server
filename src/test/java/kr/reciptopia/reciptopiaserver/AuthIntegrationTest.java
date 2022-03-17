@@ -122,7 +122,7 @@ public class AuthIntegrationTest {
             AuthDto.GenerateTokenResult.class);
 
         UserPrincipal principal = jwtService.extractSubject(resultDto.getToken());
-        assertThat(principal.getId()).isEqualTo(id);
+        assertThat(principal.id()).isEqualTo(id);
 
         // Document
         actions.andDo(document("auth-generate-token-example",
