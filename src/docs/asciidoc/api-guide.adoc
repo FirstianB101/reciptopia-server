@@ -10,29 +10,14 @@
 
 WARNING: 이 API는 아직 구현 중에 있으며 추후에 변경될 수 있습니다.
 
-NOTE: v0.1.0-alpha
+NOTE: v0.1.1-alpha
 
 ****
-v0.1.0-alpha 변경사항
+v0.1.1-alpha 변경사항
 
 '''
 
-* Overview
-* HTTP 요청 메소드
-* HTTP 상태 코드
-* 에러 응답
-* API 사용법
-* 값 형식
-** Paging과 Sorting
-** Paging (페이징)
-** Sorting (정렬)
-** 사용 예시
-* Base URI
-* Resources
-* Auth 리소스
-** 액세스 토큰 발급
-** 사용자 신원 조회
-
+* Account 리소스
 
 ****
 
@@ -266,3 +251,61 @@ operation::auth-generate-token-example[snippets='request-fields,response-fields,
 요청의 `Authorization` 헤더로 엑세스 토큰이 제공되어야 합니다.
 
 operation::auth-me-example[snippets='response-fields,curl-request,http-response']
+
+[[resources_account]]
+== Account 리소스
+
+[[resources_account_retrieve]]
+=== Account 조회
+
+`GET /accounts/{id}` 요청으로 하나의 Account를 조회합니다.
+유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
+
+operation::account-retrieve-example[snippets='response-fields,curl-request,http-response']
+
+[[resources_account_list]]
+=== Account 목록 조회
+
+`GET /accounts` 요청으로 다수의 Account들을 조회합니다.
+<<overview_paging_and_sorting, Paging 혹은 Sorting>> 요청 패러미터를 추가하면 원하는 방식으로 목록을 조회할 수 있습니다.
+
+operation::account-list-example[snippets='request-parameters,curl-request,http-response']
+
+//[[resources_account_search]]
+//=== Account 목록 검색
+//
+//<<resources_account_list, Account 목록 조회 API>>에 요청 패러미터를 추가하면 특정 조건을 기준으로 Account를 검색할 수 있습니다.
+//
+//operation::account-search-example[snippets='request-parameters,curl-request,http-response']
+
+[[resources_account_create]]
+=== Account 생성
+
+`POST /accounts` 요청으로 Account를 생성합니다.
+성공 시 생성한 Account를 응답 Body로 전달합니다.
+
+operation::account-create-example[snippets='request-fields,curl-request,http-response']
+
+[[resources_account_check_duplication]]
+=== Account 중복 검사
+
+`GET /accounts/{email}/exists` 요청으로 해당 `email` 의 중복여부를 응답 Body로 전달합니다.
+
+operation::account-check-duplicate-email-example[snippets='curl-request,http-response']
+
+[[resources_account_upate]]
+=== Account 수정
+
+`PATCH /accounts/{id}` 요청으로 Account를 수정합니다.
+요청의 `Authorization` 헤더로 요청을 보낸 `Account` 의 엑세스 토큰이 제공되어야 합니다.
+성공 시 갱신된 Account를 응답 Body로 전달합니다.
+
+operation::account-update-example[snippets='request-fields,curl-request,http-response']
+
+[[resources_account_delete]]
+=== Account 삭제
+
+`DELETE /accounts/{id}` 요청으로 Account를 삭제합니다.
+요청의 `Authorization` 헤더로 요청을 보낸 `Account` 의 엑세스 토큰이 제공되어야 합니다.
+
+operation::account-delete-example[snippets='curl-request,http-response']
