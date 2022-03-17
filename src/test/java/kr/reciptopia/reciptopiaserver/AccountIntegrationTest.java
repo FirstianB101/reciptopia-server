@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -188,6 +189,16 @@ public class AccountIntegrationTest {
                 .andExpect(jsonPath("$.profilePictureUrl").value(
                     "C:\\Users\\tellang\\Desktop\\temp\\picture"))
                 .andExpect(jsonPath("$.nickname").value("pte1024"));
+
+            // Document
+            actions.andDo(document("account-retrieve-example",
+                responseFields(
+                    DOC_FIELD_ID,
+                    DOC_FIELD_EMAIL,
+                    DOC_FIELD_NICKNAME,
+                    DOC_FIELD_PICTURE_URL,
+                    DOC_FIELD_ROLE
+                )));
         }
 
         @Test
@@ -331,6 +342,15 @@ public class AccountIntegrationTest {
                 return account.getPassword();
             });
             assertThat(passwordEncoder.matches("newPassw0rd", encodedPassword)).isTrue();
+
+            // Document
+            actions.andDo(document("account-update-example",
+                requestFields(
+                    DOC_FIELD_EMAIL,
+                    DOC_FIELD_PASSWORD,
+                    DOC_FIELD_NICKNAME,
+                    DOC_FIELD_PICTURE_URL
+                )));
         }
 
         @Test
@@ -376,6 +396,9 @@ public class AccountIntegrationTest {
                 .andExpect(content().string(emptyString()));
 
             assertThat(repository.findById(id)).isEmpty();
+
+            // Document
+            actions.andDo(document("account-delete-example"));
         }
 
         @Test
@@ -402,6 +425,12 @@ public class AccountIntegrationTest {
             actions
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.exists").value(false));
+
+            // Document
+            actions.andDo(document("account-check-duplicate-email-example",
+                responseFields(
+                    DOC_FIELD_EMAIL_DUPLICATION
+                )));
         }
 
         @Test
