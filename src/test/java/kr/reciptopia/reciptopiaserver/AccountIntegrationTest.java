@@ -70,8 +70,8 @@ public class AccountIntegrationTest {
         fieldWithPath("role").description("시스템 역할 (`USER`, `ADMIN`)");
     private static final FieldDescriptor DOC_FIELD_PICTURE_URL =
         fieldWithPath("profilePictureUrl").description("프로필 사진 URL");
-    private static final FieldDescriptor DOC_FIELD_USERNAME_DUPLICATION =
-        fieldWithPath("exists").description("사용자 ID 중복 여부");
+    private static final FieldDescriptor DOC_FIELD_EMAIL_DUPLICATION =
+        fieldWithPath("exists").description("사용자 email 중복 여부");
 
     private MockMvc mockMvc;
 
