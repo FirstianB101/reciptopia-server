@@ -4,38 +4,41 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 import lombok.Builder;
-import lombok.Data;
 import lombok.With;
 
 public interface SearchHistoryDto {
 
-	@Data
-	@Builder
 	@With
-	class Create {
-
+	record Create(
 		@NotNull
-		private Long ownerId;
+		Long ownerId,
 
-		private Set<String> ingredients;
+		Set<String> ingredients,
 
-		private String recipeName;
+		String recipeName
+	) {
+
+		@Builder
+		public Create {
+		}
 	}
 
-	@Data
-	@Builder
 	@With
-	class Result {
+	record Result(
+		@NotNull
+		Long id,
 
 		@NotNull
-		private Long id;
+		Long ownerId,
 
-		@NotNull
-		private Long ownerId;
+		Set<String> ingredients,
 
-		private Set<String> ingredients;
+		String recipeName
+	) {
 
-		private String recipeName;
+		@Builder
+		public Result {
+		}
 
 		public static Result of(SearchHistory entity) {
 			return Result.builder()

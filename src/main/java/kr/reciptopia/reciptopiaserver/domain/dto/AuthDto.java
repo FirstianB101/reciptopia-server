@@ -4,40 +4,40 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
-import lombok.Data;
 
 public interface AuthDto {
 
-    @Data
-    @Builder
-    class GenerateToken {
-
+    record GenerateToken(
         @NotEmpty
         @Email
-        private String email;
+        String email,
 
         @NotEmpty
-        private String password;
+        String password
+    ) {
 
+        @Builder
+        public GenerateToken {
+        }
     }
 
-    @Data
-    @Builder
-    class GenerateTokenResult {
-
+    record GenerateTokenResult(
         @NotEmpty
-        private String token;
+        String token,
 
         @NotNull
-        private AccountDto.Result account;
+        AccountDto.Result account
+    ) {
 
+        @Builder
+        public GenerateTokenResult {
+        }
     }
 
-    @Data
-    @Builder
-    class MeResult {
+    record MeResult(@NotNull AccountDto.Result account) {
 
-        @NotNull
-        private AccountDto.Result account;
+        @Builder
+        public MeResult {
+        }
     }
 }

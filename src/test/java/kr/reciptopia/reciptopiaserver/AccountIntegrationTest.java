@@ -145,7 +145,7 @@ public class AccountIntegrationTest {
             Result resultDto = fromJson(responseBody, Result.class);
 
             String encodedPassword = trxHelper.doInTransaction(() -> {
-                Account account = repository.findById(resultDto.getId()).orElseThrow();
+                Account account = repository.findById(resultDto.id()).orElseThrow();
                 return account.getPassword();
             });
             assertThat(passwordEncoder.matches("this!sPassw0rd", encodedPassword)).isTrue();
@@ -338,7 +338,7 @@ public class AccountIntegrationTest {
             Result resultDto = fromJson(responseBody, Result.class);
 
             String encodedPassword = trxHelper.doInTransaction(() -> {
-                Account account = repository.findById(resultDto.getId()).orElseThrow();
+                Account account = repository.findById(resultDto.id()).orElseThrow();
                 return account.getPassword();
             });
             assertThat(passwordEncoder.matches("newPassw0rd", encodedPassword)).isTrue();

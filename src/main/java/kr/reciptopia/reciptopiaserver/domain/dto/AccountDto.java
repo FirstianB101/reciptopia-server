@@ -11,28 +11,28 @@ import javax.validation.constraints.Size;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import lombok.Builder;
-import lombok.Data;
 import lombok.With;
 import org.springframework.data.util.Streamable;
 
 public interface AccountDto {
 
-    @Data
-    @Builder
     @With
-    class Create {
-
+    record Create(
         @NotNull
         @Email(message = "이메일 형식이 아닙니다.")
-        private String email;
+        String email,
 
         @NotEmpty
         @Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!")
-        private String password;
+        String password,
 
         @NotBlank
         @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
-        private String nickname;
+        String nickname) {
+
+        @Builder
+        public Create {
+        }
 
         public Account asEntity(
             Function<? super Account, ? extends Account> initialize) {
@@ -52,43 +52,46 @@ public interface AccountDto {
         }
     }
 
-    @Data
-    @Builder
     @With
-    class Update {
-
+    record Update(
         @Email(message = "이메일 형식이 아닙니다.")
-        private String email;
+        String email,
 
         @Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!")
-        private String password;
+        String password,
 
         @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
-        private String nickname;
+        String nickname,
 
-        private String profilePictureUrl;
+        String profilePictureUrl) {
+
+        @Builder
+        public Update {
+        }
     }
 
-    @Data
-    @Builder
     @With
-    class Result {
-
+    record Result(
         @NotNull
-        private Long id;
+        Long id,
 
         @NotNull
         @Email(message = "이메일 형식이 아닙니다.")
-        private String email;
+        String email,
 
         @NotBlank
         @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
-        private String nickname;
+        String nickname,
 
-        private String profilePictureUrl;
+        String profilePictureUrl,
 
         @NotEmpty
-        private UserRole role;
+        UserRole role
+    ) {
+
+        @Builder
+        public Result {
+        }
 
         public static Result of(Account entitiy) {
             return Result.builder()
@@ -107,12 +110,11 @@ public interface AccountDto {
         }
     }
 
-    @Data
-    @Builder
     @With
-    class CheckDuplicationResult {
+    record CheckDuplicationResult(@NotNull Boolean exists) {
 
-        @NotNull
-        private Boolean exists;
+        @Builder
+        public CheckDuplicationResult {
+        }
     }
 }

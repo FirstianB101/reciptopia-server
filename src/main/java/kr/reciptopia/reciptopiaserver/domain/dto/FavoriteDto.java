@@ -3,36 +3,39 @@ package kr.reciptopia.reciptopiaserver.domain.dto;
 import javax.validation.constraints.NotNull;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import lombok.Builder;
-import lombok.Data;
 import lombok.With;
 
 public interface FavoriteDto {
 
-	@Data
-	@Builder
 	@With
-	class Create {
+	record Create(
+		@NotNull
+		Long ownerId,
 
 		@NotNull
-		private Long ownerId;
+		Long postId
+	) {
 
-		@NotNull
-		private Long postId;
+		@Builder
+		public Create {
+		}
 	}
 
-	@Data
-	@Builder
 	@With
-	class Result {
+	record Result(
+		@NotNull
+		Long id,
 
 		@NotNull
-		private Long id;
+		Long ownerId,
 
 		@NotNull
-		private Long ownerId;
+		Long postId
+	) {
 
-		@NotNull
-		private Long postId;
+		@Builder
+		public Result {
+		}
 
 		public static Result of(Favorite entity) {
 			return Result.builder()

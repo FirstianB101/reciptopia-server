@@ -47,7 +47,7 @@ public class AccountService {
 
     @Transactional
     public Result create(Create dto) {
-        throwExceptionWhenDuplicateEmail(dto.getEmail());
+        throwExceptionWhenDuplicateEmail(dto.email());
         Account account = dto.asEntity(it -> it
             .withRole(UserRole.USER)
             .withPassword(passwordEncoder::encode)
@@ -70,16 +70,16 @@ public class AccountService {
         Account entity = repoHelper.findAccountOrThrow(id);
         authorizer.requireByOneself(authentication, entity);
 
-        if (dto.getEmail() != null) {
-            entity.setEmail(dto.getEmail());
+        if (dto.email() != null) {
+            entity.setEmail(dto.email());
         }
-        if (dto.getPassword() != null) {
-            entity.setPassword(passwordEncoder::encode, dto.getPassword());
+        if (dto.password() != null) {
+            entity.setPassword(passwordEncoder::encode, dto.password());
         }
-        if (dto.getNickname() != null) {
-            entity.setNickname(dto.getNickname());
+        if (dto.nickname() != null) {
+            entity.setNickname(dto.nickname());
         }
-        if (dto.getProfilePictureUrl() != null) {
+        if (dto.profilePictureUrl() != null) {
             entity.setProfilePictureUrl(entity.getProfilePictureUrl());
         }
 
