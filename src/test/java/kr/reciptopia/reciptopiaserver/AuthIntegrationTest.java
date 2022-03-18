@@ -121,7 +121,7 @@ public class AuthIntegrationTest {
         AuthDto.GenerateTokenResult resultDto = fromJson(responseBody,
             AuthDto.GenerateTokenResult.class);
 
-        UserPrincipal principal = jwtService.extractSubject(resultDto.getToken());
+        UserPrincipal principal = jwtService.extractSubject(resultDto.token());
         assertThat(principal.id()).isEqualTo(id);
 
         // Document

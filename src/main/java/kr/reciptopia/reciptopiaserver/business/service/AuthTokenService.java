@@ -23,10 +23,10 @@ public record AuthTokenService(
     ServiceErrorHelper errorHelper) {
 
     public GenerateTokenResult generateToken(GenerateToken dto) {
-        Account account = accountRepository.findByEmail(dto.getEmail())
+        Account account = accountRepository.findByEmail(dto.email())
             .orElseThrow(() -> errorHelper.unauthorized("Username not found"));
 
-        if (!passwordEncoder.matches(dto.getPassword(), account.getPassword())) {
+        if (!passwordEncoder.matches(dto.password(), account.getPassword())) {
             throw errorHelper.unauthorized("Wrong password");
         }
 

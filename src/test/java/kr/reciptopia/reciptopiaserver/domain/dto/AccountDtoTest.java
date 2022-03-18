@@ -63,9 +63,9 @@ class AccountDtoTest {
             AccountDto.Result result = AccountDto.Result.of(account);
 
             // Then
-            assertThat(result.getEmail()).isEqualTo("test@email.com");
-            assertThat(result.getNickname()).isEqualTo("pte1024");
-            assertThat(result.getRole()).isEqualTo(UserRole.USER);
+            assertThat(result.email()).isEqualTo("test@email.com");
+            assertThat(result.nickname()).isEqualTo("pte1024");
+            assertThat(result.role()).isEqualTo(UserRole.USER);
         }
 
     }
