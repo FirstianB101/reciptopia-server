@@ -1,29 +1,18 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
-import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
-
-import java.util.HashSet;
-import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.validation.constraints.NotNull;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.IllegalTypeIngredientException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.IngredientNotFoundException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.StepNotFoundException;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.With;
+import lombok.*;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
+
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -59,6 +48,21 @@ public class Recipe extends TimeEntity {
     @ToString.Exclude
     @OneToMany(mappedBy = "recipe", cascade = ALL, orphanRemoval = true)
     private Set<SubIngredient> subIngredients = new HashSet<>();
+
+    @Builder
+    public Recipe(Post post) {
+        setPost(post);
+    }
+
+    public void setPost(Post post) {
+        if (this.post != post) {
+            if (this.post != null)
+                this.post.setRecipe(null);
+            this.post = post;
+            if (post != null)
+                post.setRecipe(this);
+        }
+    }
 
     public void addStep(Step step) {
         steps.add(step);
