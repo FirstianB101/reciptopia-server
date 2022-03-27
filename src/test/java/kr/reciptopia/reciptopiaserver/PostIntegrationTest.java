@@ -125,16 +125,13 @@ public class PostIntegrationTest {
 //			Recipe recipe = Recipe.builder().build();
 
 			// When
-			List<String> pictureUrls = new ArrayList<>();
-			pictureUrls.add("C:\\Users\\eunsung\\Desktop\\temp\\picture");
-			pictureUrls.add("C:\\Users\\tellang\\Desktop\\temp\\picture");
-
 			Create dto = Create.builder()
 					.ownerId(ownerId)
-					.recipeId(1L)                    // 임시
+					.recipeId(1L)
 					.title("매콤 가문어 볶음 만들기")
 					.content("매콤매콤 맨들맨들 가문어 볶음")
-					.pictureUrls(pictureUrls)
+					.pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+					.pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
 					.build();
 			String body = toJson(dto);
 
@@ -151,8 +148,8 @@ public class PostIntegrationTest {
 					.andExpect(jsonPath("$.content").value("매콤매콤 맨들맨들 가문어 볶음"))
 					.andExpect(jsonPath("$.pictureUrls").value(hasSize(2)))
 					.andExpect(jsonPath("$.pictureUrls").value(contains(
-							pictureUrls.get(0),
-							pictureUrls.get(1)
+							"C:\\Users\\eunsung\\Desktop\\temp\\picture",
+							"C:\\Users\\tellang\\Desktop\\temp\\picture"
 					)))
 					.andExpect(jsonPath("$.views").isNumber())
 					.andExpect(jsonPath("$.views").value(0))
@@ -209,8 +206,8 @@ public class PostIntegrationTest {
 					.andExpect(jsonPath("$.content").value("매콤매콤 맨들맨들 가문어 볶음"))
 					.andExpect(jsonPath("$.pictureUrls").value(hasSize(2)))
 					.andExpect(jsonPath("$.pictureUrls").value(contains(
-							pictureUrls.get(0),
-							pictureUrls.get(1)
+							"C:\\Users\\eunsung\\Desktop\\temp\\picture",
+							"C:\\Users\\tellang\\Desktop\\temp\\picture"
 					)))
 					.andExpect(jsonPath("$.views").isNumber())
 					.andExpect(jsonPath("$.views").value(10))
@@ -340,8 +337,8 @@ public class PostIntegrationTest {
 				Post post = entityHelper.generatePost(it ->
 						it.withTitle("테스트 요리 만들기")
 								.withContent("테스트 요리 컨텐츠")
-								.withPictureUrls(pictureUrls)
-								.withOwner(account)
+								.withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+								.withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
 				);
 
 				return new Struct()
@@ -349,15 +346,14 @@ public class PostIntegrationTest {
 						.withValue("id", post.getId());
 			});
 			String token = given.valueOf("token");
-			Long id = given.valueOf("id");
 
 			// When
-			pictureUrls.add("C:\\Users\\silverstar\\Desktop\\temp\\picture");
-
 			Update dto = Update.builder()
 					.title("새로운 요리 만들기")
 					.content("새로운 요리 컨텐츠")
-					.pictureUrls(pictureUrls)
+					.pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+					.pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+					.pictureUrl("C:\\Users\\silverstar\\Desktop\\temp\\picture")
 					.build();
 			String body = toJson(dto);
 
@@ -374,9 +370,9 @@ public class PostIntegrationTest {
 					.andExpect(jsonPath("$.content").value("새로운 요리 컨텐츠"))
 					.andExpect(jsonPath("$.pictureUrls").value(hasSize(3)))
 					.andExpect(jsonPath("$.pictureUrls").value(contains(
-							pictureUrls.get(0),
-							pictureUrls.get(1),
-							pictureUrls.get(2)
+							"C:\\Users\\eunsung\\Desktop\\temp\\picture",
+							"C:\\Users\\tellang\\Desktop\\temp\\picture",
+							"C:\\Users\\silverstar\\Desktop\\temp\\picture"
 					)))
 					.andReturn();
 

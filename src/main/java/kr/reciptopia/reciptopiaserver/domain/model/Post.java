@@ -65,7 +65,7 @@ public class Post extends TimeEntity {
     private Long views;
 
     @Builder
-    public Post(Recipe recipe, Account owner, List<String> pictureUrls, String title,
+    public Post(Recipe recipe, Account owner, @Singular List<String> pictureUrls, String title,
                 String content) {
         setRecipe(recipe);
         setOwner(owner);
@@ -73,6 +73,15 @@ public class Post extends TimeEntity {
         this.title = title;
         this.content = content;
         this.views = 0L;
+    }
+
+    public Post withPictureUrl(String pictureUrl) {
+        return Post.builder()
+                .title(title)
+                .content(content)
+                .pictureUrls(pictureUrls)
+                .pictureUrl(pictureUrl)
+                .build();
     }
 
     public void setOwner(Account owner) {

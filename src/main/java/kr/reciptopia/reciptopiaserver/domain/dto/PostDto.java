@@ -3,6 +3,7 @@ package kr.reciptopia.reciptopiaserver.domain.dto;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Singular;
 import lombok.With;
 import org.springframework.data.util.Streamable;
 
@@ -24,6 +25,7 @@ public interface PostDto {
 		@NotNull
 		private Long recipeId;
 
+		@Singular
 		private List<String> pictureUrls;
 
 		@NotEmpty
@@ -45,6 +47,7 @@ public interface PostDto {
 	@With
 	class Update {
 
+		@Singular
 		private List<String> pictureUrls;
 
 		@NotEmpty

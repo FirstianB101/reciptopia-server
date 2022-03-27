@@ -5,6 +5,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.function.Function;
 
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
@@ -34,7 +35,8 @@ public record EntityHelper(EntityManager em) {
         Post post = aPost()
                 .withId(null)
                 .withOwner(null)
-                .withRecipe(null);
+                .withRecipe(null)
+                .withPictureUrls(new ArrayList<>());
 
         post = initialize.apply(post);
         if (post.getOwner() == null) {
