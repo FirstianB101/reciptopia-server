@@ -50,8 +50,13 @@ public class Recipe extends TimeEntity {
     private Set<SubIngredient> subIngredients = new HashSet<>();
 
     @Builder
-    public Recipe(Post post) {
+    public Recipe(Post post, @Singular Set<Step> steps,
+                  @Singular Set<MainIngredient> mainIngredients,
+                  @Singular Set<SubIngredient> subIngredients) {
         setPost(post);
+        this.steps = steps;
+        this.mainIngredients = mainIngredients;
+        this.subIngredients = subIngredients;
     }
 
     public void setPost(Post post) {
