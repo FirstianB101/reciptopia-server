@@ -61,6 +61,7 @@ public class Post extends TimeEntity {
 
     private String content;
 
+    @NotNull
     private Long views;
 
     @Builder
@@ -71,6 +72,7 @@ public class Post extends TimeEntity {
         this.pictureUrls = pictureUrls;
         this.title = title;
         this.content = content;
+        this.views = 0L;
     }
 
     public void setOwner(Account owner) {
