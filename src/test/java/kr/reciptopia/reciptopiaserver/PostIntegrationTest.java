@@ -32,8 +32,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPostUpdateDto;
@@ -175,24 +173,21 @@ public class PostIntegrationTest {
 		@Test
 		void getPost() throws Exception {
 			// Given
-			Account owner = trxHelper.doInTransaction(() ->
-					entityHelper.generateAccount()
-			);
-
-			List<String> pictureUrls = new ArrayList<>();
-			pictureUrls.add("C:\\Users\\eunsung\\Desktop\\temp\\picture");
-			pictureUrls.add("C:\\Users\\tellang\\Desktop\\temp\\picture");
-
-			Long id = trxHelper.doInTransaction(() -> {
+			Struct given = trxHelper.doInTransaction(() -> {
 				Post post = entityHelper.generatePost(it ->
 						it.withTitle("매콤 가문어 볶음 만들기")
 								.withContent("매콤매콤 맨들맨들 가문어 볶음")
-								.withPictureUrls(pictureUrls)
-								.withOwner(owner)
+								.withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+								.withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
 								.withViews(10L)
 				);
-				return post.getId();
+
+				return new Struct()
+						.withValue("ownerId", post.getOwner().getId())
+						.withValue("id", post.getId());
 			});
+			Long id = given.valueOf("id");
+			Long ownerId = given.valueOf("ownerId");
 
 			// When
 			ResultActions actions = mockMvc
@@ -211,7 +206,7 @@ public class PostIntegrationTest {
 					)))
 					.andExpect(jsonPath("$.views").isNumber())
 					.andExpect(jsonPath("$.views").value(10))
-					.andExpect(jsonPath("$.ownerId").value(owner.getId()))
+					.andExpect(jsonPath("$.ownerId").value(ownerId))
 //				.andExpect(jsonPath("$.recipeId").value(1L))		// 임시
 					.andReturn();
 
@@ -246,13 +241,9 @@ public class PostIntegrationTest {
 		@Test
 		void listPosts() throws Exception {
 			// Given
-			Account owner = trxHelper.doInTransaction(() ->
-					entityHelper.generateAccount()
-			);
-
 			Struct given = trxHelper.doInTransaction(() -> {
-				Post postA = entityHelper.generatePost(it -> it.withOwner(owner));
-				Post postB = entityHelper.generatePost(it -> it.withOwner(owner));
+				Post postA = entityHelper.generatePost();
+				Post postB = entityHelper.generatePost();
 
 				return new Struct()
 						.withValue("postAId", postA.getId())
@@ -285,13 +276,9 @@ public class PostIntegrationTest {
 		@Test
 		void listPostsWithPaging() throws Exception {
 			// Given
-			Account owner = trxHelper.doInTransaction(() ->
-					entityHelper.generateAccount()
-			);
-
 			Struct given = trxHelper.doInTransaction(() -> {
-				Post postA = entityHelper.generatePost(it -> it.withOwner(owner));
-				Post postB = entityHelper.generatePost(it -> it.withOwner(owner));
+				Post postA = entityHelper.generatePost();
+				Post postB = entityHelper.generatePost();
 
 				return new Struct()
 						.withValue("postAId", postA.getId())
@@ -327,24 +314,20 @@ public class PostIntegrationTest {
 		@Test
 		void patchPost() throws Exception {
 			// Given
-			List<String> pictureUrls = new ArrayList<>();
-			pictureUrls.add("C:\\Users\\eunsung\\Desktop\\temp\\picture");
-			pictureUrls.add("C:\\Users\\tellang\\Desktop\\temp\\picture");
-
 			Struct given = trxHelper.doInTransaction(() -> {
-				Account account = entityHelper.generateAccount();
-				String token = authHelper.generateToken(account);
 				Post post = entityHelper.generatePost(it ->
 						it.withTitle("테스트 요리 만들기")
 								.withContent("테스트 요리 컨텐츠")
 								.withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
 								.withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
 				);
+				String token = authHelper.generateToken(post.getOwner());
 
 				return new Struct()
 						.withValue("token", token)
 						.withValue("id", post.getId());
 			});
+			Long id = given.valueOf("id");
 			String token = given.valueOf("token");
 
 			// When
@@ -407,26 +390,21 @@ public class PostIntegrationTest {
 		@Test
 		void deletePost() throws Exception {
 			// Given
-			List<String> pictureUrls = new ArrayList<>();
-			pictureUrls.add("C:\\Users\\eunsung\\Desktop\\temp\\picture");
-			pictureUrls.add("C:\\Users\\tellang\\Desktop\\temp\\picture");
-
 			Struct given = trxHelper.doInTransaction(() -> {
-				Account account = entityHelper.generateAccount();
-				String token = authHelper.generateToken(account);
 				Post post = entityHelper.generatePost(it ->
 						it.withTitle("테스트 요리 만들기")
 								.withContent("테스트 요리 컨텐츠")
-								.withPictureUrls(pictureUrls)
-								.withOwner(account)
+								.withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+								.withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
 				);
+				String token = authHelper.generateToken(post.getOwner());
 
 				return new Struct()
 						.withValue("token", token)
 						.withValue("id", post.getId());
 			});
-			String token = given.valueOf("token");
 			Long id = given.valueOf("id");
+			String token = given.valueOf("token");
 
 			// When
 			ResultActions actions = mockMvc.perform(delete("/posts/{id}", id)
