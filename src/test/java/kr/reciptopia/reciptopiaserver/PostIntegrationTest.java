@@ -154,6 +154,8 @@ public class PostIntegrationTest {
 							pictureUrls.get(0),
 							pictureUrls.get(1)
 					)))
+					.andExpect(jsonPath("$.views").isNumber())
+					.andExpect(jsonPath("$.views").value(0))
 					.andExpect(jsonPath("$.ownerId").value(ownerId))
 //				.andExpect(jsonPath("$.recipeId").value(1L))		// 임시
 					.andReturn();
@@ -190,6 +192,7 @@ public class PostIntegrationTest {
 								.withContent("매콤매콤 맨들맨들 가문어 볶음")
 								.withPictureUrls(pictureUrls)
 								.withOwner(owner)
+								.withViews(10L)
 				);
 				return post.getId();
 			});
@@ -209,6 +212,8 @@ public class PostIntegrationTest {
 							pictureUrls.get(0),
 							pictureUrls.get(1)
 					)))
+					.andExpect(jsonPath("$.views").isNumber())
+					.andExpect(jsonPath("$.views").value(10))
 					.andExpect(jsonPath("$.ownerId").value(owner.getId()))
 //				.andExpect(jsonPath("$.recipeId").value(1L))		// 임시
 					.andReturn();
