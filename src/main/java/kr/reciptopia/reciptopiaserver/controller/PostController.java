@@ -45,10 +45,10 @@ public class PostController {
 	) {
 		Specification<Post> spec = null;
 		if (ownerId != null) {
-			spec = PostSpecs.ownerId(ownerId).and(spec);
+			spec = PostSpecs.isOwner(ownerId).and(spec);
 		}
 		if (recipeId != null) {
-			spec = PostSpecs.recipeId(recipeId).and(spec);
+			spec = PostSpecs.hasRecipe(recipeId).and(spec);
 		}
 		if (commentId != null) {
 			spec = PostSpecs.hasComment(commentId).and(spec);

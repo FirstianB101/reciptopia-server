@@ -14,14 +14,14 @@ public class PostSpecs {
 		return (root, query, builder) -> builder.like(root.get("title"), "%" + title + "%");
 	}
 
-	public static Specification<Post> ownerId(Long ownerId) {
+	public static Specification<Post> isOwner(Long ownerId) {
 		return (root, query, builder) -> {
 			Join<Post, Account> join = root.joinSet("owner");
 			return builder.equal(join.get("id"), ownerId);
 		};
 	}
 
-	public static Specification<Post> recipeId(Long recipeId) {
+	public static Specification<Post> hasRecipe(Long recipeId) {
 		return (root, query, builder) -> {
 			Join<Post, Recipe> join = root.joinSet("recipe");
 			return builder.equal(join.get("id"), recipeId);
