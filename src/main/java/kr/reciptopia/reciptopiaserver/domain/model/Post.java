@@ -1,35 +1,21 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
-import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.CascadeType.REMOVE;
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
+import lombok.*;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
-import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.With;
+
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.CascadeType.REMOVE;
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -51,7 +37,7 @@ public class Post extends TimeEntity {
     @JoinColumn(name = "account_id")
     private Account owner;
 
-    @NotNull
+    //    @NotNull
     @ToString.Exclude
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "recipe_id")
@@ -75,16 +61,27 @@ public class Post extends TimeEntity {
 
     private String content;
 
+    @NotNull
     private Long views;
 
     @Builder
-    public Post(Recipe recipe, Account owner, List<String> pictureUrls, String title,
+    public Post(Recipe recipe, Account owner, @Singular List<String> pictureUrls, String title,
                 String content) {
         setRecipe(recipe);
         setOwner(owner);
         this.pictureUrls = pictureUrls;
         this.title = title;
         this.content = content;
+        this.views = 0L;
+    }
+
+    public Post withPictureUrl(String pictureUrl) {
+        return Post.builder()
+                .title(title)
+                .content(content)
+                .pictureUrls(pictureUrls)
+                .pictureUrl(pictureUrl)
+                .build();
     }
 
     public void setOwner(Account owner) {
@@ -125,6 +122,10 @@ public class Post extends TimeEntity {
         }
     }
 
+    public void removeComments() {
+        comments.forEach(comment -> removeComment(comment));
+    }
+
     public void addLikeTag(PostLikeTag likeTag) {
         postLikeTags.add(likeTag);
         if (!this.equals(likeTag.getPost())) {
@@ -140,5 +141,14 @@ public class Post extends TimeEntity {
         if (this.equals(likeTag.getPost())) {
             likeTag.setPost(null);
         }
+    }
+
+    public void removeLikeTags() {
+        this.postLikeTags.forEach(this::removeLikeTag);
+    }
+
+    public void removeAllCollections() {
+        removeComments();
+        removeLikeTags();
     }
 }
