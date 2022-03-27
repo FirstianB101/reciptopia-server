@@ -143,12 +143,12 @@ public class Post extends TimeEntity {
         }
     }
 
-    public void removeLikeTags(Set<PostLikeTag> likeTags) {
-        likeTags.forEach(likeTag -> removeLikeTag(likeTag));
+    public void removeLikeTags() {
+        this.postLikeTags.forEach(this::removeLikeTag);
     }
 
     public void removeAllCollections() {
         removeComments();
-        removeLikeTags(postLikeTags);
+        removeLikeTags();
     }
 }
