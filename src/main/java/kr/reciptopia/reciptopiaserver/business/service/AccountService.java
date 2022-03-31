@@ -80,7 +80,7 @@ public class AccountService {
             entity.setNickname(dto.nickname());
         }
         if (dto.profilePictureUrl() != null) {
-            entity.setProfilePictureUrl(entity.getProfilePictureUrl());
+            entity.setProfilePictureUrl(dto.profilePictureUrl());
         }
 
         return Result.of(accountRepository.save(entity));
