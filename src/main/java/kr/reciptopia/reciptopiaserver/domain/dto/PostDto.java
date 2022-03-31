@@ -2,7 +2,6 @@ package kr.reciptopia.reciptopiaserver.domain.dto;
 
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Singular;
 import lombok.With;
 import org.springframework.data.util.Streamable;
@@ -14,70 +13,82 @@ import java.util.stream.Collectors;
 
 public interface PostDto {
 
-	@Data
-	@Builder
 	@With
-	class Create {
+	record Create(Long ownerId, Long recipeId,
+				  List<String> pictureUrls, String title, String content) {
 
-		@NotNull
-		private Long ownerId;
+		@Builder
+		public Create(
+				@NotNull
+						Long ownerId,
 
-		@NotNull
-		private Long recipeId;
+				@NotNull
+						Long recipeId,
 
-		@Singular
-		private List<String> pictureUrls;
+				@Singular
+						List<String> pictureUrls,
 
-		@NotEmpty
-		private String title;
+				@NotEmpty
+						String title,
 
-		private String content;
+				String content) {
+			this.ownerId = ownerId;
+			this.recipeId = recipeId;
+			this.pictureUrls = pictureUrls;
+			this.title = title;
+			this.content = content;
+		}
 
 		public Post asEntity() {
 			return Post.builder()
-					.pictureUrls(pictureUrls)
 					.title(title)
 					.content(content)
+					.pictureUrls(pictureUrls)
 					.build();
 		}
 	}
 
-	@Data
-	@Builder
 	@With
-	class Update {
+	record Update(String title, String content, List<String> pictureUrls) {
 
-		@Singular
-		private List<String> pictureUrls;
+		@Builder
+		public Update(
+				@NotEmpty
+						String title,
 
-		@NotEmpty
-		private String title;
+				String content,
 
-		private String content;
+				@Singular
+						List<String> pictureUrls) {
+			this.title = title;
+			this.content = content;
+			this.pictureUrls = pictureUrls;
+		}
 	}
 
-	@Data
-	@Builder
 	@With
-	class Result {
+	record Result(
+			@NotNull
+			Long id,
 
-		@NotNull
-		private Long id;
+			@NotNull
+			Long ownerId,
 
-		@NotNull
-		private Long ownerId;
+			@NotNull
+			Long recipeId,
 
-		@NotNull
-		private Long recipeId;
+			List<String> pictureUrls,
 
-		private List<String> pictureUrls;
+			@NotEmpty
+			String title,
 
-		@NotEmpty
-		private String title;
+			String content,
 
-		private String content;
+			Long views) {
 
-		private Long views;
+		@Builder
+		public Result {
+		}
 
 		public static Result of(Post entity) {
 			return Result.builder()
