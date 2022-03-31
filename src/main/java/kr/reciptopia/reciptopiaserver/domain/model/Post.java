@@ -1,21 +1,36 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
-import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
-import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
-import lombok.*;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.CommentNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Singular;
+import lombok.ToString;
+import lombok.With;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -86,7 +101,7 @@ public class Post extends TimeEntity {
 
     public void setOwner(Account owner) {
         if (this.owner != owner) {
-            if (this.owner != null)
+            if (this.owner != null && owner != null)
                 this.owner.removePost(this);
             this.owner = owner;
             if (owner != null) {
