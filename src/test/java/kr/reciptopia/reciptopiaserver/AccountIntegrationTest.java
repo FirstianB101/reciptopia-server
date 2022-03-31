@@ -24,8 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -34,6 +32,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import kr.reciptopia.reciptopiaserver.helper.AuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
+import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
@@ -78,7 +77,7 @@ public class AccountIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonHelper jsonHelper;
 
     @Autowired
     private AccountRepository repository;
@@ -112,14 +111,6 @@ public class AccountIntegrationTest {
             .build();
     }
 
-    private String toJson(Object object) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(object);
-    }
-
-    private <T> T fromJson(String responseBody, Class<T> clazz) throws JsonProcessingException {
-        return objectMapper.readValue(responseBody, clazz);
-    }
-
     @Nested
     class PostAccount {
 
@@ -131,7 +122,7 @@ public class AccountIntegrationTest {
                 .password("this!sPassw0rd")
                 .nickname("pte1024")
                 .build();
-            String body = toJson(dto);
+            String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/accounts")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -147,7 +138,7 @@ public class AccountIntegrationTest {
                 .andReturn();
 
             String responseBody = mvcResult.getResponse().getContentAsString();
-            Result resultDto = fromJson(responseBody, Result.class);
+            Result resultDto = jsonHelper.fromJson(responseBody, Result.class);
 
             String encodedPassword = trxHelper.doInTransaction(() -> {
                 Account account = repository.findById(resultDto.id()).orElseThrow();
@@ -322,7 +313,7 @@ public class AccountIntegrationTest {
                 .password("newPassw0rd")
                 .nickname("new1024")
                 .build();
-            String body = toJson(dto);
+            String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(patch("/accounts/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -340,7 +331,7 @@ public class AccountIntegrationTest {
                 .andReturn();
 
             String responseBody = mvcResult.getResponse().getContentAsString();
-            Result resultDto = fromJson(responseBody, Result.class);
+            Result resultDto = jsonHelper.fromJson(responseBody, Result.class);
 
             String encodedPassword = trxHelper.doInTransaction(() -> {
                 Account account = repository.findById(resultDto.id()).orElseThrow();
@@ -361,7 +352,7 @@ public class AccountIntegrationTest {
         @Test
         void patchAccount_AccountNotFound_NotFoundStatus() throws Exception {
             // When
-            String body = toJson(anAccountUpdateDto());
+            String body = jsonHelper.toJson(anAccountUpdateDto());
 
             ResultActions actions = mockMvc.perform(patch("/accounts/{id}", 0)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -395,7 +386,7 @@ public class AccountIntegrationTest {
                 .nickname("new1024")
                 .profilePictureUrl("C:\\Users\\tellang\\Desktop\\temp\\new-picture")
                 .build();
-            String body = toJson(dto);
+            String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(patch("/accounts/{id}", ownerId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -413,7 +404,7 @@ public class AccountIntegrationTest {
                 .andReturn();
 
             String responseBody = mvcResult.getResponse().getContentAsString();
-            Result resultDto = fromJson(responseBody, Result.class);
+            Result resultDto = jsonHelper.fromJson(responseBody, Result.class);
 
             Struct then = trxHelper.doInTransaction(() -> {
                 Account account = repository.findById(resultDto.id()).orElseThrow();

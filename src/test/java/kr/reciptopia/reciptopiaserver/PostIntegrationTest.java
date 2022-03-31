@@ -19,8 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -30,6 +29,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.helper.AuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
+import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
@@ -73,7 +73,7 @@ public class PostIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonHelper jsonHelper;
 
     @Autowired
     private PostRepository repository;
@@ -104,14 +104,6 @@ public class PostIntegrationTest {
             .build();
     }
 
-    private String toJson(Object object) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(object);
-    }
-
-    private <T> T fromJson(String responseBody, Class<T> clazz) throws JsonProcessingException {
-        return objectMapper.readValue(responseBody, clazz);
-    }
-
     @Nested
     class PostPost {
 
@@ -139,7 +131,7 @@ public class PostIntegrationTest {
                 .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
                 .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
                 .build();
-            String body = toJson(dto);
+            String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/posts")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -346,7 +338,7 @@ public class PostIntegrationTest {
                 .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
                 .pictureUrl("C:\\Users\\silverstar\\Desktop\\temp\\picture")
                 .build();
-            String body = toJson(dto);
+            String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(patch("/posts/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -379,7 +371,7 @@ public class PostIntegrationTest {
         @Test
         void patchPost_PostNotFound_NotFoundStatus() throws Exception {
             // When
-            String body = toJson(aPostUpdateDto());
+            String body = jsonHelper.toJson(aPostUpdateDto());
 
             ResultActions actions = mockMvc.perform(patch("/posts/{id}", 0)
                 .contentType(MediaType.APPLICATION_JSON)
