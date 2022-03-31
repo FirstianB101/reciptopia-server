@@ -9,44 +9,51 @@ import lombok.With;
 public interface SearchHistoryDto {
 
 	@With
-	record Create(
-		@NotNull
-		Long ownerId,
+    record Create(
+        Long ownerId, Set<String> ingredients, String recipeName) {
 
-		Set<String> ingredients,
+        @Builder
+        public Create(
+            @NotNull
+                Long ownerId,
 
-		String recipeName
-	) {
+            Set<String> ingredients,
 
-		@Builder
-		public Create {
-		}
-	}
+            String recipeName) {
+            this.ownerId = ownerId;
+            this.ingredients = ingredients;
+            this.recipeName = recipeName;
+        }
+    }
 
-	@With
-	record Result(
-		@NotNull
-		Long id,
+    @With
+    record Result(
+        Long id, Long ownerId, Set<String> ingredients, String recipeName) {
 
-		@NotNull
-		Long ownerId,
+        @Builder
+        public Result(
+            @NotNull
+                Long id,
 
-		Set<String> ingredients,
+            @NotNull
+                Long ownerId,
 
-		String recipeName
-	) {
+            Set<String> ingredients,
 
-		@Builder
-		public Result {
-		}
+            String recipeName) {
+            this.id = id;
+            this.ownerId = ownerId;
+            this.ingredients = ingredients;
+            this.recipeName = recipeName;
+        }
 
-		public static Result of(SearchHistory entity) {
-			return Result.builder()
-				.id(entity.getId())
-				.ownerId(entity.getOwner().getId())
-				.ingredients(entity.getIngredients())
-				.recipeName(entity.getRecipeName())
-				.build();
-		}
+        public static Result of(SearchHistory entity) {
+            return Result.builder()
+                .id(entity.getId())
+                .ownerId(entity.getOwner().getId())
+                .ingredients(entity.getIngredients())
+                .recipeName(entity.getRecipeName())
+                .build();
+        }
 	}
 }
