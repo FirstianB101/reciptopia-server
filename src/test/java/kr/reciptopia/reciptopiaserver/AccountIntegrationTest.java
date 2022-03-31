@@ -507,7 +507,7 @@ public class AccountIntegrationTest {
     class CheckDuplicateEmail {
 
         @Test
-        public void 중복되지_않는_email_중복확인조회() throws Exception {
+        void 중복되지_않는_email_중복확인조회() throws Exception {
             //When
             ResultActions actions = mockMvc.perform(get("/accounts/{email}/exists", "newUser"));
 
@@ -524,7 +524,7 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        public void 중복되는_email_중복확인조회() throws Exception {
+        void 중복되는_email_중복확인조회() throws Exception {
             // Given
             String email = trxHelper.doInTransaction(() -> {
                 Account account = entityHelper.generateAccount();
