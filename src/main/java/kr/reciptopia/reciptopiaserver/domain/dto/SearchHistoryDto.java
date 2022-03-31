@@ -4,6 +4,7 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 import lombok.Builder;
+import lombok.Singular;
 import lombok.With;
 
 public interface SearchHistoryDto {
@@ -17,7 +18,8 @@ public interface SearchHistoryDto {
             @NotNull
                 Long ownerId,
 
-            Set<String> ingredients,
+            @Singular
+                Set<String> ingredients,
 
             String recipeName) {
             this.ownerId = ownerId;
@@ -38,7 +40,8 @@ public interface SearchHistoryDto {
             @NotNull
                 Long ownerId,
 
-            Set<String> ingredients,
+            @Singular
+                Set<String> ingredients,
 
             String recipeName) {
             this.id = id;
