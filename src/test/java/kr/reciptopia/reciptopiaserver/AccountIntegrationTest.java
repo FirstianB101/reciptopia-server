@@ -30,12 +30,14 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
+import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import kr.reciptopia.reciptopiaserver.helper.AuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -80,6 +82,9 @@ public class AccountIntegrationTest {
 
     @Autowired
     private AccountRepository repository;
+
+    @Autowired
+    private PostRepository postRepository;
 
     @Autowired
     private DataSource dataSource;
@@ -367,6 +372,62 @@ public class AccountIntegrationTest {
                 .andExpect(status().isNotFound());
         }
 
+        @Test
+        void Post가_있는_Account_수정() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Post post = entityHelper.generatePost();
+                String token = authHelper.generateToken(post.getOwner());
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("postId", post.getId())
+                    .withValue("ownerId", post.getOwner().getId());
+            });
+            String token = given.valueOf("token");
+            Long postId = given.valueOf("postId");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            Update dto = Update.builder()
+                .email("new@email.com")
+                .password("newPassw0rd")
+                .nickname("new1024")
+                .profilePictureUrl("C:\\Users\\tellang\\Desktop\\temp\\new-picture")
+                .build();
+            String body = toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/accounts/{id}", ownerId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            MvcResult mvcResult = actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(ownerId))
+                .andExpect(jsonPath("$.email").value("new@email.com"))
+                .andExpect(jsonPath("$.profilePictureUrl").value(
+                    "C:\\Users\\tellang\\Desktop\\temp\\new-picture"))
+                .andExpect(jsonPath("$.nickname").value("new1024"))
+                .andReturn();
+
+            String responseBody = mvcResult.getResponse().getContentAsString();
+            Result resultDto = fromJson(responseBody, Result.class);
+
+            Struct then = trxHelper.doInTransaction(() -> {
+                Account account = repository.findById(resultDto.id()).orElseThrow();
+                Long postOwnerId = postRepository.findById(postId).orElseThrow()
+                    .getOwner().getId();
+                return new Struct()
+                    .withValue("encodedPassword", account.getPassword())
+                    .withValue("postOwnerId", postOwnerId);
+            });
+            String encodedPassword = then.valueOf("encodedPassword");
+            Long postOwnerId = then.valueOf("postOwnerId");
+            assertThat(passwordEncoder.matches("newPassw0rd", encodedPassword)).isTrue();
+            assertThat(postOwnerId).isEqualTo(ownerId);
+        }
     }
 
     @Nested
@@ -409,6 +470,35 @@ public class AccountIntegrationTest {
             // Then
             actions
                 .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void Post가_있는_Account_삭제() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Post post = entityHelper.generatePost();
+                String token = authHelper.generateToken(post.getOwner());
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("postId", post.getId())
+                    .withValue("ownerId", post.getOwner().getId());
+            });
+            String token = given.valueOf("token");
+            Long postId = given.valueOf("postId");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.findById(ownerId)).isEmpty();
+            assertThat(postRepository.findById(postId)).isEmpty();
         }
 
     }
