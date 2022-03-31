@@ -1,100 +1,119 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Singular;
 import lombok.With;
 import org.springframework.data.util.Streamable;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public interface PostDto {
 
-	@Data
-	@Builder
-	@With
-	class Create {
+    @With
+    record Create(Long ownerId, Long recipeId,
+                  String title, String content, List<String> pictureUrls) {
 
-		@NotNull
-		private Long ownerId;
+        @Builder
+        public Create(
+            @NotNull
+                Long ownerId,
 
-		@NotNull
-		private Long recipeId;
+            @NotNull
+                Long recipeId,
 
-		@Singular
-		private List<String> pictureUrls;
+            @NotEmpty
+                String title,
 
-		@NotEmpty
-		private String title;
+            String content,
 
-		private String content;
+            @Singular
+                List<String> pictureUrls) {
+            this.ownerId = ownerId;
+            this.recipeId = recipeId;
+            this.title = title;
+            this.content = content;
+            this.pictureUrls = pictureUrls;
+        }
 
-		public Post asEntity() {
-			return Post.builder()
-					.pictureUrls(pictureUrls)
-					.title(title)
-					.content(content)
-					.build();
-		}
-	}
+        public Post asEntity() {
+            return Post.builder()
+                .title(title)
+                .content(content)
+                .pictureUrls(pictureUrls)
+                .build();
+        }
+    }
 
-	@Data
-	@Builder
-	@With
-	class Update {
+    @With
+    record Update(String title, String content, List<String> pictureUrls) {
 
-		@Singular
-		private List<String> pictureUrls;
+        @Builder
+        public Update(
+            @NotEmpty
+                String title,
 
-		@NotEmpty
-		private String title;
+            String content,
 
-		private String content;
-	}
+            @Singular
+                List<String> pictureUrls) {
+            this.title = title;
+            this.content = content;
+            this.pictureUrls = pictureUrls;
+        }
+    }
 
-	@Data
-	@Builder
-	@With
-	class Result {
+    @With
+    record Result(
+        Long id, Long ownerId, Long recipeId,
+        String title, String content, List<String> pictureUrls, Long views) {
 
-		@NotNull
-		private Long id;
+        @Builder
+        public Result(
+            @NotNull
+                Long id,
 
-		@NotNull
-		private Long ownerId;
+            @NotNull
+                Long ownerId,
 
-		@NotNull
-		private Long recipeId;
+            @NotNull
+                Long recipeId,
 
-		private List<String> pictureUrls;
+            @NotEmpty
+                String title,
 
-		@NotEmpty
-		private String title;
+            String content,
 
-		private String content;
+            List<String> pictureUrls,
 
-		private Long views;
+            Long views) {
+            this.id = id;
+            this.ownerId = ownerId;
+            this.recipeId = recipeId;
+            this.title = title;
+            this.content = content;
+            this.pictureUrls = pictureUrls;
+            this.views = views;
+        }
 
-		public static Result of(Post entity) {
-			return Result.builder()
-					.id(entity.getId())
-					.ownerId(entity.getOwner().getId())
+        public static Result of(Post entity) {
+            return Result.builder()
+                .id(entity.getId())
+                .ownerId(entity.getOwner().getId())
 //					.recipeId(entity.getRecipe().getId())
-					.pictureUrls(entity.getPictureUrls())
-					.title(entity.getTitle())
-					.content(entity.getContent())
-					.views(entity.getViews())
-					.build();
-		}
+                .title(entity.getTitle())
+                .content(entity.getContent())
+                .pictureUrls(entity.getPictureUrls())
+                .views(entity.getViews())
+                .build();
+        }
 
-		public static List<Result> of(Streamable<Post> entities) {
-			return entities.stream()
-					.map(post -> of(post))
-					.collect(Collectors.toList());
-		}
-	}
+        public static List<Result> of(Streamable<Post> entities) {
+            return entities.stream()
+                .map(post -> of(post))
+                .collect(Collectors.toList());
+        }
+    }
 }
