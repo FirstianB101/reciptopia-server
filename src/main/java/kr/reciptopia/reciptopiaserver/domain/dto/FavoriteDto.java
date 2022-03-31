@@ -7,7 +7,7 @@ import lombok.With;
 
 public interface FavoriteDto {
 
-	@With
+    @With
     record Create(
         Long ownerId, Long postId) {
 
@@ -49,5 +49,5 @@ public interface FavoriteDto {
                 .postId(entity.getPost().getId())
                 .build();
         }
-	}
+    }
 }

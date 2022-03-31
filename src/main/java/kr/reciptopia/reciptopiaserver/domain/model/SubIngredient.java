@@ -1,8 +1,11 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
-import lombok.*;
-
 import javax.persistence.Entity;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.With;
 
 @Getter
 @Setter
@@ -10,6 +13,7 @@ import javax.persistence.Entity;
 @With
 @Entity
 public class SubIngredient extends Ingredient {
+
 	protected SubIngredient() {
 		super();
 	}

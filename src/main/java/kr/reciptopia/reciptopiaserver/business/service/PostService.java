@@ -1,5 +1,6 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
+import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.AbstractAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
@@ -18,8 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @Transactional(readOnly = true)
 public class PostService {
@@ -33,10 +32,10 @@ public class PostService {
 	@Autowired
 
 	public PostService(PasswordEncoder passwordEncoder,
-					   PostRepository postRepository,
-					   RepositoryHelper repoHelper,
-					   ServiceErrorHelper errorHelper,
-					   AbstractAuthorizer authorizer) {
+		PostRepository postRepository,
+		RepositoryHelper repoHelper,
+		ServiceErrorHelper errorHelper,
+		AbstractAuthorizer authorizer) {
 		this.passwordEncoder = passwordEncoder;
 		this.postRepository = postRepository;
 		this.repoHelper = repoHelper;

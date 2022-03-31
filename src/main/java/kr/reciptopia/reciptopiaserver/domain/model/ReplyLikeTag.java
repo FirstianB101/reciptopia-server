@@ -1,13 +1,19 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
-import lombok.*;
+import static javax.persistence.FetchType.LAZY;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
-
-import static javax.persistence.FetchType.LAZY;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.With;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,6 +23,7 @@ import static javax.persistence.FetchType.LAZY;
 @With
 @Entity
 public class ReplyLikeTag extends LikeTag {
+
 	@ToString.Exclude
 	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "reply_id")
