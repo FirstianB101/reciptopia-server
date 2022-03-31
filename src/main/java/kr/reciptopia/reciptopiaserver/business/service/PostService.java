@@ -47,7 +47,7 @@ public class PostService {
 	public Result create(Create dto, Authentication authentication) {
 		Post post = dto.asEntity();
 
-		Account dtoOwner = repoHelper.findAccountOrThrow(dto.getOwnerId());
+		Account dtoOwner = repoHelper.findAccountOrThrow(dto.ownerId());
 		authorizer.requireByOneself(authentication, dtoOwner);
 
 		post.setOwner(dtoOwner);
@@ -73,14 +73,14 @@ public class PostService {
 		Post entity = repoHelper.findPostOrThrow(id);
 		authorizer.requireByOneself(authentication, entity.getOwner());
 
-		if (dto.getPictureUrls() != null) {
-			entity.setPictureUrls(dto.getPictureUrls());
+		if (dto.pictureUrls() != null) {
+			entity.setPictureUrls(dto.pictureUrls());
 		}
-		if (dto.getTitle() != null) {
-			entity.setTitle(dto.getTitle());
+		if (dto.title() != null) {
+			entity.setTitle(dto.title());
 		}
-		if (dto.getContent() != null) {
-			entity.setContent(dto.getContent());
+		if (dto.content() != null) {
+			entity.setContent(dto.content());
 		}
 
 		return Result.of(postRepository.save(entity));
