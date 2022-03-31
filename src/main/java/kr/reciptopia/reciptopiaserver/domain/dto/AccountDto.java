@@ -18,20 +18,24 @@ public interface AccountDto {
 
     @With
     record Create(
-        @NotNull
-        @Email(message = "이메일 형식이 아닙니다.")
-        String email,
-
-        @NotEmpty
-        @Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!")
-        String password,
-
-        @NotBlank
-        @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
-        String nickname) {
+        String email, String password, String nickname) {
 
         @Builder
-        public Create {
+        public Create(
+            @NotNull
+            @Email(message = "이메일 형식이 아닙니다.")
+                String email,
+
+            @NotEmpty
+            @Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!")
+                String password,
+
+            @NotBlank
+            @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
+                String nickname) {
+            this.email = email;
+            this.password = password;
+            this.nickname = nickname;
         }
 
         public Account asEntity(
@@ -54,43 +58,51 @@ public interface AccountDto {
 
     @With
     record Update(
-        @Email(message = "이메일 형식이 아닙니다.")
-        String email,
-
-        @Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!")
-        String password,
-
-        @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
-        String nickname,
-
-        String profilePictureUrl) {
+        String email, String password, String nickname, String profilePictureUrl) {
 
         @Builder
-        public Update {
+        public Update(
+            @Email(message = "이메일 형식이 아닙니다.")
+                String email,
+
+            @Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!")
+                String password,
+
+            @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
+                String nickname,
+
+            String profilePictureUrl) {
+            this.email = email;
+            this.password = password;
+            this.nickname = nickname;
+            this.profilePictureUrl = profilePictureUrl;
         }
     }
 
     @With
     record Result(
-        @NotNull
-        Long id,
-
-        @NotNull
-        @Email(message = "이메일 형식이 아닙니다.")
-        String email,
-
-        @NotBlank
-        @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
-        String nickname,
-
-        String profilePictureUrl,
-
-        @NotEmpty
-        UserRole role
-    ) {
+        Long id, String email, String nickname, String profilePictureUrl, UserRole role) {
 
         @Builder
-        public Result {
+        public Result(
+            @NotNull
+                Long id,
+
+            @NotNull
+            @Email(message = "이메일 형식이 아닙니다.")
+                String email,
+
+            @NotBlank
+            @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
+                String nickname, String profilePictureUrl,
+
+            @NotEmpty
+                UserRole role) {
+            this.id = id;
+            this.email = email;
+            this.nickname = nickname;
+            this.profilePictureUrl = profilePictureUrl;
+            this.role = role;
         }
 
         public static Result of(Account entitiy) {
@@ -111,10 +123,11 @@ public interface AccountDto {
     }
 
     @With
-    record CheckDuplicationResult(@NotNull Boolean exists) {
+    record CheckDuplicationResult(Boolean exists) {
 
         @Builder
-        public CheckDuplicationResult {
+        public CheckDuplicationResult(@NotNull Boolean exists) {
+            this.exists = exists;
         }
     }
 }

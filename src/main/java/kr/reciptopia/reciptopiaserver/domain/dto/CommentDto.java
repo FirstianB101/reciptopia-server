@@ -12,72 +12,85 @@ import lombok.With;
 
 public interface CommentDto {
 
-	@With
-	record Create(
-		@NotNull
-		Long ownerId,
+    @With
+    record Create(
+        Long ownerId, Long postId, String content) {
 
-		@NotNull
-		Long postId,
+        @Builder
+        public Create(
+            @NotNull
+                Long ownerId,
 
-		@NotBlank
-		@Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
-		String content
-	) {
+            @NotNull
+                Long postId,
 
-		@Builder
-		public Create {
-		}
-	}
+            @NotBlank
+            @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
+                String content) {
+            this.ownerId = ownerId;
+            this.postId = postId;
+            this.content = content;
+        }
+    }
 
-	@With
-	record Update(
-		@Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
-		String content,
+    @With
+    record Update(
+        String content, Set<Reply> replies, Set<CommentLikeTag> commentLikeTags) {
 
-		Set<Reply> replies,
+        @Builder
+        public Update(
+            @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
+                String content,
 
-		Set<CommentLikeTag> commentLikeTags
-	) {
+            Set<Reply> replies,
 
-		@Builder
-		public Update {
-		}
-	}
+            Set<CommentLikeTag> commentLikeTags) {
+            this.content = content;
+            this.replies = replies;
+            this.commentLikeTags = commentLikeTags;
+        }
+    }
 
-	@With
-	record Result(
-		@NotNull
-		Long id,
+    @With
+    record Result(
+        Long id, Long ownerId, Long postId, String content,
+        Set<Reply> replies, Set<CommentLikeTag> commentLikeTags) {
 
-		@NotNull
-		Long ownerId,
+        @Builder
+        public Result(
+            @NotNull
+                Long id,
 
-		@NotNull
-		Long postId,
+            @NotNull
+                Long ownerId,
 
-		@NotBlank
-		@Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
-		String content,
+            @NotNull
+                Long postId,
 
-		Set<Reply> replies,
+            @NotBlank
+            @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
+                String content,
 
-		Set<CommentLikeTag> commentLikeTags
-	) {
+            Set<Reply> replies,
 
-		@Builder
-		public Result {
-		}
+            Set<CommentLikeTag> commentLikeTags) {
+            this.id = id;
+            this.ownerId = ownerId;
+            this.postId = postId;
+            this.content = content;
+            this.replies = replies;
+            this.commentLikeTags = commentLikeTags;
+        }
 
-		public static Result of(Comment entity) {
-			return Result.builder()
-				.id(entity.getId())
-				.ownerId(entity.getOwner().getId())
-				.postId(entity.getPost().getId())
-				.content(entity.getContent())
-				.replies(entity.getReplies())
-				.commentLikeTags(entity.getCommentLikeTags())
-				.build();
-		}
-	}
+        public static Result of(Comment entity) {
+            return Result.builder()
+                .id(entity.getId())
+                .ownerId(entity.getOwner().getId())
+                .postId(entity.getPost().getId())
+                .content(entity.getContent())
+                .replies(entity.getReplies())
+                .commentLikeTags(entity.getCommentLikeTags())
+                .build();
+        }
+    }
 }

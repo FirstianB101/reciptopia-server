@@ -8,41 +8,46 @@ import lombok.With;
 public interface FavoriteDto {
 
 	@With
-	record Create(
-		@NotNull
-		Long ownerId,
+    record Create(
+        Long ownerId, Long postId) {
 
-		@NotNull
-		Long postId
-	) {
+        @Builder
+        public Create(
+            @NotNull
+                Long ownerId,
 
-		@Builder
-		public Create {
-		}
-	}
+            @NotNull
+                Long postId) {
+            this.ownerId = ownerId;
+            this.postId = postId;
+        }
+    }
 
-	@With
-	record Result(
-		@NotNull
-		Long id,
+    @With
+    record Result(
+        Long id, Long ownerId, Long postId) {
 
-		@NotNull
-		Long ownerId,
+        @Builder
+        public Result(
+            @NotNull
+                Long id,
 
-		@NotNull
-		Long postId
-	) {
+            @NotNull
+                Long ownerId,
 
-		@Builder
-		public Result {
-		}
+            @NotNull
+                Long postId) {
+            this.id = id;
+            this.ownerId = ownerId;
+            this.postId = postId;
+        }
 
-		public static Result of(Favorite entity) {
-			return Result.builder()
-				.id(entity.getId())
-				.ownerId(entity.getOwner().getId())
-				.postId(entity.getPost().getId())
-				.build();
-		}
+        public static Result of(Favorite entity) {
+            return Result.builder()
+                .id(entity.getId())
+                .ownerId(entity.getOwner().getId())
+                .postId(entity.getPost().getId())
+                .build();
+        }
 	}
 }
