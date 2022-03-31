@@ -37,95 +37,95 @@ import lombok.With;
 @Entity
 public class Comment extends TimeEntity {
 
-	@Id
-	@Column(name = "comment_id")
-	@GeneratedValue(strategy = IDENTITY)
-	private Long id;
+    @Id
+    @Column(name = "comment_id")
+    @GeneratedValue(strategy = IDENTITY)
+    private Long id;
 
-	@ToString.Exclude
-	@ManyToOne(fetch = LAZY)
-	@JoinColumn(name = "account_id")
-	private Account owner;
+    @ToString.Exclude
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "account_id")
+    private Account owner;
 
-	@ToString.Exclude
-	@ManyToOne(fetch = LAZY)
-	@JoinColumn(name = "post_id")
-	private Post post;
+    @ToString.Exclude
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
 
-	@NotBlank
-	@Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
-	private String content;
+    @NotBlank
+    @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
+    private String content;
 
-	@NotNull
-	@ToString.Exclude
-	@OneToMany(mappedBy = "comment", cascade = ALL, orphanRemoval = true)
-	private Set<Reply> replies = new HashSet<>();
+    @NotNull
+    @ToString.Exclude
+    @OneToMany(mappedBy = "comment", cascade = ALL, orphanRemoval = true)
+    private Set<Reply> replies = new HashSet<>();
 
-	@NotNull
-	@ToString.Exclude
-	@OneToMany(mappedBy = "comment", cascade = REMOVE, orphanRemoval = true)
-	private Set<CommentLikeTag> commentLikeTags = new HashSet<>();
+    @NotNull
+    @ToString.Exclude
+    @OneToMany(mappedBy = "comment", cascade = REMOVE, orphanRemoval = true)
+    private Set<CommentLikeTag> commentLikeTags = new HashSet<>();
 
-	@Builder
-	public Comment(Account owner, Post post, String content) {
-		setOwner(owner);
-		setPost(post);
-		setContent(content);
-	}
+    @Builder
+    public Comment(Account owner, Post post, String content) {
+        setOwner(owner);
+        setPost(post);
+        setContent(content);
+    }
 
-	public void setOwner(Account owner) {
-		if (this.owner != owner) {
-			if (this.owner != null)
-				this.owner.removeComment(this);
-			this.owner = owner;
-			if (owner != null) {
-				owner.addComment(this);
-			}
-		}
-	}
+    public void setOwner(Account owner) {
+        if (this.owner != owner) {
+            if (this.owner != null)
+                this.owner.removeComment(this);
+            this.owner = owner;
+            if (owner != null) {
+                owner.addComment(this);
+            }
+        }
+    }
 
-	public void setPost(Post post) {
-		if (this.post != post) {
-			if (this.post != null)
-				this.post.removeComment(this);
-			this.post = post;
-			if (post != null) {
-				post.addComment(this);
-			}
-		}
-	}
+    public void setPost(Post post) {
+        if (this.post != post) {
+            if (this.post != null)
+                this.post.removeComment(this);
+            this.post = post;
+            if (post != null) {
+                post.addComment(this);
+            }
+        }
+    }
 
-	public void addLikeTag(CommentLikeTag likeTag) {
-		commentLikeTags.add(likeTag);
-		if (!this.equals(likeTag.getComment())) {
-			likeTag.setComment(this);
-		}
-	}
+    public void addLikeTag(CommentLikeTag likeTag) {
+        commentLikeTags.add(likeTag);
+        if (!this.equals(likeTag.getComment())) {
+            likeTag.setComment(this);
+        }
+    }
 
-	public void removeLikeTag(CommentLikeTag likeTag) {
-		if (!commentLikeTags.contains(likeTag))
-			throw new LikeTagNotFoundException();
+    public void removeLikeTag(CommentLikeTag likeTag) {
+        if (!commentLikeTags.contains(likeTag))
+            throw new LikeTagNotFoundException();
 
-		commentLikeTags.remove(likeTag);
-		if (this.equals(likeTag.getComment())) {
-			likeTag.setComment(null);
-		}
-	}
+        commentLikeTags.remove(likeTag);
+        if (this.equals(likeTag.getComment())) {
+            likeTag.setComment(null);
+        }
+    }
 
-	public void addReply(Reply reply) {
-		replies.add(reply);
-		if (!this.equals(reply.getComment())) {
-			reply.setComment(this);
-		}
-	}
+    public void addReply(Reply reply) {
+        replies.add(reply);
+        if (!this.equals(reply.getComment())) {
+            reply.setComment(this);
+        }
+    }
 
-	public void removeReply(Reply reply) {
-		if (!replies.contains(reply))
-			throw new ReplyNotFoundException();
+    public void removeReply(Reply reply) {
+        if (!replies.contains(reply))
+            throw new ReplyNotFoundException();
 
-		replies.remove(reply);
-		if (this.equals(reply.getComment())) {
-			reply.setComment(null);
-		}
-	}
+        replies.remove(reply);
+        if (this.equals(reply.getComment())) {
+            reply.setComment(null);
+        }
+    }
 }

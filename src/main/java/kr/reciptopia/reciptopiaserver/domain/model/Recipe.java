@@ -1,18 +1,31 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
-import kr.reciptopia.reciptopiaserver.domain.error.exception.IllegalTypeIngredientException;
-import kr.reciptopia.reciptopiaserver.domain.error.exception.IngredientNotFoundException;
-import kr.reciptopia.reciptopiaserver.domain.error.exception.StepNotFoundException;
-import lombok.*;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.HashSet;
-import java.util.Set;
-
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
+
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.IllegalTypeIngredientException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.IngredientNotFoundException;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.StepNotFoundException;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Singular;
+import lombok.ToString;
+import lombok.With;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -51,8 +64,8 @@ public class Recipe extends TimeEntity {
 
     @Builder
     public Recipe(Post post, @Singular Set<Step> steps,
-                  @Singular Set<MainIngredient> mainIngredients,
-                  @Singular Set<SubIngredient> subIngredients) {
+        @Singular Set<MainIngredient> mainIngredients,
+        @Singular Set<SubIngredient> subIngredients) {
         setPost(post);
         this.steps = steps;
         this.mainIngredients = mainIngredients;

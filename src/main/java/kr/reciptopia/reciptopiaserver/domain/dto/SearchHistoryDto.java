@@ -9,7 +9,7 @@ import lombok.With;
 
 public interface SearchHistoryDto {
 
-	@With
+    @With
     record Create(
         Long ownerId, Set<String> ingredients, String recipeName) {
 
@@ -58,5 +58,5 @@ public interface SearchHistoryDto {
                 .recipeName(entity.getRecipeName())
                 .build();
         }
-	}
+    }
 }

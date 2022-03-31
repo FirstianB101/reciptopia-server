@@ -1,12 +1,11 @@
 package kr.reciptopia.reciptopiaserver.business.service.spec;
 
+import javax.persistence.criteria.Join;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import org.springframework.data.jpa.domain.Specification;
-
-import javax.persistence.criteria.Join;
 
 public class PostSpecs {
 

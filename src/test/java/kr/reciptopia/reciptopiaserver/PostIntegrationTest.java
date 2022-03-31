@@ -1,7 +1,29 @@
 package kr.reciptopia.reciptopiaserver;
 
+import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
+import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPostUpdateDto;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.SQLException;
+import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
@@ -30,407 +52,386 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.sql.DataSource;
-import java.sql.SQLException;
-
-import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
-import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPostUpdateDto;
-import static org.hamcrest.Matchers.*;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @ExtendWith(RestDocumentationExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 public class PostIntegrationTest {
 
-	private static final FieldDescriptor DOC_FIELD_ID =
-			fieldWithPath("id").description("게시물 ID");
-	private static final FieldDescriptor DOC_FIELD_TITLE =
-			fieldWithPath("title").description("게시물 제목");
-	private static final FieldDescriptor DOC_FIELD_CONTENT =
-			fieldWithPath("content").description("게시물 내용");
-	private static final FieldDescriptor DOC_FIELD_PICTURE_URLS =
-			fieldWithPath("pictureUrls").description("게시물 사진 URL 목록");
-	private static final FieldDescriptor DOC_FIELD_VIEWS =
-			fieldWithPath("views").description("게시물 조회 수");
-	private static final FieldDescriptor DOC_FIELD_OWNER_ID =
-			fieldWithPath("ownerId").description("글쓴이 ID");
-	private static final FieldDescriptor DOC_FIELD_RECIPE_ID =
-			fieldWithPath("recipeId").description("레시피 ID");
+    private static final FieldDescriptor DOC_FIELD_ID =
+        fieldWithPath("id").description("게시물 ID");
+    private static final FieldDescriptor DOC_FIELD_TITLE =
+        fieldWithPath("title").description("게시물 제목");
+    private static final FieldDescriptor DOC_FIELD_CONTENT =
+        fieldWithPath("content").description("게시물 내용");
+    private static final FieldDescriptor DOC_FIELD_PICTURE_URLS =
+        fieldWithPath("pictureUrls").description("게시물 사진 URL 목록");
+    private static final FieldDescriptor DOC_FIELD_VIEWS =
+        fieldWithPath("views").description("게시물 조회 수");
+    private static final FieldDescriptor DOC_FIELD_OWNER_ID =
+        fieldWithPath("ownerId").description("글쓴이 ID");
+    private static final FieldDescriptor DOC_FIELD_RECIPE_ID =
+        fieldWithPath("recipeId").description("레시피 ID");
+    @Autowired
+    PasswordEncoder passwordEncoder;
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private PostRepository repository;
+    @Autowired
+    private DataSource dataSource;
+    @Autowired
+    private TransactionHelper trxHelper;
+    @Autowired
+    private EntityHelper entityHelper;
+    @Autowired
+    private AuthHelper authHelper;
 
-	private MockMvc mockMvc;
+    @BeforeEach
+    void setUp(WebApplicationContext webApplicationContext,
+        RestDocumentationContextProvider restDocumentation) throws SQLException {
+        H2DbCleaner.clean(dataSource);
 
-	@Autowired
-	private ObjectMapper objectMapper;
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+            .apply(springSecurity())
+            .apply(basicDocumentationConfiguration(restDocumentation))
+            .build();
+    }
 
-	@Autowired
-	private PostRepository repository;
+    private String toJson(Object object) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(object);
+    }
 
-	@Autowired
-	private DataSource dataSource;
+    private <T> T fromJson(String responseBody, Class<T> clazz) throws JsonProcessingException {
+        return objectMapper.readValue(responseBody, clazz);
+    }
 
-	@Autowired
-	private TransactionHelper trxHelper;
+    @Nested
+    class PostPost {
 
-	@Autowired
-	private EntityHelper entityHelper;
+        @Test
+        void postPost() throws Exception {
+            // Given - Account, Recipe
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
 
-	@Autowired
-	private AuthHelper authHelper;
-
-	@Autowired
-	PasswordEncoder passwordEncoder;
-
-	@BeforeEach
-	void setUp(WebApplicationContext webApplicationContext,
-			   RestDocumentationContextProvider restDocumentation) throws SQLException {
-		H2DbCleaner.clean(dataSource);
-
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-				.apply(springSecurity())
-				.apply(basicDocumentationConfiguration(restDocumentation))
-				.build();
-	}
-
-	private String toJson(Object object) throws JsonProcessingException {
-		return objectMapper.writeValueAsString(object);
-	}
-
-	private <T> T fromJson(String responseBody, Class<T> clazz) throws JsonProcessingException {
-		return objectMapper.readValue(responseBody, clazz);
-	}
-
-	@Nested
-	class PostPost {
-
-		@Test
-		void postPost() throws Exception {
-			// Given - Account, Recipe
-			Struct given = trxHelper.doInTransaction(() -> {
-				Account account = entityHelper.generateAccount();
-
-				String token = authHelper.generateToken(account);
-				return new Struct()
-						.withValue("token", token)
-						.withValue("id", account.getId());
-			});
-			String token = given.valueOf("token");
-			Long ownerId = given.valueOf("id");
+                String token = authHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", account.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("id");
 //			Recipe recipe = Recipe.builder().build();
 
-			// When
-			Create dto = Create.builder()
-					.ownerId(ownerId)
-					.recipeId(1L)
-					.title("매콤 가문어 볶음 만들기")
-					.content("매콤매콤 맨들맨들 가문어 볶음")
-					.pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
-					.pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
-					.build();
-			String body = toJson(dto);
+            // When
+            Create dto = Create.builder()
+                .ownerId(ownerId)
+                .recipeId(1L)
+                .title("매콤 가문어 볶음 만들기")
+                .content("매콤매콤 맨들맨들 가문어 볶음")
+                .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                .build();
+            String body = toJson(dto);
 
-			ResultActions actions = mockMvc.perform(post("/posts")
-					.contentType(MediaType.APPLICATION_JSON)
-					.header("Authorization", "Bearer " + token)
-					.content(body));
+            ResultActions actions = mockMvc.perform(post("/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
 
-			// Then
-			MvcResult mvcResult = actions
-					.andExpect(status().isCreated())
-					.andExpect(jsonPath("$.id").isNumber())
-					.andExpect(jsonPath("$.title").value("매콤 가문어 볶음 만들기"))
-					.andExpect(jsonPath("$.content").value("매콤매콤 맨들맨들 가문어 볶음"))
-					.andExpect(jsonPath("$.pictureUrls").value(hasSize(2)))
-					.andExpect(jsonPath("$.pictureUrls").value(contains(
-							"C:\\Users\\eunsung\\Desktop\\temp\\picture",
-							"C:\\Users\\tellang\\Desktop\\temp\\picture"
-					)))
-					.andExpect(jsonPath("$.views").isNumber())
-					.andExpect(jsonPath("$.views").value(0))
-					.andExpect(jsonPath("$.ownerId").value(ownerId))
+            // Then
+            MvcResult mvcResult = actions
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.title").value("매콤 가문어 볶음 만들기"))
+                .andExpect(jsonPath("$.content").value("매콤매콤 맨들맨들 가문어 볶음"))
+                .andExpect(jsonPath("$.pictureUrls").value(hasSize(2)))
+                .andExpect(jsonPath("$.pictureUrls").value(contains(
+                    "C:\\Users\\eunsung\\Desktop\\temp\\picture",
+                    "C:\\Users\\tellang\\Desktop\\temp\\picture"
+                )))
+                .andExpect(jsonPath("$.views").isNumber())
+                .andExpect(jsonPath("$.views").value(0))
+                .andExpect(jsonPath("$.ownerId").value(ownerId))
 //				.andExpect(jsonPath("$.recipeId").value(1L))		// 임시
-					.andReturn();
+                .andReturn();
 
-			// Document
-			actions.andDo(document("post-create-example",
-					requestFields(
-							DOC_FIELD_OWNER_ID,
-							DOC_FIELD_RECIPE_ID,
-							DOC_FIELD_TITLE,
-							DOC_FIELD_CONTENT,
-							DOC_FIELD_PICTURE_URLS
-					)));
-		}
-	}
+            // Document
+            actions.andDo(document("post-create-example",
+                requestFields(
+                    DOC_FIELD_OWNER_ID,
+                    DOC_FIELD_RECIPE_ID,
+                    DOC_FIELD_TITLE,
+                    DOC_FIELD_CONTENT,
+                    DOC_FIELD_PICTURE_URLS
+                )));
+        }
+    }
 
-	@Nested
-	class GetPost {
+    @Nested
+    class GetPost {
 
-		@Test
-		void getPost() throws Exception {
-			// Given
-			Struct given = trxHelper.doInTransaction(() -> {
-				Post post = entityHelper.generatePost(it ->
-						it.withTitle("매콤 가문어 볶음 만들기")
-								.withContent("매콤매콤 맨들맨들 가문어 볶음")
-								.withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
-								.withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
-								.withViews(10L)
-				);
+        @Test
+        void getPost() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Post post = entityHelper.generatePost(it ->
+                    it.withTitle("매콤 가문어 볶음 만들기")
+                        .withContent("매콤매콤 맨들맨들 가문어 볶음")
+                        .withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                        .withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                        .withViews(10L)
+                );
 
-				return new Struct()
-						.withValue("ownerId", post.getOwner().getId())
-						.withValue("id", post.getId());
-			});
-			Long id = given.valueOf("id");
-			Long ownerId = given.valueOf("ownerId");
+                return new Struct()
+                    .withValue("ownerId", post.getOwner().getId())
+                    .withValue("id", post.getId());
+            });
+            Long id = given.valueOf("id");
+            Long ownerId = given.valueOf("ownerId");
 
-			// When
-			ResultActions actions = mockMvc
-					.perform(get("/posts/{id}", id));
+            // When
+            ResultActions actions = mockMvc
+                .perform(get("/posts/{id}", id));
 
-			// Then
-			actions
-					.andExpect(status().isOk())
-					.andExpect(jsonPath("$.id").value(id))
-					.andExpect(jsonPath("$.title").value("매콤 가문어 볶음 만들기"))
-					.andExpect(jsonPath("$.content").value("매콤매콤 맨들맨들 가문어 볶음"))
-					.andExpect(jsonPath("$.pictureUrls").value(hasSize(2)))
-					.andExpect(jsonPath("$.pictureUrls").value(contains(
-							"C:\\Users\\eunsung\\Desktop\\temp\\picture",
-							"C:\\Users\\tellang\\Desktop\\temp\\picture"
-					)))
-					.andExpect(jsonPath("$.views").isNumber())
-					.andExpect(jsonPath("$.views").value(10))
-					.andExpect(jsonPath("$.ownerId").value(ownerId))
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.title").value("매콤 가문어 볶음 만들기"))
+                .andExpect(jsonPath("$.content").value("매콤매콤 맨들맨들 가문어 볶음"))
+                .andExpect(jsonPath("$.pictureUrls").value(hasSize(2)))
+                .andExpect(jsonPath("$.pictureUrls").value(contains(
+                    "C:\\Users\\eunsung\\Desktop\\temp\\picture",
+                    "C:\\Users\\tellang\\Desktop\\temp\\picture"
+                )))
+                .andExpect(jsonPath("$.views").isNumber())
+                .andExpect(jsonPath("$.views").value(10))
+                .andExpect(jsonPath("$.ownerId").value(ownerId))
 //				.andExpect(jsonPath("$.recipeId").value(1L))		// 임시
-					.andReturn();
+                .andReturn();
 
-			// Document
-			actions.andDo(document("post-retrieve-example",
-					responseFields(
-							DOC_FIELD_ID,
-							DOC_FIELD_OWNER_ID,
-							DOC_FIELD_RECIPE_ID,
-							DOC_FIELD_TITLE,
-							DOC_FIELD_CONTENT,
-							DOC_FIELD_PICTURE_URLS,
-							DOC_FIELD_VIEWS
-					)));
-		}
+            // Document
+            actions.andDo(document("post-retrieve-example",
+                responseFields(
+                    DOC_FIELD_ID,
+                    DOC_FIELD_OWNER_ID,
+                    DOC_FIELD_RECIPE_ID,
+                    DOC_FIELD_TITLE,
+                    DOC_FIELD_CONTENT,
+                    DOC_FIELD_PICTURE_URLS,
+                    DOC_FIELD_VIEWS
+                )));
+        }
 
-		@Test
-		void getPost_PostNotFound_NotFoundStatus() throws Exception {
-			// When
-			ResultActions actions = mockMvc.perform(get("/posts/{id}", 0L));
+        @Test
+        void getPost_PostNotFound_NotFoundStatus() throws Exception {
+            // When
+            ResultActions actions = mockMvc.perform(get("/posts/{id}", 0L));
 
-			// Then
-			actions
-					.andExpect(status().isNotFound());
-		}
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
 
-	}
+    }
 
-	@Nested
-	class SearchPosts {
+    @Nested
+    class SearchPosts {
 
-		@Test
-		void listPosts() throws Exception {
-			// Given
-			Struct given = trxHelper.doInTransaction(() -> {
-				Post postA = entityHelper.generatePost();
-				Post postB = entityHelper.generatePost();
+        @Test
+        void listPosts() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Post postA = entityHelper.generatePost();
+                Post postB = entityHelper.generatePost();
 
-				return new Struct()
-						.withValue("postAId", postA.getId())
-						.withValue("postBId", postB.getId());
-			});
-			Long postAId = given.valueOf("postAId");
-			Long postBId = given.valueOf("postBId");
+                return new Struct()
+                    .withValue("postAId", postA.getId())
+                    .withValue("postBId", postB.getId());
+            });
+            Long postAId = given.valueOf("postAId");
+            Long postBId = given.valueOf("postBId");
 
-			// When
-			ResultActions actions = mockMvc.perform(get("/posts"));
+            // When
+            ResultActions actions = mockMvc.perform(get("/posts"));
 
-			// Then
-			actions
-					.andExpect(status().isOk())
-					.andExpect(jsonPath("$").value(hasSize(2)))
-					.andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
-							postAId.intValue(),
-							postBId.intValue()
-					)));
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(hasSize(2)))
+                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                    postAId.intValue(),
+                    postBId.intValue()
+                )));
 
-			// Document
-			actions.andDo(document("post-list-example",
-					requestParameters(
-							ApiDocumentation.DOC_PARAMETER_PAGE,
-							ApiDocumentation.DOC_PARAMETER_SIZE,
-							ApiDocumentation.DOC_PARAMETER_SORT
-					)));
-		}
+            // Document
+            actions.andDo(document("post-list-example",
+                requestParameters(
+                    ApiDocumentation.DOC_PARAMETER_PAGE,
+                    ApiDocumentation.DOC_PARAMETER_SIZE,
+                    ApiDocumentation.DOC_PARAMETER_SORT
+                )));
+        }
 
-		@Test
-		void listPostsWithPaging() throws Exception {
-			// Given
-			Struct given = trxHelper.doInTransaction(() -> {
-				Post postA = entityHelper.generatePost();
-				Post postB = entityHelper.generatePost();
+        @Test
+        void listPostsWithPaging() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Post postA = entityHelper.generatePost();
+                Post postB = entityHelper.generatePost();
 
-				return new Struct()
-						.withValue("postAId", postA.getId())
-						.withValue("postBId", postB.getId());
-			});
-			Long postAId = given.valueOf("postAId");
-			Long postBId = given.valueOf("postBId");
+                return new Struct()
+                    .withValue("postAId", postA.getId())
+                    .withValue("postBId", postB.getId());
+            });
+            Long postAId = given.valueOf("postAId");
+            Long postBId = given.valueOf("postBId");
 
-			// When
-			ResultActions actions = mockMvc.perform(get("/posts")
-					.param("size", "2")
-					.param("page", "0")
-					.param("sort", "id,desc"));
+            // When
+            ResultActions actions = mockMvc.perform(get("/posts")
+                .param("size", "2")
+                .param("page", "0")
+                .param("sort", "id,desc"));
 
-			// Then
-			actions
-					.andExpect(status().isOk())
-					.andExpect(jsonPath("$").value(hasSize(2)))
-					.andExpect(jsonPath("$.[*].id").value(contains(
-							postBId.intValue(),
-							postAId.intValue()
-					)));
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(hasSize(2)))
+                .andExpect(jsonPath("$.[*].id").value(contains(
+                    postBId.intValue(),
+                    postAId.intValue()
+                )));
 
-			// Document
-			actions.andDo(document("post-list-with-paging-example"));
-		}
+            // Document
+            actions.andDo(document("post-list-with-paging-example"));
+        }
 
-	}
+    }
 
-	@Nested
-	class PatchPost {
+    @Nested
+    class PatchPost {
 
-		@Test
-		void patchPost() throws Exception {
-			// Given
-			Struct given = trxHelper.doInTransaction(() -> {
-				Post post = entityHelper.generatePost(it ->
-						it.withTitle("테스트 요리 만들기")
-								.withContent("테스트 요리 컨텐츠")
-								.withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
-								.withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
-				);
-				String token = authHelper.generateToken(post.getOwner());
+        @Test
+        void patchPost() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Post post = entityHelper.generatePost(it ->
+                    it.withTitle("테스트 요리 만들기")
+                        .withContent("테스트 요리 컨텐츠")
+                        .withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                        .withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                );
+                String token = authHelper.generateToken(post.getOwner());
 
-				return new Struct()
-						.withValue("token", token)
-						.withValue("id", post.getId());
-			});
-			Long id = given.valueOf("id");
-			String token = given.valueOf("token");
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", post.getId());
+            });
+            Long id = given.valueOf("id");
+            String token = given.valueOf("token");
 
-			// When
-			Update dto = Update.builder()
-					.title("새로운 요리 만들기")
-					.content("새로운 요리 컨텐츠")
-					.pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
-					.pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
-					.pictureUrl("C:\\Users\\silverstar\\Desktop\\temp\\picture")
-					.build();
-			String body = toJson(dto);
+            // When
+            Update dto = Update.builder()
+                .title("새로운 요리 만들기")
+                .content("새로운 요리 컨텐츠")
+                .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                .pictureUrl("C:\\Users\\silverstar\\Desktop\\temp\\picture")
+                .build();
+            String body = toJson(dto);
 
-			ResultActions actions = mockMvc.perform(patch("/posts/{id}", id)
-					.contentType(MediaType.APPLICATION_JSON)
-					.header("Authorization", "Bearer " + token)
-					.content(body));
+            ResultActions actions = mockMvc.perform(patch("/posts/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
 
-			// Then
-			MvcResult mvcResult = actions
-					.andExpect(status().isOk())
-					.andExpect(jsonPath("$.id").value(id))
-					.andExpect(jsonPath("$.title").value("새로운 요리 만들기"))
-					.andExpect(jsonPath("$.content").value("새로운 요리 컨텐츠"))
-					.andExpect(jsonPath("$.pictureUrls").value(hasSize(3)))
-					.andExpect(jsonPath("$.pictureUrls").value(contains(
-							"C:\\Users\\eunsung\\Desktop\\temp\\picture",
-							"C:\\Users\\tellang\\Desktop\\temp\\picture",
-							"C:\\Users\\silverstar\\Desktop\\temp\\picture"
-					)))
-					.andReturn();
+            // Then
+            MvcResult mvcResult = actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.title").value("새로운 요리 만들기"))
+                .andExpect(jsonPath("$.content").value("새로운 요리 컨텐츠"))
+                .andExpect(jsonPath("$.pictureUrls").value(hasSize(3)))
+                .andExpect(jsonPath("$.pictureUrls").value(contains(
+                    "C:\\Users\\eunsung\\Desktop\\temp\\picture",
+                    "C:\\Users\\tellang\\Desktop\\temp\\picture",
+                    "C:\\Users\\silverstar\\Desktop\\temp\\picture"
+                )))
+                .andReturn();
 
-			// Document
-			actions.andDo(document("post-update-example",
-					requestFields(
-							DOC_FIELD_TITLE,
-							DOC_FIELD_CONTENT,
-							DOC_FIELD_PICTURE_URLS
-					)));
-		}
+            // Document
+            actions.andDo(document("post-update-example",
+                requestFields(
+                    DOC_FIELD_TITLE,
+                    DOC_FIELD_CONTENT,
+                    DOC_FIELD_PICTURE_URLS
+                )));
+        }
 
-		@Test
-		void patchPost_PostNotFound_NotFoundStatus() throws Exception {
-			// When
-			String body = toJson(aPostUpdateDto());
+        @Test
+        void patchPost_PostNotFound_NotFoundStatus() throws Exception {
+            // When
+            String body = toJson(aPostUpdateDto());
 
-			ResultActions actions = mockMvc.perform(patch("/posts/{id}", 0)
-					.contentType(MediaType.APPLICATION_JSON)
-					.content(body));
+            ResultActions actions = mockMvc.perform(patch("/posts/{id}", 0)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
 
-			// Then
-			actions
-					.andExpect(status().isNotFound());
-		}
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
 
-	}
+    }
 
-	@Nested
-	class DeletePost {
+    @Nested
+    class DeletePost {
 
-		@Test
-		void deletePost() throws Exception {
-			// Given
-			Struct given = trxHelper.doInTransaction(() -> {
-				Post post = entityHelper.generatePost(it ->
-						it.withTitle("테스트 요리 만들기")
-								.withContent("테스트 요리 컨텐츠")
-								.withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
-								.withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
-				);
-				String token = authHelper.generateToken(post.getOwner());
+        @Test
+        void deletePost() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Post post = entityHelper.generatePost(it ->
+                    it.withTitle("테스트 요리 만들기")
+                        .withContent("테스트 요리 컨텐츠")
+                        .withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                        .withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                );
+                String token = authHelper.generateToken(post.getOwner());
 
-				return new Struct()
-						.withValue("token", token)
-						.withValue("id", post.getId());
-			});
-			Long id = given.valueOf("id");
-			String token = given.valueOf("token");
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", post.getId());
+            });
+            Long id = given.valueOf("id");
+            String token = given.valueOf("token");
 
-			// When
-			ResultActions actions = mockMvc.perform(delete("/posts/{id}", id)
-					.header("Authorization", "Bearer " + token));
+            // When
+            ResultActions actions = mockMvc.perform(delete("/posts/{id}", id)
+                .header("Authorization", "Bearer " + token));
 
-			// Then
-			actions
-					.andExpect(status().isNoContent())
-					.andExpect(content().string(emptyString()));
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
 
 //			assertThat(repository.findByOwnerIdAndRecipeId()).isEmpty();
 
-			// Document
-			actions.andDo(document("post-delete-example"));
-		}
+            // Document
+            actions.andDo(document("post-delete-example"));
+        }
 
-		@Test
-		void deletePost_PostNotFound_NotFound_Status() throws Exception {
-			// When
-			ResultActions actions = mockMvc.perform(delete("/posts/{id}", 0));
+        @Test
+        void deletePost_PostNotFound_NotFound_Status() throws Exception {
+            // When
+            ResultActions actions = mockMvc.perform(delete("/posts/{id}", 0));
 
-			// Then
-			actions
-					.andExpect(status().isNotFound());
-		}
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
 
-	}
+    }
 
 }
