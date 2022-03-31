@@ -13,8 +13,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.business.service.JwtService;
@@ -22,6 +20,7 @@ import kr.reciptopia.reciptopiaserver.config.security.UserPrincipal;
 import kr.reciptopia.reciptopiaserver.domain.dto.AuthDto;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
+import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
@@ -57,7 +56,7 @@ public class AuthIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonHelper jsonHelper;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -104,7 +103,7 @@ public class AuthIntegrationTest {
             .email("test@email.com")
             .password("pAsSwOrD")
             .build();
-        String body = toJson(dto);
+        String body = jsonHelper.toJson(dto);
 
         ResultActions actions = mockMvc.perform(post("/auth/token")
             .contentType(MediaType.APPLICATION_JSON)
@@ -118,7 +117,7 @@ public class AuthIntegrationTest {
             .andReturn();
 
         String responseBody = result.getResponse().getContentAsString();
-        AuthDto.GenerateTokenResult resultDto = fromJson(responseBody,
+        AuthDto.GenerateTokenResult resultDto = jsonHelper.fromJson(responseBody,
             AuthDto.GenerateTokenResult.class);
 
         UserPrincipal principal = jwtService.extractSubject(resultDto.token());
@@ -151,7 +150,7 @@ public class AuthIntegrationTest {
             .email("test@email.com")
             .password("wrongPassword")
             .build();
-        String body = toJson(dto);
+        String body = jsonHelper.toJson(dto);
 
         ResultActions actions = mockMvc.perform(post("/auth/token")
             .contentType(MediaType.APPLICATION_JSON)
@@ -194,13 +193,5 @@ public class AuthIntegrationTest {
             responseFields(
                 DOC_FIELD_ACCOUNT
             )));
-    }
-
-    private String toJson(Object object) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(object);
-    }
-
-    private <T> T fromJson(String json, Class<T> clazz) throws JsonProcessingException {
-        return objectMapper.readValue(json, clazz);
     }
 }
