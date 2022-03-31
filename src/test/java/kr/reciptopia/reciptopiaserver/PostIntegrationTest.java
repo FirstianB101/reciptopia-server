@@ -19,7 +19,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.SQLException;
@@ -70,21 +69,29 @@ public class PostIntegrationTest {
         fieldWithPath("ownerId").description("글쓴이 ID");
     private static final FieldDescriptor DOC_FIELD_RECIPE_ID =
         fieldWithPath("recipeId").description("레시피 ID");
-    @Autowired
-    PasswordEncoder passwordEncoder;
+
     private MockMvc mockMvc;
+
     @Autowired
     private ObjectMapper objectMapper;
+
     @Autowired
     private PostRepository repository;
+
     @Autowired
     private DataSource dataSource;
+
     @Autowired
     private TransactionHelper trxHelper;
+
     @Autowired
     private EntityHelper entityHelper;
+
     @Autowired
     private AuthHelper authHelper;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp(WebApplicationContext webApplicationContext,

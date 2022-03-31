@@ -3,7 +3,6 @@ package kr.reciptopia.reciptopiaserver.business.service;
 import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.AbstractAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
-import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Result;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,23 +21,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class PostService {
 
-	private final PasswordEncoder passwordEncoder;
 	private final PostRepository postRepository;
 	private final RepositoryHelper repoHelper;
-	private final ServiceErrorHelper errorHelper;
 	private final AbstractAuthorizer authorizer;
 
 	@Autowired
 
-	public PostService(PasswordEncoder passwordEncoder,
+	public PostService(
 		PostRepository postRepository,
 		RepositoryHelper repoHelper,
-		ServiceErrorHelper errorHelper,
 		AbstractAuthorizer authorizer) {
-		this.passwordEncoder = passwordEncoder;
 		this.postRepository = postRepository;
 		this.repoHelper = repoHelper;
-		this.errorHelper = errorHelper;
 		this.authorizer = authorizer;
 	}
 
