@@ -8,6 +8,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import lombok.Builder;
+import lombok.Singular;
 import lombok.With;
 
 public interface CommentDto {
@@ -42,9 +43,11 @@ public interface CommentDto {
             @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
                 String content,
 
-            Set<Reply> replies,
+            @Singular
+                Set<Reply> replies,
 
-            Set<CommentLikeTag> commentLikeTags) {
+            @Singular
+                Set<CommentLikeTag> commentLikeTags) {
             this.content = content;
             this.replies = replies;
             this.commentLikeTags = commentLikeTags;
@@ -71,9 +74,11 @@ public interface CommentDto {
             @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
                 String content,
 
-            Set<Reply> replies,
+            @Singular
+                Set<Reply> replies,
 
-            Set<CommentLikeTag> commentLikeTags) {
+            @Singular
+                Set<CommentLikeTag> commentLikeTags) {
             this.id = id;
             this.ownerId = ownerId;
             this.postId = postId;
