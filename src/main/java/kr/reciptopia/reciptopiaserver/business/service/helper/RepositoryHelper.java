@@ -1,12 +1,12 @@
 package kr.reciptopia.reciptopiaserver.business.service.helper;
 
+import javax.persistence.EntityManager;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
+import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
-
-import javax.persistence.EntityManager;
 
 @Component
 public record RepositoryHelper(EntityManager em,
@@ -27,6 +27,10 @@ public record RepositoryHelper(EntityManager em,
 
     public Post findPostOrThrow(Long id) throws ResponseStatusException {
         return findOrThrow(Post.class, id);
+    }
+
+    public Comment findCommentOrThrow(Long id) throws ResponseStatusException {
+        return findOrThrow(Comment.class, id);
     }
 
     public Recipe findRecipeOrThrow(Long id) throws ResponseStatusException {
