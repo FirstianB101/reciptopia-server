@@ -4,7 +4,6 @@ import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
-
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
@@ -112,6 +111,10 @@ public class Comment extends TimeEntity {
         }
     }
 
+    public void removeLikeTags() {
+        commentLikeTags.forEach(this::removeLikeTag);
+    }
+
     public void addReply(Reply reply) {
         replies.add(reply);
         if (!this.equals(reply.getComment())) {
@@ -127,5 +130,14 @@ public class Comment extends TimeEntity {
         if (this.equals(reply.getComment())) {
             reply.setComment(null);
         }
+    }
+
+    public void removeReplies() {
+        replies.forEach(this::removeReply);
+    }
+
+    public void removeAllCollections() {
+        removeLikeTags();
+        removeReplies();
     }
 }
