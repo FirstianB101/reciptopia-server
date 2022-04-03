@@ -3,6 +3,7 @@ package kr.reciptopia.reciptopiaserver.controller;
 import java.util.List;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.CommentService;
+import kr.reciptopia.reciptopiaserver.business.service.PostService;
 import kr.reciptopia.reciptopiaserver.business.service.spec.CommentSpecs;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Result;
@@ -30,19 +31,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentController {
 
     private final CommentService service;
+    private final PostService postService;
 
-    @PostMapping("/comments")
+    @PostMapping("/post/comments")
     @ResponseStatus(HttpStatus.CREATED)
     public Result post(@Valid @RequestBody Create dto, Authentication authentication) {
         return service.create(dto, authentication);
     }
 
-    @GetMapping("/comments/{id}")
+    @GetMapping("/post/comments/{id}")
     public Result get(@PathVariable Long id) {
         return service.read(id);
     }
 
-    @GetMapping("/comments")
+    @GetMapping("/post/comments")
     public List<Result> search(
         @RequestParam(required = false) Long ownerId,
         @RequestParam(required = false) Long postId,
@@ -67,13 +69,13 @@ public class CommentController {
         return service.search(spec, pageable);
     }
 
-    @PatchMapping("/comments/{id}")
+    @PatchMapping("/post/comments/{id}")
     public Result patch(@PathVariable Long id,
         @Valid @RequestBody Update dto, Authentication authentication) {
         return service.update(id, dto, authentication);
     }
 
-    @DeleteMapping("/comments/{id}")
+    @DeleteMapping("/post/comments/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id, Authentication authentication) {
         service.delete(id, authentication);

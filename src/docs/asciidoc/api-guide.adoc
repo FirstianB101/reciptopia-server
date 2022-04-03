@@ -366,7 +366,7 @@ operation::post-delete-example[snippets='curl-request,http-response']
 [[resources_comment_retrieve]]
 === Comment 조회
 
-`GET /comments/{id}` 요청으로 하나의 Comment를 조회합니다.
+`GET /post/comments/{id}` 요청으로 하나의 Comment를 조회합니다.
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::comment-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -374,7 +374,7 @@ operation::comment-retrieve-example[snippets='response-fields,curl-request,http-
 [[resources_comment_list]]
 === Comment 목록 조회
 
-`GET /comments` 요청으로 다수의 Comment들을 조회합니다.
+`GET /post/comments` 요청으로 다수의 Comment들을 조회합니다.
 <<overview_paging_and_sorting, Paging 혹은 Sorting>> 요청 패러미터를 추가하면 원하는 방식으로 목록을 조회할 수 있습니다.
 
 operation::comment-list-example[snippets='request-parameters,curl-request,http-response']
@@ -389,7 +389,7 @@ operation::comment-list-example[snippets='request-parameters,curl-request,http-r
 [[resources_comment_create]]
 === Comment 생성
 
-`POST /comments` 요청으로 Comment를 생성합니다.
+`POST /post/comments` 요청으로 Comment를 생성합니다.
 성공 시 생성한 Comment를 응답 Body로 전달합니다.
 
 operation::comment-create-example[snippets='request-fields,curl-request,http-response']
@@ -397,7 +397,7 @@ operation::comment-create-example[snippets='request-fields,curl-request,http-res
 [[resources_comment_upate]]
 === Comment 수정
 
-`PATCH /comments/{id}` 요청으로 Comment를 수정합니다.
+`PATCH /post/comments/{id}` 요청으로 Comment를 수정합니다.
 요청의 `Authorization` 헤더로 요청을 보낸 댓글 작성자 `Account` 의 엑세스 토큰이 제공되어야 합니다.
 성공 시 갱신된 Comment를 응답 Body로 전달합니다.
 
@@ -405,7 +405,7 @@ operation::comment-update-example[snippets='request-fields,curl-request,http-res
 
 === Comment 삭제
 
-`DELETE /comments/{id}` 요청으로 Comment를 삭제합니다.
+`DELETE /post/comments/{id}` 요청으로 Comment를 삭제합니다.
 요청의 `Authorization` 헤더로 요청을 보낸 댓글 작성자 `Account` 의 엑세스 토큰이 제공되어야 합니다.
 
 operation::comment-delete-example[snippets='curl-request,http-response']

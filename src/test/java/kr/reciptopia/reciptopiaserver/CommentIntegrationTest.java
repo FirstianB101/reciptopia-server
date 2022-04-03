@@ -45,7 +45,6 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -68,19 +67,24 @@ public class CommentIntegrationTest {
         fieldWithPath("replies").description("답글 목록");
     private static final FieldDescriptor DOC_FIELD_COMMENT_LIKE_TAGS =
         fieldWithPath("commentLikeTags").description("댓글 좋아요 목록");
-    @Autowired
-    PasswordEncoder passwordEncoder;
+
     private MockMvc mockMvc;
+
     @Autowired
     private JsonHelper jsonHelper;
+
     @Autowired
     private CommentRepository repository;
+
     @Autowired
     private DataSource dataSource;
+
     @Autowired
     private TransactionHelper trxHelper;
+
     @Autowired
     private EntityHelper entityHelper;
+
     @Autowired
     private AuthHelper authHelper;
 
@@ -123,7 +127,7 @@ public class CommentIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(post("/comments")
+            ResultActions actions = mockMvc.perform(post("/post/comments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
                 .content(body));
@@ -168,7 +172,7 @@ public class CommentIntegrationTest {
 
             // When
             ResultActions actions = mockMvc
-                .perform(get("/comments/{id}", id));
+                .perform(get("/post/comments/{id}", id));
 
             // Then
             actions
@@ -194,7 +198,7 @@ public class CommentIntegrationTest {
         @Test
         void getComment_CommentNotFound_NotFoundStatus() throws Exception {
             // When
-            ResultActions actions = mockMvc.perform(get("/comments/{id}", 0L));
+            ResultActions actions = mockMvc.perform(get("/post/comments/{id}", 0L));
 
             // Then
             actions
@@ -221,7 +225,7 @@ public class CommentIntegrationTest {
             Long commentBId = given.valueOf("commentBId");
 
             // When
-            ResultActions actions = mockMvc.perform(get("/comments"));
+            ResultActions actions = mockMvc.perform(get("/post/comments"));
 
             // Then
             actions
@@ -257,7 +261,7 @@ public class CommentIntegrationTest {
             Long commentBId = given.valueOf("commentBId");
 
             // When
-            ResultActions actions = mockMvc.perform(get("/comments")
+            ResultActions actions = mockMvc.perform(get("/post/comments")
                 .param("size", "2")
                 .param("page", "0")
                 .param("sort", "id,desc"));
@@ -302,7 +306,7 @@ public class CommentIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(patch("/comments/{id}", id)
+            ResultActions actions = mockMvc.perform(patch("/post/comments/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
                 .content(body));
@@ -326,7 +330,7 @@ public class CommentIntegrationTest {
             // When
             String body = jsonHelper.toJson(aCommentUpdateDto());
 
-            ResultActions actions = mockMvc.perform(patch("/comments/{id}", 0)
+            ResultActions actions = mockMvc.perform(patch("/post/comments/{id}", 0)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body));
 
@@ -353,7 +357,7 @@ public class CommentIntegrationTest {
             Long id = given.valueOf("id");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/comments/{id}", id)
+            ResultActions actions = mockMvc.perform(delete("/post/comments/{id}", id)
                 .header("Authorization", "Bearer " + token));
 
             // Then
@@ -370,7 +374,7 @@ public class CommentIntegrationTest {
         @Test
         void deleteComment_CommentNotFound_NotFound_Status() throws Exception {
             // When
-            ResultActions actions = mockMvc.perform(delete("/comments/{id}", 0L));
+            ResultActions actions = mockMvc.perform(delete("/post/comments/{id}", 0L));
 
             // Then
             actions
