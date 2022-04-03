@@ -10,7 +10,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -20,32 +20,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class CommentService {
 
     private final CommentRepository commentRepository;
     private final RepositoryHelper repoHelper;
     private final AbstractAuthorizer authorizer;
 
-    @Autowired
-    public CommentService(
-        CommentRepository commentRepository,
-        RepositoryHelper repoHelper,
-        AbstractAuthorizer authorizer) {
-        this.commentRepository = commentRepository;
-        this.repoHelper = repoHelper;
-        this.authorizer = authorizer;
-    }
-
     @Transactional
     public Result create(Create dto, Authentication authentication) {
         Comment comment = dto.asEntity();
 
-        Account dtoOwner = repoHelper.findAccountOrThrow(dto.ownerId());
-        authorizer.requireByOneself(authentication, dtoOwner);
-        comment.setOwner(dtoOwner);
+        Account owner = repoHelper.findAccountOrThrow(dto.ownerId());
+        authorizer.requireByOneself(authentication, owner);
+        comment.setOwner(owner);
 
-        Post dtoPost = repoHelper.findPostOrThrow(dto.postId());
-        comment.setPost(dtoPost);
+        Post post = repoHelper.findPostOrThrow(dto.postId());
+        comment.setPost(post);
 
         return Result.of(commentRepository.save(comment));
     }
