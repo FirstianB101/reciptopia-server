@@ -1,6 +1,8 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -10,6 +12,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.With;
+import org.springframework.data.util.Streamable;
 
 public interface CommentDto {
 
@@ -32,25 +35,23 @@ public interface CommentDto {
             this.postId = postId;
             this.content = content;
         }
+
+        public Comment asEntity() {
+            return Comment.builder()
+                .content(content)
+                .build();
+        }
+
     }
 
     @With
-    record Update(
-        String content, Set<Reply> replies, Set<CommentLikeTag> commentLikeTags) {
+    record Update(String content) {
 
         @Builder
         public Update(
             @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
-                String content,
-
-            @Singular
-                Set<Reply> replies,
-
-            @Singular
-                Set<CommentLikeTag> commentLikeTags) {
+                String content) {
             this.content = content;
-            this.replies = replies;
-            this.commentLikeTags = commentLikeTags;
         }
     }
 
@@ -96,6 +97,12 @@ public interface CommentDto {
                 .replies(entity.getReplies())
                 .commentLikeTags(entity.getCommentLikeTags())
                 .build();
+        }
+
+        public static List<Result> of(Streamable<Comment> entities) {
+            return entities.stream()
+                .map(comment -> of(comment))
+                .collect(Collectors.toList());
         }
     }
 }
