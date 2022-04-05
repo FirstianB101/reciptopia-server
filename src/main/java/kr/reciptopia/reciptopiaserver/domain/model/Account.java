@@ -121,13 +121,7 @@ public class Account extends TimeEntity {
     }
 
     public Account withPassword(Function<? super CharSequence, ? extends String> encoder) {
-        String encodedPassword = encoder.apply(password);
-        return encodedPassword.equals(password) ? this : Account.builder()
-            .email(email)
-            .password(encodedPassword)
-            .nickname(nickname)
-            .role(role)
-            .build();
+        return withPassword(encoder, this.password);
     }
 
     public Account withPassword(Function<? super CharSequence, ? extends String> encoder,
@@ -138,7 +132,17 @@ public class Account extends TimeEntity {
             .password(encodedPassword)
             .nickname(nickname)
             .role(role)
-            .build();
+            .build()
+            .withId(id)
+            .withPosts(posts)
+            .withComments(comments)
+            .withReplies(replies)
+            .withPostLikeTags(postLikeTags)
+            .withCommentLikeTags(commentLikeTags)
+            .withReplyLikeTags(replyLikeTags)
+            .withFavorites(favorites)
+            .withSearchHistories(searchHistories)
+            .withProfilePictureUrl(profilePictureUrl);
     }
 
     public void setProfilePictureUrl(String profilePictureUrl) {
