@@ -4,7 +4,9 @@ import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -49,7 +51,7 @@ public class Recipe extends TimeEntity {
     @NotNull
     @ToString.Exclude
     @OneToMany(mappedBy = "recipe", cascade = ALL, orphanRemoval = true)
-    private Set<Step> steps = new HashSet<>();
+    private List<Step> steps = new ArrayList<>();
 
     @NotNull
     @ToString.Exclude
