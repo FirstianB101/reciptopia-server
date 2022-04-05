@@ -1,12 +1,14 @@
-package kr.reciptopia.reciptopiaserver.helper;
+package kr.reciptopia.reciptopiaserver.helper.auth;
 
 
 import kr.reciptopia.reciptopiaserver.business.service.JwtService;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
-import org.springframework.stereotype.Component;
+import lombok.AllArgsConstructor;
 
-@Component
-public record AuthHelper(JwtService jwtService) {
+@AllArgsConstructor
+public class AuthHelper {
+
+    protected final JwtService jwtService;
 
     public String generateToken(Account account) {
         return jwtService.signJwt(account);

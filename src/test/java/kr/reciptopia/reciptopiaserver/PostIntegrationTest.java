@@ -27,11 +27,11 @@ import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
-import kr.reciptopia.reciptopiaserver.helper.AuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
 import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.PostAuthHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,7 +88,7 @@ public class PostIntegrationTest {
     private EntityHelper entityHelper;
 
     @Autowired
-    private AuthHelper authHelper;
+    private PostAuthHelper postAuthHelper;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -113,7 +113,7 @@ public class PostIntegrationTest {
             Struct given = trxHelper.doInTransaction(() -> {
                 Account account = entityHelper.generateAccount();
 
-                String token = authHelper.generateToken(account);
+                String token = postAuthHelper.generateToken(account);
                 return new Struct()
                     .withValue("token", token)
                     .withValue("id", account.getId());
@@ -321,7 +321,7 @@ public class PostIntegrationTest {
                         .withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
                         .withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
                 );
-                String token = authHelper.generateToken(post.getOwner());
+                String token = postAuthHelper.generateToken(post.getOwner());
 
                 return new Struct()
                     .withValue("token", token)
@@ -397,7 +397,7 @@ public class PostIntegrationTest {
                         .withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
                         .withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
                 );
-                String token = authHelper.generateToken(post.getOwner());
+                String token = postAuthHelper.generateToken(post.getOwner());
 
                 return new Struct()
                     .withValue("token", token)
