@@ -7,13 +7,13 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Update;
 
 import java.util.List;
-import kr.reciptopia.reciptopiaserver.business.service.authorizer.AbstractAuthorizer;
+import kr.reciptopia.reciptopiaserver.business.service.authorizer.AccountAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,26 +24,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class AccountService {
 
     private final PasswordEncoder passwordEncoder;
     private final AccountRepository accountRepository;
     private final RepositoryHelper repoHelper;
     private final ServiceErrorHelper errorHelper;
-    private final AbstractAuthorizer authorizer;
-
-    @Autowired
-    public AccountService(PasswordEncoder passwordEncoder,
-        AccountRepository accountRepository,
-        RepositoryHelper repoHelper,
-        ServiceErrorHelper errorHelper,
-        AbstractAuthorizer authorizer) {
-        this.passwordEncoder = passwordEncoder;
-        this.accountRepository = accountRepository;
-        this.repoHelper = repoHelper;
-        this.errorHelper = errorHelper;
-        this.authorizer = authorizer;
-    }
+    private final AccountAuthorizer accountAuthorizer;
 
     @Transactional
     public Result create(Create dto) {
@@ -68,7 +56,7 @@ public class AccountService {
     @Transactional
     public Result update(Long id, Update dto, Authentication authentication) {
         Account entity = repoHelper.findAccountOrThrow(id);
-        authorizer.requireByOneself(authentication, entity);
+        accountAuthorizer.requireByOneself(authentication, entity);
 
         if (dto.email() != null) {
             entity.setEmail(dto.email());
@@ -89,7 +77,7 @@ public class AccountService {
     @Transactional
     public void delete(Long id, Authentication authentication) {
         Account account = repoHelper.findAccountOrThrow(id);
-        authorizer.requireByOneself(authentication, account);
+        accountAuthorizer.requireByOneself(authentication, account);
         account.removeAllCollections();
 
         accountRepository.delete(account);
