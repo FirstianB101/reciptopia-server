@@ -11,8 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.IllegalTypeIngredientException;
 import kr.reciptopia.reciptopiaserver.domain.error.exception.IngredientNotFoundException;
@@ -23,7 +23,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Singular;
 import lombok.ToString;
 import lombok.With;
 
@@ -43,7 +42,7 @@ public class Recipe extends TimeEntity {
 
     @NotNull
     @ToString.Exclude
-    @ManyToOne(fetch = LAZY)
+    @OneToOne(fetch = LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
 
