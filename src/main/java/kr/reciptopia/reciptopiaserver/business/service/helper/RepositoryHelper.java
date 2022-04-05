@@ -5,6 +5,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
+import kr.reciptopia.reciptopiaserver.domain.model.Step;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -36,4 +37,9 @@ public record RepositoryHelper(EntityManager em,
     public Recipe findRecipeOrThrow(Long id) throws ResponseStatusException {
         return findOrThrow(Recipe.class, id);
     }
+
+    public Step findStepOrThrow(Long id) throws ResponseStatusException {
+        return findOrThrow(Step.class, id);
+    }
+
 }
