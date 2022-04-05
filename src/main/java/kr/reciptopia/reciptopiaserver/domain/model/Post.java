@@ -52,9 +52,8 @@ public class Post extends TimeEntity {
     @JoinColumn(name = "account_id")
     private Account owner;
 
-    //    @NotNull
     @ToString.Exclude
-    @OneToOne(fetch = LAZY)
+    @OneToOne(fetch = LAZY, cascade = ALL)
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
@@ -96,7 +95,13 @@ public class Post extends TimeEntity {
             .content(content)
             .pictureUrls(pictureUrls)
             .pictureUrl(pictureUrl)
-            .build();
+            .build()
+            .withId(id)
+            .withOwner(owner)
+            .withRecipe(recipe)
+            .withComments(comments)
+            .withPostLikeTags(postLikeTags)
+            .withViews(views);
     }
 
     public void setOwner(Account owner) {

@@ -19,29 +19,35 @@ import lombok.Setter;
 import lombok.ToString;
 
 @MappedSuperclass
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class Ingredient extends TimeEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "ingredient_id")
-    private Long id;
+    protected Long id;
 
     @ToString.Exclude
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "recipe_id")
     @NotNull
-    private Recipe recipe;
+    protected Recipe recipe;
 
     @NotEmpty
-    private String name;
+    protected String name;
 
     @NotEmpty
-    private String detail;
+    protected String detail;
+
+    protected Ingredient(Recipe recipe, String name, String detail) {
+        this.recipe = recipe;
+        this.name = name;
+        this.detail = detail;
+    }
 
     public void setRecipe(Recipe recipe) {
         if (this.recipe != recipe) {
