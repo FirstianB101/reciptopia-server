@@ -3,13 +3,14 @@ package kr.reciptopia.reciptopiaserver.business.service.authorizer;
 
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
 
-@Component
-public record AbstractAuthorizer(
-    AuthenticationInspector authInspector,
-    ServiceErrorHelper errorHelper) {
+@AllArgsConstructor
+public class AbstractAuthorizer {
+
+    protected final AuthenticationInspector authInspector;
+    protected final ServiceErrorHelper errorHelper;
 
     public void requireByOneself(Authentication authentication, Account requester) {
         if (authInspector.isAdmin(authentication))

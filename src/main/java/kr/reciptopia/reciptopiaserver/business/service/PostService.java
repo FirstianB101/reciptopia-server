@@ -1,7 +1,7 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
 import java.util.List;
-import kr.reciptopia.reciptopiaserver.business.service.authorizer.AbstractAuthorizer;
+import kr.reciptopia.reciptopiaserver.business.service.authorizer.PostAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Result;
@@ -9,7 +9,7 @@ import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,36 +19,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class PostService {
 
+    private final PostAuthorizer postAuthorizer;
     private final PostRepository postRepository;
     private final RepositoryHelper repoHelper;
-    private final AbstractAuthorizer authorizer;
 
-    @Autowired
-
-    public PostService(
-        PostRepository postRepository,
-        RepositoryHelper repoHelper,
-        AbstractAuthorizer authorizer) {
-        this.postRepository = postRepository;
-        this.repoHelper = repoHelper;
-        this.authorizer = authorizer;
-    }
 
     @Transactional
     public Result create(Create dto, Authentication authentication) {
         Post post = dto.asEntity();
 
-        Account dtoOwner = repoHelper.findAccountOrThrow(dto.ownerId());
-        authorizer.requireByOneself(authentication, dtoOwner);
+        Account owner = repoHelper.findAccountOrThrow(dto.ownerId());
+        postAuthorizer.requireByOneself(authentication, owner);
 
-        post.setOwner(dtoOwner);
-
-//		Recipe dtoRecipe = repoHelper.findRecipeOrThrow(dto.getRecipeId());
-//
-//		post.setRecipe(dtoRecipe);
-
+        post.setOwner(owner);
         return Result.of(postRepository.save(post));
     }
 
@@ -63,26 +49,26 @@ public class PostService {
 
     @Transactional
     public Result update(Long id, Update dto, Authentication authentication) {
-        Post entity = repoHelper.findPostOrThrow(id);
-        authorizer.requireByOneself(authentication, entity.getOwner());
+        Post post = repoHelper.findPostOrThrow(id);
+        postAuthorizer.requirePostOwner(authentication, post);
 
         if (dto.pictureUrls() != null) {
-            entity.setPictureUrls(dto.pictureUrls());
+            post.setPictureUrls(dto.pictureUrls());
         }
         if (dto.title() != null) {
-            entity.setTitle(dto.title());
+            post.setTitle(dto.title());
         }
         if (dto.content() != null) {
-            entity.setContent(dto.content());
+            post.setContent(dto.content());
         }
 
-        return Result.of(postRepository.save(entity));
+        return Result.of(postRepository.save(post));
     }
 
     @Transactional
     public void delete(Long id, Authentication authentication) {
         Post post = repoHelper.findPostOrThrow(id);
-        authorizer.requireByOneself(authentication, post.getOwner());
+        postAuthorizer.requirePostOwner(authentication, post);
         post.removeAllCollections();
 
         postRepository.delete(post);
