@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -28,11 +29,11 @@ import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Update;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
-import kr.reciptopia.reciptopiaserver.helper.AuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
 import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.CommentAuthHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,7 +87,7 @@ public class CommentIntegrationTest {
     private EntityHelper entityHelper;
 
     @Autowired
-    private AuthHelper authHelper;
+    private CommentAuthHelper commentAuthHelper;
 
     @BeforeEach
     void setUp(WebApplicationContext webApplicationContext,
@@ -107,7 +108,7 @@ public class CommentIntegrationTest {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
                 Account account = entityHelper.generateAccount();
-                String token = authHelper.generateToken(account);
+                String token = commentAuthHelper.generateToken(account);
                 Post post = entityHelper.generatePost();
 
                 return new Struct()
@@ -292,7 +293,7 @@ public class CommentIntegrationTest {
                     it.withContent("테스트 댓글 내용")
                 );
 
-                String token = authHelper.generateToken(comment.getOwner());
+                String token = commentAuthHelper.generateToken(comment.getOwner());
                 return new Struct()
                     .withValue("token", token)
                     .withValue("id", comment.getId());
@@ -348,7 +349,7 @@ public class CommentIntegrationTest {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
                 Comment comment = entityHelper.generateComment();
-                String token = authHelper.generateToken(comment.getOwner());
+                String token = commentAuthHelper.generateToken(comment.getOwner());
                 return new Struct()
                     .withValue("token", token)
                     .withValue("id", comment.getId());

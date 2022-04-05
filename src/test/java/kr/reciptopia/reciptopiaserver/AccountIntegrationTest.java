@@ -30,11 +30,11 @@ import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
-import kr.reciptopia.reciptopiaserver.helper.AuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
 import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.AccountAuthHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
@@ -95,7 +95,7 @@ public class AccountIntegrationTest {
     private EntityHelper entityHelper;
 
     @Autowired
-    private AuthHelper authHelper;
+    private AccountAuthHelper accountAuthHelper;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -299,7 +299,7 @@ public class AccountIntegrationTest {
                         .withRole(UserRole.USER)
                 );
 
-                String token = authHelper.generateToken(account);
+                String token = accountAuthHelper.generateToken(account);
                 return new Struct()
                     .withValue("token", token)
                     .withValue("id", account.getId());
@@ -369,7 +369,7 @@ public class AccountIntegrationTest {
             Struct given = trxHelper.doInTransaction(() -> {
 
                 Post post = entityHelper.generatePost();
-                String token = authHelper.generateToken(post.getOwner());
+                String token = accountAuthHelper.generateToken(post.getOwner());
                 return new Struct()
                     .withValue("token", token)
                     .withValue("postId", post.getId())
@@ -430,7 +430,7 @@ public class AccountIntegrationTest {
             Struct given = trxHelper.doInTransaction(() -> {
 
                 Account account = entityHelper.generateAccount();
-                String token = authHelper.generateToken(account);
+                String token = accountAuthHelper.generateToken(account);
                 return new Struct()
                     .withValue("token", token)
                     .withValue("id", account.getId());
@@ -469,7 +469,7 @@ public class AccountIntegrationTest {
             Struct given = trxHelper.doInTransaction(() -> {
 
                 Post post = entityHelper.generatePost();
-                String token = authHelper.generateToken(post.getOwner());
+                String token = accountAuthHelper.generateToken(post.getOwner());
                 return new Struct()
                     .withValue("token", token)
                     .withValue("postId", post.getId())
