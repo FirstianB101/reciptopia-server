@@ -13,16 +13,13 @@ import org.springframework.data.util.Streamable;
 public interface PostDto {
 
     @With
-    record Create(Long ownerId, Long recipeId,
+    record Create(Long ownerId,
                   String title, String content, List<String> pictureUrls) {
 
         @Builder
         public Create(
             @NotNull
                 Long ownerId,
-
-            @NotNull
-                Long recipeId,
 
             @NotEmpty
                 String title,
@@ -32,7 +29,6 @@ public interface PostDto {
             @Singular
                 List<String> pictureUrls) {
             this.ownerId = ownerId;
-            this.recipeId = recipeId;
             this.title = title;
             this.content = content;
             this.pictureUrls = pictureUrls;
@@ -67,7 +63,7 @@ public interface PostDto {
 
     @With
     record Result(
-        Long id, Long ownerId, Long recipeId,
+        Long id, Long ownerId,
         String title, String content, List<String> pictureUrls, Long views) {
 
         @Builder
@@ -77,9 +73,6 @@ public interface PostDto {
 
             @NotNull
                 Long ownerId,
-
-            @NotNull
-                Long recipeId,
 
             @NotEmpty
                 String title,
@@ -91,7 +84,6 @@ public interface PostDto {
             Long views) {
             this.id = id;
             this.ownerId = ownerId;
-            this.recipeId = recipeId;
             this.title = title;
             this.content = content;
             this.pictureUrls = pictureUrls;
@@ -102,7 +94,6 @@ public interface PostDto {
             return Result.builder()
                 .id(entity.getId())
                 .ownerId(entity.getOwner().getId())
-//					.recipeId(entity.getRecipe().getId())
                 .title(entity.getTitle())
                 .content(entity.getContent())
                 .pictureUrls(entity.getPictureUrls())
