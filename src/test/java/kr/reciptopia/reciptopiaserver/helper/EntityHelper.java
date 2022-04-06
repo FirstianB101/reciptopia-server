@@ -42,9 +42,6 @@ public record EntityHelper(EntityManager em) {
         if (post.getOwner() == null) {
             post.setOwner(generateAccount());
         }
-//        if (post.getRecipe() == null) {
-//            post.setRecipe(generateRecipe());
-//        }
 
         em.persist(post);
         return post;

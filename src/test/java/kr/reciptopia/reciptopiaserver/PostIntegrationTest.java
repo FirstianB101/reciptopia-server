@@ -67,8 +67,6 @@ public class PostIntegrationTest {
         fieldWithPath("views").description("게시물 조회 수");
     private static final FieldDescriptor DOC_FIELD_OWNER_ID =
         fieldWithPath("ownerId").description("글쓴이 ID");
-    private static final FieldDescriptor DOC_FIELD_RECIPE_ID =
-        fieldWithPath("recipeId").description("레시피 ID");
 
     private MockMvc mockMvc;
 
@@ -120,12 +118,10 @@ public class PostIntegrationTest {
             });
             String token = given.valueOf("token");
             Long ownerId = given.valueOf("id");
-//			Recipe recipe = Recipe.builder().build();
 
             // When
             Create dto = Create.builder()
                 .ownerId(ownerId)
-                .recipeId(1L)
                 .title("매콤 가문어 볶음 만들기")
                 .content("매콤매콤 맨들맨들 가문어 볶음")
                 .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
@@ -151,15 +147,13 @@ public class PostIntegrationTest {
                 )))
                 .andExpect(jsonPath("$.views").isNumber())
                 .andExpect(jsonPath("$.views").value(0))
-                .andExpect(jsonPath("$.ownerId").value(ownerId))
-//				.andExpect(jsonPath("$.recipeId").value(1L))		// 임시
+                .andExpect(jsonPath("$.ownerId").value(ownerId))    // 임시
                 .andReturn();
 
             // Document
             actions.andDo(document("post-create-example",
                 requestFields(
                     DOC_FIELD_OWNER_ID,
-                    DOC_FIELD_RECIPE_ID,
                     DOC_FIELD_TITLE,
                     DOC_FIELD_CONTENT,
                     DOC_FIELD_PICTURE_URLS
@@ -207,7 +201,6 @@ public class PostIntegrationTest {
                 .andExpect(jsonPath("$.views").isNumber())
                 .andExpect(jsonPath("$.views").value(10))
                 .andExpect(jsonPath("$.ownerId").value(ownerId))
-//				.andExpect(jsonPath("$.recipeId").value(1L))		// 임시
                 .andReturn();
 
             // Document
@@ -215,7 +208,6 @@ public class PostIntegrationTest {
                 responseFields(
                     DOC_FIELD_ID,
                     DOC_FIELD_OWNER_ID,
-                    DOC_FIELD_RECIPE_ID,
                     DOC_FIELD_TITLE,
                     DOC_FIELD_CONTENT,
                     DOC_FIELD_PICTURE_URLS,

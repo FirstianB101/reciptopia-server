@@ -14,16 +14,14 @@ public class PostHelper {
 
     // 임의의 지정된 필드 값으로 채워진 Post 반환
     public static Post aPost() {
-        Post post = Post.builder()
+        return Post.builder()
+            .owner(anAccount())
             .title(ARBITRARY_TITLE)
             .content(ARBITRARY_CONTENT)
             .pictureUrl(ARBITRARY_PICTURE_URL_1)
             .pictureUrl(ARBITRARY_PICTURE_URL_2)
-            .build();
-        post.setId(0L);
-        post.setOwner(anAccount());
-//		post.setRecipe(anRecipe());
-        return post;
+            .build()
+            .withId(0L);
     }
 
     public static Update aPostUpdateDto() {
