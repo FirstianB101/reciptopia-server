@@ -3,6 +3,7 @@ package kr.reciptopia.reciptopiaserver.business.service.helper;
 import javax.persistence.EntityManager;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
+import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
@@ -42,4 +43,7 @@ public record RepositoryHelper(EntityManager em,
         return findOrThrow(Step.class, id);
     }
 
+    public MainIngredient findMainIngredientOrThrow(Long id) throws ResponseStatusException {
+        return findOrThrow(MainIngredient.class, id);
+    }
 }
