@@ -7,6 +7,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
+import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -45,5 +46,9 @@ public record RepositoryHelper(EntityManager em,
 
     public MainIngredient findMainIngredientOrThrow(Long id) throws ResponseStatusException {
         return findOrThrow(MainIngredient.class, id);
+    }
+
+    public SubIngredient findSubIngredientOrThrow(Long id) throws ResponseStatusException {
+        return findOrThrow(SubIngredient.class, id);
     }
 }
