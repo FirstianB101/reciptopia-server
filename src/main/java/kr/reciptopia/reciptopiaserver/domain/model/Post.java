@@ -53,7 +53,7 @@ public class Post extends TimeEntity {
     private Account owner;
 
     @ToString.Exclude
-    @OneToOne(fetch = LAZY, cascade = ALL)
+    @OneToOne(fetch = LAZY, mappedBy = "post", cascade = REMOVE)
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
