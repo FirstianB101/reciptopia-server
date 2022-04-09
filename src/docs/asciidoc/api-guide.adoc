@@ -10,14 +10,14 @@
 
 WARNING: 이 API는 아직 구현 중에 있으며 추후에 변경될 수 있습니다.
 
-NOTE: v0.4.0-alpha
+NOTE: v0.5.0-alpha
 
 ****
-v0.4.0-alpha 변경사항
+v0.5.0-alpha 변경사항
 
 '''
 
-* Reply 리소스
+* Step 리소스
 
 ****
 
@@ -459,3 +459,39 @@ operation::reply-update-example[snippets='request-fields,curl-request,http-respo
 요청의 `Authorization` 헤더로 요청을 보낸 답글 작성자 `Account` 의 엑세스 토큰이 제공되어야 합니다.
 
 operation::reply-delete-example[snippets='curl-request,http-response']
+
+[[resources_step]]
+== Step 리소스
+
+[[resources_step_retrieve]]
+=== Step 조회
+
+`GET /post/recipeId/steps/{id}` 요청으로 하나의 Step를 조회합니다.
+유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
+
+operation::step-retrieve-example[snippets='response-fields,curl-request,http-response']
+
+[[resources_step_create]]
+=== Step 생성
+
+`POST /post/recipeId/steps` 요청으로 Step를 생성합니다.
+성공 시 생성한 Step를 응답 Body로 전달합니다.
+
+operation::step-create-example[snippets='request-fields,curl-request,http-response']
+
+[[resources_step_upate]]
+=== Step 수정
+
+`PATCH /post/recipeId/steps/{id}` 요청으로 Step를 수정합니다.
+요청의 `Authorization` 헤더로 요청을 보낸 `Step` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
+성공 시 갱신된 Step를 응답 Body로 전달합니다.
+
+operation::step-update-example[snippets='request-fields,curl-request,http-response']
+
+[[resources_step_delete]]
+=== Step 삭제
+
+`DELETE /post/recipeId/steps/{id}` 요청으로 Step를 삭제합니다.
+요청의 `Authorization` 헤더로 요청을 보낸 `Step` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
+
+operation::step-delete-example[snippets='curl-request,http-response']
