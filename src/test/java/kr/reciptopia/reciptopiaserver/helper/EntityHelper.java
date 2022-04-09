@@ -3,12 +3,14 @@ package kr.reciptopia.reciptopiaserver.helper;
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aComment;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPost;
+import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReply;
 import java.util.ArrayList;
 import java.util.function.Function;
 import javax.persistence.EntityManager;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
+import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -67,6 +69,28 @@ public record EntityHelper(EntityManager em) {
 
         em.persist(comment);
         return comment;
+    }
+
+    public Reply generateReply() {
+        return generateReply(noInit());
+    }
+
+    public Reply generateReply(Function<? super Reply, ? extends Reply> initialize) {
+        Reply reply = aReply()
+            .withId(null)
+            .withOwner(null)
+            .withComment(null);
+
+        reply = initialize.apply(reply);
+        if (reply.getOwner() == null) {
+            reply.setOwner(generateAccount());
+        }
+        if (reply.getComment() == null) {
+            reply.setComment(generateComment());
+        }
+
+        em.persist(reply);
+        return reply;
     }
 
     private <T> Function<? super T, ? extends T> noInit() {
