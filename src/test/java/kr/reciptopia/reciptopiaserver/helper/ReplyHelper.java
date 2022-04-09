@@ -1,5 +1,7 @@
 package kr.reciptopia.reciptopiaserver.helper;
 
+import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
+import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aComment;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Result;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Update;
@@ -14,8 +16,10 @@ public class ReplyHelper {
 
     public static Reply aReply() {
         return Reply.builder()
+            .owner(anAccount().withId(ARBITRARY_OWNER_ID))
+            .comment(aComment().withId(ARBITRARY_COMMENT_ID))
+            .content(ARBITRARY_CONTENT)
             .build()
-            .withContent(ARBITRARY_CONTENT)
             .withId(0L);
     }
 
