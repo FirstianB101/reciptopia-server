@@ -3,7 +3,6 @@ package kr.reciptopia.reciptopiaserver.domain.model;
 import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
-
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
@@ -103,5 +102,13 @@ public class Reply extends TimeEntity {
 		if (this.equals(likeTag.getReply())) {
 			likeTag.setReply(null);
 		}
+	}
+
+	public void removeLikeTags() {
+		replyLikeTags.forEach(this::removeLikeTag);
+	}
+
+	public void removeAllCollections() {
+		removeLikeTags();
 	}
 }
