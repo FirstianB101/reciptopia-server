@@ -2,6 +2,7 @@ package kr.reciptopia.reciptopiaserver.helper;
 
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aComment;
+import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.aMainIngredient;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPost;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
 import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReply;
@@ -12,6 +13,7 @@ import java.util.function.Function;
 import javax.persistence.EntityManager;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
+import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
@@ -115,6 +117,25 @@ public record EntityHelper(EntityManager em) {
         em.persist(recipe);
 
         return recipe;
+    }
+
+    public MainIngredient generateMainIngredient() {
+        return generateMainIngredient(noInit());
+    }
+
+    public MainIngredient generateMainIngredient(
+        Function<? super MainIngredient, ? extends MainIngredient> initialize) {
+        MainIngredient mainIngredient = aMainIngredient()
+            .withId(null)
+            .withRecipe(null);
+
+        mainIngredient = initialize.apply(mainIngredient);
+        if (mainIngredient.getRecipe() == null) {
+            mainIngredient.setRecipe(generateRecipe());
+        }
+        em.persist(mainIngredient);
+
+        return mainIngredient;
     }
 
     public Step generateStep(Function<? super Step, ? extends Step> initialize) {
