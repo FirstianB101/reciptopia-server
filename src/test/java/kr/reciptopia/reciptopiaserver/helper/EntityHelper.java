@@ -7,6 +7,7 @@ import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPost;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
 import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReply;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStep;
+import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredient;
 
 import java.util.ArrayList;
 import java.util.function.Function;
@@ -18,6 +19,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
+import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -136,6 +138,25 @@ public record EntityHelper(EntityManager em) {
         em.persist(mainIngredient);
 
         return mainIngredient;
+    }
+
+    public SubIngredient generateSubIngredient() {
+        return generateSubIngredient(noInit());
+    }
+
+    public SubIngredient generateSubIngredient(
+        Function<? super SubIngredient, ? extends SubIngredient> initialize) {
+        SubIngredient subIngredient = aSubIngredient()
+            .withId(null)
+            .withRecipe(null);
+
+        subIngredient = initialize.apply(subIngredient);
+        if (subIngredient.getRecipe() == null) {
+            subIngredient.setRecipe(generateRecipe());
+        }
+        em.persist(subIngredient);
+
+        return subIngredient;
     }
 
     public Step generateStep(Function<? super Step, ? extends Step> initialize) {
