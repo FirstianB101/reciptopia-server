@@ -3,7 +3,6 @@ package kr.reciptopia.reciptopiaserver.controller;
 import java.util.List;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.CommentService;
-import kr.reciptopia.reciptopiaserver.business.service.PostService;
 import kr.reciptopia.reciptopiaserver.business.service.spec.CommentSpecs;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Result;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentController {
 
     private final CommentService service;
-    private final PostService postService;
 
     @PostMapping("/post/comments")
     @ResponseStatus(HttpStatus.CREATED)
