@@ -286,7 +286,7 @@ public class CommentIntegrationTest {
                     it.withContent("테스트 댓글 내용")
                 );
 
-                String token = commentAuthHelper.generateToken(comment.getOwner());
+                String token = commentAuthHelper.generateToken(comment);
                 return new Struct()
                     .withValue("token", token)
                     .withValue("id", comment.getId());
@@ -342,7 +342,7 @@ public class CommentIntegrationTest {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
                 Comment comment = entityHelper.generateComment();
-                String token = commentAuthHelper.generateToken(comment.getOwner());
+                String token = commentAuthHelper.generateToken(comment);
                 return new Struct()
                     .withValue("token", token)
                     .withValue("id", comment.getId());
