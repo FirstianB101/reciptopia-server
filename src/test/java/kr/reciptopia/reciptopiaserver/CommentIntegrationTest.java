@@ -20,7 +20,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -64,10 +63,6 @@ public class CommentIntegrationTest {
         fieldWithPath("postId").description("댓글 게시물 ID");
     private static final FieldDescriptor DOC_FIELD_CONTENT =
         fieldWithPath("content").description("댓글 내용");
-    private static final FieldDescriptor DOC_FIELD_REPLIES =
-        fieldWithPath("replies").description("답글 목록");
-    private static final FieldDescriptor DOC_FIELD_COMMENT_LIKE_TAGS =
-        fieldWithPath("commentLikeTags").description("댓글 좋아요 목록");
 
     private MockMvc mockMvc;
 
@@ -190,9 +185,7 @@ public class CommentIntegrationTest {
                     DOC_FIELD_ID,
                     DOC_FIELD_OWNER_ID,
                     DOC_FIELD_POST_ID,
-                    DOC_FIELD_CONTENT,
-                    DOC_FIELD_REPLIES,
-                    DOC_FIELD_COMMENT_LIKE_TAGS
+                    DOC_FIELD_CONTENT
                 )));
         }
 
