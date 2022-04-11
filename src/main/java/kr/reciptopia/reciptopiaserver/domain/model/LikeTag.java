@@ -36,7 +36,7 @@ public abstract class LikeTag extends TimeEntity {
 
     public void setOwner(Account owner) {
         if (this.owner != owner) {
-            if (this.owner != null)
+            if (this.owner != null && owner != null)
                 this.owner.removeLikeTag(this);
             this.owner = owner;
             if (owner != null) {
