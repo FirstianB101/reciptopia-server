@@ -51,7 +51,7 @@ public abstract class Ingredient extends TimeEntity {
 
     public void setRecipe(Recipe recipe) {
         if (this.recipe != recipe) {
-            if (this.recipe != null)
+            if (this.recipe != null && recipe != null)
                 this.recipe.removeIngredient(this);
             this.recipe = recipe;
             if (recipe != null)
