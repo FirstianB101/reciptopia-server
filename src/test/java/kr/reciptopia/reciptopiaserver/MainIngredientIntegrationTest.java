@@ -372,7 +372,7 @@ public class MainIngredientIntegrationTest {
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(emptyString()));
 
-            assertThat(repository.findById(id)).isEmpty();
+            assertThat(repository.existsById(id)).isFalse();
 
             // Document
             actions.andDo(document("main-ingredient-delete-example"));
