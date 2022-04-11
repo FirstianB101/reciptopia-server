@@ -35,6 +35,7 @@ import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.AccountAuthHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.PostAuthHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
@@ -81,9 +82,6 @@ public class AccountIntegrationTest {
 
     @Autowired
     private AccountRepository repository;
-
-    @Autowired
-    private PostRepository postRepository;
 
     @Autowired
     private DataSource dataSource;
@@ -364,7 +362,9 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        void Post가_있는_Account_수정() throws Exception {
+        void Post가_있는_Account_수정(
+            @Autowired PostRepository postRepository
+        ) throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
 
@@ -464,12 +464,15 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        void Post가_있는_Account_삭제() throws Exception {
+        void Post가_있는_Account_삭제(
+            @Autowired PostRepository postRepository,
+            @Autowired PostAuthHelper postAuthHelper
+        ) throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
 
                 Post post = entityHelper.generatePost();
-                String token = accountAuthHelper.generateToken(post.getOwner());
+                String token = postAuthHelper.generateToken(post);
                 return new Struct()
                     .withValue("token", token)
                     .withValue("postId", post.getId())
