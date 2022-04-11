@@ -2,6 +2,7 @@ package kr.reciptopia.reciptopiaserver;
 
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPostUpdateDto;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
@@ -26,13 +27,18 @@ import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
+import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
+import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
 import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.PostAuthHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.RecipeAuthHelper;
+import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.RecipeRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -423,6 +429,67 @@ public class PostIntegrationTest {
                 .andExpect(status().isNotFound());
         }
 
+        @Test
+        void Comment가_있는_Post_삭제(
+            @Autowired CommentRepository commentRepository) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Comment comment = entityHelper.generateComment();
+                String token = postAuthHelper.generateToken(comment.getPost());
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("commentId", comment.getId())
+                    .withValue("postId", comment.getPost().getId());
+            });
+            Long postId = given.valueOf("postId");
+            Long commentId = given.valueOf("commentId");
+            String token = given.valueOf("token");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/posts/{id}", postId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(commentRepository.existsById(commentId)).isFalse();
+            assertThat(repository.existsById(postId)).isFalse();
+        }
+
+        @Test
+        void Recipe가_있는_Post_삭제(
+            @Autowired RecipeAuthHelper recipeAuthHelper,
+            @Autowired RecipeRepository recipeRepository
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipe = entityHelper.generateRecipe();
+                String token = recipeAuthHelper.generateToken(recipe);
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("recipeId", recipe.getId())
+                    .withValue("postId", recipe.getPost().getId());
+            });
+            Long postId = given.valueOf("postId");
+            Long recipeId = given.valueOf("recipeId");
+            String token = given.valueOf("token");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/posts/{id}", postId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(recipeRepository.existsById(recipeId)).isFalse();
+            assertThat(repository.existsById(postId)).isFalse();
+        }
     }
 
 }
