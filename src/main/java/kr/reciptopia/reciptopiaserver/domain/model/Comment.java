@@ -75,7 +75,7 @@ public class Comment extends TimeEntity {
 
     public void setOwner(Account owner) {
         if (this.owner != owner) {
-            if (this.owner != null)
+            if (this.owner != null && owner != null)
                 this.owner.removeComment(this);
             this.owner = owner;
             if (owner != null) {
