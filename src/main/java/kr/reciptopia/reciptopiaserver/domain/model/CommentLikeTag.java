@@ -38,7 +38,7 @@ public class CommentLikeTag extends LikeTag {
 
     public void setComment(Comment comment) {
         if (this.comment != comment) {
-            if (this.comment != null)
+            if (this.comment != null && comment != null)
                 this.comment.removeLikeTag(this);
             this.comment = comment;
             if (comment != null) {

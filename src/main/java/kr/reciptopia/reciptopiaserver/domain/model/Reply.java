@@ -78,7 +78,7 @@ public class Reply extends TimeEntity {
 
 	public void setComment(Comment comment) {
 		if (this.comment != comment) {
-			if (this.comment != null)
+			if (this.comment != null && comment != null)
 				this.comment.removeReply(this);
 			this.comment = comment;
 			if (comment != null) {
