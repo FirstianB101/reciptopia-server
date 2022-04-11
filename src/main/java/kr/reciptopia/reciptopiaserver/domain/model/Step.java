@@ -54,7 +54,7 @@ public class Step extends TimeEntity {
 
 	public void setRecipe(Recipe recipe) {
 		if (this.recipe != recipe) {
-			if (this.recipe != null)
+			if (this.recipe != null && recipe != null)
 				this.recipe.removeStep(this);
 			this.recipe = recipe;
 			if (recipe != null)
