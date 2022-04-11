@@ -413,7 +413,7 @@ public class PostIntegrationTest {
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(emptyString()));
 
-//			assertThat(repository.findByOwnerIdAndRecipeId()).isEmpty();
+            assertThat(repository.existsById(id)).isFalse();
 
             // Document
             actions.andDo(document("post-delete-example"));
