@@ -28,16 +28,22 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
+import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
+import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
 import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.AccountAuthHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.CommentAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.PostAuthHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.ReplyAuthHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.ReplyRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -495,6 +501,77 @@ public class AccountIntegrationTest {
             assertThat(postRepository.findById(postId)).isEmpty();
         }
 
+        @Test
+        void Comment가_있는_Account_삭제(
+            @Autowired CommentRepository commentRepository,
+            @Autowired PostRepository postRepository,
+            @Autowired CommentAuthHelper commentAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Comment comment = entityHelper.generateComment();
+                String token = commentAuthHelper.generateToken(comment);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("commentId", comment.getId())
+                    .withValue("postId", comment.getPost().getId())
+                    .withValue("ownerId", comment.getOwner().getId());
+            });
+            String token = given.valueOf("token");
+            Long commentId = given.valueOf("commentId");
+            Long ownerId = given.valueOf("ownerId");
+            Long postId = given.valueOf("postId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(ownerId)).isFalse();
+            assertThat(commentRepository.existsById(commentId)).isFalse();
+            assertThat(postRepository.existsById(postId)).isTrue();
+        }
+
+        @Test
+        void Reply가_있는_Account_삭제(
+            @Autowired ReplyRepository replyRepository,
+            @Autowired CommentRepository commentRepository,
+            @Autowired ReplyAuthHelper replyAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Reply reply = entityHelper.generateReply();
+                String token = replyAuthHelper.generateToken(reply);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("replyId", reply.getId())
+                    .withValue("commentId", reply.getComment().getId())
+                    .withValue("ownerId", reply.getOwner().getId());
+            });
+            String token = given.valueOf("token");
+            Long replyId = given.valueOf("replyId");
+            Long ownerId = given.valueOf("ownerId");
+            Long commentId = given.valueOf("commentId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(ownerId)).isFalse();
+            assertThat(replyRepository.existsById(replyId)).isFalse();
+            assertThat(commentRepository.existsById(commentId)).isTrue();
+        }
     }
 
     @Nested
