@@ -1,6 +1,7 @@
 package kr.reciptopia.reciptopiaserver;
 
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
+import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aCommentCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aCommentUpdateDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -145,6 +146,21 @@ public class CommentIntegrationTest {
                     DOC_FIELD_CONTENT
                 )));
         }
+
+        @Test
+        void postComment_CommentNotFound_NotFoundStatus() throws Exception {
+            // When
+            String body = jsonHelper.toJson(aCommentCreateDto());
+
+            ResultActions actions = mockMvc.perform(post("/post/comments")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
+
     }
 
     @Nested
