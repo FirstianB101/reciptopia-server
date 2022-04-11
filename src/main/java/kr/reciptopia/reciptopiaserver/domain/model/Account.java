@@ -292,6 +292,7 @@ public class Account extends TimeEntity {
     public void removeAllCollections() {
         removePosts();
         removeComments();
+        removeReplies();
         removeLikeTags(postLikeTags);
         removeLikeTags(commentLikeTags);
         removeLikeTags(replyLikeTags);
