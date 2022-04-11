@@ -4,6 +4,7 @@ import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
+
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
@@ -74,7 +75,7 @@ public class Comment extends TimeEntity {
 
     public void setOwner(Account owner) {
         if (this.owner != owner) {
-            if (this.owner != null)
+            if (this.owner != null && owner != null)
                 this.owner.removeComment(this);
             this.owner = owner;
             if (owner != null) {
@@ -85,7 +86,7 @@ public class Comment extends TimeEntity {
 
     public void setPost(Post post) {
         if (this.post != post) {
-            if (this.post != null)
+            if (this.post != null && post != null)
                 this.post.removeComment(this);
             this.post = post;
             if (post != null) {
