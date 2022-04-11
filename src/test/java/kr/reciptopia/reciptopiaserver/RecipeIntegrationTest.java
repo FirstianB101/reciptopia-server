@@ -24,14 +24,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
+import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
+import kr.reciptopia.reciptopiaserver.domain.model.Step;
+import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
 import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.IngredientAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.RecipeAuthHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.StepAuthHelper;
+import kr.reciptopia.reciptopiaserver.persistence.repository.MainIngredientRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.RecipeRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.StepRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.SubIngredientRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -301,6 +309,103 @@ public class RecipeIntegrationTest {
             // Then
             actions
                 .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void Step가_있는_Recipe_삭제(
+            @Autowired StepRepository stepRepository,
+            @Autowired StepAuthHelper stepAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Step step = entityHelper.generateStep();
+                String token = stepAuthHelper.generateToken(step);
+                return new Struct()
+                    .withValue("recipeId", step.getRecipe().getId())
+                    .withValue("token", token)
+                    .withValue("stepId", step.getId());
+            });
+            String token = given.valueOf("token");
+            Long recipeId = given.valueOf("recipeId");
+            Long stepId = given.valueOf("stepId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/post/recipes/{id}", recipeId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(recipeId)).isFalse();
+            assertThat(stepRepository.existsById(stepId)).isFalse();
+        }
+
+        @Test
+        void MainIngredient가_있는_Recipe_삭제(
+            @Autowired
+                MainIngredientRepository mainIngredientRepository,
+            @Autowired
+                IngredientAuthHelper ingredientAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                MainIngredient mainIngredient = entityHelper.generateMainIngredient();
+                String token = ingredientAuthHelper.generateToken(mainIngredient);
+                return new Struct()
+                    .withValue("recipeId", mainIngredient.getRecipe().getId())
+                    .withValue("token", token)
+                    .withValue("mainIngredientId", mainIngredient.getId());
+            });
+            String token = given.valueOf("token");
+            Long recipeId = given.valueOf("recipeId");
+            Long mainIngredientId = given.valueOf("mainIngredientId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/post/recipes/{id}", recipeId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(recipeId)).isFalse();
+            assertThat(mainIngredientRepository.existsById(mainIngredientId)).isFalse();
+        }
+
+        @Test
+        void SubIngredient가_있는_Recipe_삭제(
+            @Autowired
+                SubIngredientRepository subIngredientRepository,
+            @Autowired
+                IngredientAuthHelper ingredientAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                SubIngredient subIngredient = entityHelper.generateSubIngredient();
+                String token = ingredientAuthHelper.generateToken(subIngredient);
+                return new Struct()
+                    .withValue("recipeId", subIngredient.getRecipe().getId())
+                    .withValue("token", token)
+                    .withValue("subIngredientId", subIngredient.getId());
+            });
+            String token = given.valueOf("token");
+            Long recipeId = given.valueOf("recipeId");
+            Long subIngredientId = given.valueOf("subIngredientId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/post/recipes/{id}", recipeId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(recipeId)).isFalse();
+            assertThat(subIngredientRepository.existsById(subIngredientId)).isFalse();
         }
     }
 }
