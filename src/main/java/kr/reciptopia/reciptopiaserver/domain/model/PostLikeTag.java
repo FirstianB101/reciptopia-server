@@ -38,7 +38,7 @@ public class PostLikeTag extends LikeTag {
 
 	public void setPost(Post post) {
 		if (this.post != post) {
-			if (this.post != null)
+			if (this.post != null && post != null)
 				this.post.removeLikeTag(this);
 			this.post = post;
 			if (post != null) {
