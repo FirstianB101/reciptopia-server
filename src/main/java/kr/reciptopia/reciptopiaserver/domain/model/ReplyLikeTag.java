@@ -38,7 +38,7 @@ public class ReplyLikeTag extends LikeTag {
 
 	public void setReply(Reply reply) {
 		if (this.reply != reply) {
-			if (this.reply != null)
+			if (this.reply != null && reply != null)
 				this.reply.removeLikeTag(this);
 			this.reply = reply;
 			if (reply != null) {
