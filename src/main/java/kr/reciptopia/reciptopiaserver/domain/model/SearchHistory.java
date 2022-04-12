@@ -62,4 +62,13 @@ public class SearchHistory extends TimeEntity {
             }
         }
     }
+
+    public SearchHistory withIngredientName(String ingredientName) {
+        return SearchHistory.builder()
+            .ingredientNames(ingredientNames)
+            .ingredientName(ingredientName)
+            .owner(owner)
+            .build()
+            .withId(id);
+    }
 }
