@@ -6,10 +6,13 @@ import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.aMainIn
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPost;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
 import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReply;
+import static kr.reciptopia.reciptopiaserver.helper.SearchHistoryHelper.aSearchHistory;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStep;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredient;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 import javax.persistence.EntityManager;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
@@ -18,6 +21,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
+import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
 import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
 import org.springframework.stereotype.Component;
@@ -179,6 +183,30 @@ public record EntityHelper(EntityManager em) {
 
     private <T> Function<? super T, ? extends T> noInit() {
         return (arg) -> arg;
+    }
+
+    public SearchHistory generateSearchHistory() {
+        return generateSearchHistory(noInit());
+    }
+
+    public SearchHistory generateSearchHistory(
+        Function<? super SearchHistory, ? extends SearchHistory> initialize) {
+        SearchHistory searchHistory = aSearchHistory()
+            .withId(null)
+            .withOwner(null)
+            .withIngredientNames(new HashSet<>());
+
+        searchHistory = initialize.apply(searchHistory);
+        if (searchHistory.getOwner() == null) {
+            searchHistory.setOwner(generateAccount());
+        }
+        if (searchHistory.getIngredientNames().isEmpty()) {
+            searchHistory.setIngredientNames(Set.of("된장", "감자", "두부"));
+        }
+
+        em.persist(searchHistory);
+
+        return searchHistory;
     }
 
 }
