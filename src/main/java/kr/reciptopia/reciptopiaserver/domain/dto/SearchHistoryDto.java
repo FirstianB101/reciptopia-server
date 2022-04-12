@@ -2,6 +2,7 @@ package kr.reciptopia.reciptopiaserver.domain.dto;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
@@ -27,6 +28,21 @@ public interface SearchHistoryDto {
             this.ownerId = ownerId;
             this.ingredientNames = ingredientNames;
         }
+
+        public SearchHistory asEntity(
+            Function<? super SearchHistory, ? extends SearchHistory> initialize) {
+            return initialize.apply(SearchHistory.builder()
+                .ingredientNames(ingredientNames)
+                .build());
+        }
+
+        public SearchHistory asEntity() {
+            return asEntity(noInit());
+        }
+
+        private <T> Function<? super T, ? extends T> noInit() {
+            return (arg) -> arg;
+        }
     }
 
     @With
@@ -50,6 +66,12 @@ public interface SearchHistoryDto {
                 .ownerId(searchHistory.getOwner().getId())
                 .ingredientNames(searchHistory.getIngredientNames())
                 .build();
+        }
+
+        public static List<Result> of(Streamable<SearchHistory> searchHistorys) {
+            return searchHistorys.stream()
+                .map(Result::of)
+                .collect(Collectors.toList());
         }
     }
 }
