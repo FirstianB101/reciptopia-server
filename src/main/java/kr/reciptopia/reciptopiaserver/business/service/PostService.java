@@ -55,7 +55,7 @@ public class PostService {
         if (dto.pictureUrls() != null) {
             post.setPictureUrls(dto.pictureUrls());
         }
-        if (dto.title() != null) {
+        if (dto.title() != null && !dto.title().isBlank()) {
             post.setTitle(dto.title());
         }
         if (dto.content() != null) {
