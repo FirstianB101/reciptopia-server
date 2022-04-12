@@ -3,10 +3,13 @@ package kr.reciptopia.reciptopiaserver.business.service.helper;
 import javax.persistence.EntityManager;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
+import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
+import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
+import kr.reciptopia.reciptopiaserver.domain.model.ReplyLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
 import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
 import org.springframework.stereotype.Component;
@@ -39,6 +42,18 @@ public record RepositoryHelper(EntityManager em,
 
     public Reply findReplyOrThrow(Long id) throws ResponseStatusException {
         return findOrThrow(Reply.class, id);
+    }
+
+    public PostLikeTag findPostLikeTagOrThrow(Long id) throws ResponseStatusException {
+        return findOrThrow(PostLikeTag.class, id);
+    }
+
+    public CommentLikeTag findCommentLikeTagOrThrow(Long id) throws ResponseStatusException {
+        return findOrThrow(CommentLikeTag.class, id);
+    }
+
+    public ReplyLikeTag findReplyLikeTagOrThrow(Long id) throws ResponseStatusException {
+        return findOrThrow(ReplyLikeTag.class, id);
     }
 
     public Recipe findRecipeOrThrow(Long id) throws ResponseStatusException {
