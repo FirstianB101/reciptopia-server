@@ -1,14 +1,27 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
 
-import lombok.*;
-
-import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
-
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
+
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Singular;
+import lombok.ToString;
+import lombok.With;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -29,21 +42,14 @@ public class SearchHistory extends TimeEntity {
     @JoinColumn(name = "account_id")
     private Account owner;
 
+    @Singular
     @ElementCollection(fetch = LAZY)
-    private Set<String> ingredients = new HashSet<>();
-
-    private String recipeName;
+    private Set<String> ingredientNames = new HashSet<>();
 
     @Builder
-    public SearchHistory(Account owner, Set<String> ingredients) {
+    public SearchHistory(Account owner, @Singular Set<String> ingredientNames) {
         setOwner(owner);
-        this.ingredients = ingredients;
-    }
-
-    @Builder
-    public SearchHistory(Account owner, String recipeName) {
-        setOwner(owner);
-        this.recipeName = recipeName;
+        this.ingredientNames = ingredientNames;
     }
 
     public void setOwner(Account owner) {
