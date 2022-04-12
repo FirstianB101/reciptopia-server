@@ -48,8 +48,7 @@ public interface PostDto {
 
         @Builder
         public Update(
-            @NotEmpty
-                String title,
+            String title,
 
             String content,
 
