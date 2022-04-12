@@ -11,6 +11,7 @@ public class CommentHelper {
     private static final Long ARBITRARY_OWNER_ID = 0L;
     private static final Long ARBITRARY_POST_ID = 0L;
     private static final String ARBITRARY_CONTENT = "테스트 댓글 내용";
+    private static final String ARBITRARY_NEW_CONTENT = "새 댓글 내용";
 
     public static Comment aComment() {
         Comment comment = Comment.builder()
@@ -26,12 +27,13 @@ public class CommentHelper {
         return Create.builder()
             .ownerId(ARBITRARY_OWNER_ID)
             .postId(ARBITRARY_POST_ID)
+            .content(ARBITRARY_CONTENT)
             .build();
     }
 
     public static Update aCommentUpdateDto() {
         return Update.builder()
-            .content(ARBITRARY_CONTENT)
+            .content(ARBITRARY_NEW_CONTENT)
             .build();
     }
 
