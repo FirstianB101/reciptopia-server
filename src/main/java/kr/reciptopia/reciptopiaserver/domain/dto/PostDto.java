@@ -102,7 +102,7 @@ public interface PostDto {
 
         public static List<Result> of(Streamable<Post> entities) {
             return entities.stream()
-                .map(post -> of(post))
+                .map(Result::of)
                 .collect(Collectors.toList());
         }
     }
