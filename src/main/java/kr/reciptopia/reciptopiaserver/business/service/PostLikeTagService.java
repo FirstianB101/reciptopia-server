@@ -12,7 +12,6 @@ import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagReposito
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +43,8 @@ public class PostLikeTagService {
         return Result.of(repoHelper.findPostLikeTagOrThrow(id));
     }
 
-    public List<Result> search(Specification<PostLikeTag> spec, Pageable pageable) {
-        Page<PostLikeTag> entities = postLikeTagRepository.findAll(spec, pageable);
+    public List<Result> search(Pageable pageable) {
+        Page<PostLikeTag> entities = postLikeTagRepository.findAll(pageable);
         return Result.of(entities);
     }
 
