@@ -207,7 +207,6 @@ public class PostLikeTagIntegrationTest {
     }
 
     @Nested
-    @Disabled
     class SearchPostLikeTags {
 
         @Test
