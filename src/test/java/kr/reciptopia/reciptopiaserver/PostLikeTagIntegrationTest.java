@@ -34,7 +34,6 @@ import kr.reciptopia.reciptopiaserver.helper.auth.LikeTagAuthHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -305,7 +304,7 @@ public class PostLikeTagIntegrationTest {
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(emptyString()));
 
-            assertThat(repository.findById(id)).isEmpty();
+            assertThat(repository.existsById(id)).isFalse();
 
             // Document
             actions.andDo(document("postLikeTag-delete-example"));
