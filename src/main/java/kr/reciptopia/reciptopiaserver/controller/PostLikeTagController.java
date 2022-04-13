@@ -1,10 +1,12 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
+import java.util.List;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.PostLikeTagService;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostLikeTagDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostLikeTagDto.Result;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -32,6 +34,11 @@ public class PostLikeTagController {
 	@GetMapping("/post/likeTags/{id}")
 	public Result get(@PathVariable Long id) {
 		return service.read(id);
+	}
+
+	@GetMapping("/post/likeTags")
+	public List<Result> search(Pageable pageable) {
+		return service.search(pageable);
 	}
 
 	@DeleteMapping("/post/likeTags/{id}")
