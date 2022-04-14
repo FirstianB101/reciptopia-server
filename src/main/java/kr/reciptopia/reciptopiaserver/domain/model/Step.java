@@ -51,14 +51,4 @@ public class Step extends TimeEntity {
 		setDescription(description);
 		setPictureUrl(pictureUrl);
 	}
-
-	public void setRecipe(Recipe recipe) {
-		if (this.recipe != recipe) {
-			if (this.recipe != null && recipe != null)
-				this.recipe.removeStep(this);
-			this.recipe = recipe;
-			if (recipe != null)
-				recipe.addStep(this);
-		}
-	}
 }
