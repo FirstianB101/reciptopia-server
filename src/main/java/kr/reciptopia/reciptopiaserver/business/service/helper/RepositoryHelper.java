@@ -10,6 +10,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import kr.reciptopia.reciptopiaserver.domain.model.ReplyLikeTag;
+import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
 import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
 import org.springframework.stereotype.Component;
@@ -70,5 +71,9 @@ public record RepositoryHelper(EntityManager em,
 
     public SubIngredient findSubIngredientOrThrow(Long id) throws ResponseStatusException {
         return findOrThrow(SubIngredient.class, id);
+    }
+
+    public SearchHistory findSearchHistoryOrThrow(Long id) throws ResponseStatusException {
+        return findOrThrow(SearchHistory.class, id);
     }
 }

@@ -143,7 +143,7 @@ public class Post extends TimeEntity {
     }
 
     public void removeComments() {
-        comments.forEach(comment -> removeComment(comment));
+        comments.forEach(this::removeComment);
     }
 
     public void addLikeTag(PostLikeTag likeTag) {

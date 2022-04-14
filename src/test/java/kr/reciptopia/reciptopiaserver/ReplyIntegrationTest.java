@@ -1,6 +1,7 @@
 package kr.reciptopia.reciptopiaserver;
 
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
+import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReplyCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReplyUpdateDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -20,7 +21,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -145,6 +145,20 @@ public class ReplyIntegrationTest {
                     DOC_FIELD_COMMENT_ID,
                     DOC_FIELD_CONTENT
                 )));
+        }
+
+        @Test
+        void postReply_ReplyNotFound_NotFoundStatus() throws Exception {
+            // When
+            String body = jsonHelper.toJson(aReplyCreateDto());
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/replies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
         }
 
     }

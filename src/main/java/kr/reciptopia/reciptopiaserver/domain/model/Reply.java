@@ -3,6 +3,7 @@ package kr.reciptopia.reciptopiaserver.domain.model;
 import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
+
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
@@ -67,7 +68,7 @@ public class Reply extends TimeEntity {
 
 	public void setOwner(Account owner) {
 		if (this.owner != owner) {
-			if (this.owner != null)
+			if (this.owner != null && owner != null)
 				this.owner.removeReply(this);
 			this.owner = owner;
 			if (owner != null) {
@@ -78,7 +79,7 @@ public class Reply extends TimeEntity {
 
 	public void setComment(Comment comment) {
 		if (this.comment != comment) {
-			if (this.comment != null)
+			if (this.comment != null && comment != null)
 				this.comment.removeReply(this);
 			this.comment = comment;
 			if (comment != null) {

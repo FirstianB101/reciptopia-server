@@ -48,8 +48,7 @@ public interface PostDto {
 
         @Builder
         public Update(
-            @NotEmpty
-                String title,
+            String title,
 
             String content,
 
@@ -103,7 +102,7 @@ public interface PostDto {
 
         public static List<Result> of(Streamable<Post> entities) {
             return entities.stream()
-                .map(post -> of(post))
+                .map(Result::of)
                 .collect(Collectors.toList());
         }
     }
