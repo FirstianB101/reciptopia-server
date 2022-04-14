@@ -2,7 +2,6 @@ package kr.reciptopia.reciptopiaserver.domain.model;
 
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
-
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -27,12 +26,16 @@ public abstract class LikeTag extends TimeEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "like_tag_id")
-    private Long id;
+    protected Long id;
 
     @ToString.Exclude
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "account_id")
-    private Account owner;
+    protected Account owner;
+
+    protected LikeTag(Account owner) {
+        setOwner(owner);
+    }
 
     public void setOwner(Account owner) {
         if (this.owner != owner) {

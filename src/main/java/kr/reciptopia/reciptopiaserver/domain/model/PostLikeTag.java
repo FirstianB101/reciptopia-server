@@ -1,7 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
 import static javax.persistence.FetchType.LAZY;
-
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -13,14 +12,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.With;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Setter
 @ToString
-@With
 @Entity
 public class PostLikeTag extends LikeTag {
 
@@ -32,8 +29,35 @@ public class PostLikeTag extends LikeTag {
 
 	@Builder
 	public PostLikeTag(Account owner, Post post) {
-		setOwner(owner);
+		super(owner);
 		setPost(post);
+	}
+
+	public PostLikeTag withId(Long id) {
+		PostLikeTag postLikeTag = PostLikeTag.builder()
+			.owner(owner)
+			.post(post)
+			.build();
+		postLikeTag.setId(id);
+		return this.id != null && this.id.equals(id) ? this : postLikeTag;
+	}
+
+	public PostLikeTag withOwner(Account owner) {
+		return this.owner != null && this.owner.equals(owner) ? this :
+			PostLikeTag.builder()
+				.owner(owner)
+				.post(post)
+				.build()
+				.withId(id);
+	}
+
+	public PostLikeTag withPost(Post post) {
+		return this.post != null && this.post.equals(post) ? this :
+			PostLikeTag.builder()
+				.owner(owner)
+				.post(post)
+				.build()
+				.withId(id);
 	}
 
 	public void setPost(Post post) {

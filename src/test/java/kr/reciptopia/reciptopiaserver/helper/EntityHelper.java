@@ -4,12 +4,12 @@ import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aComment;
 import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.aMainIngredient;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPost;
+import static kr.reciptopia.reciptopiaserver.helper.PostLikeTagHelper.aPostLikeTag;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
 import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReply;
 import static kr.reciptopia.reciptopiaserver.helper.SearchHistoryHelper.aSearchHistory;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStep;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredient;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,6 +19,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
+import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
@@ -104,6 +105,29 @@ public record EntityHelper(EntityManager em) {
 
         em.persist(reply);
         return reply;
+    }
+
+    public PostLikeTag generatePostLikeTag() {
+        return generatePostLikeTag(noInit());
+    }
+
+    public PostLikeTag generatePostLikeTag(
+        Function<? super PostLikeTag, ? extends PostLikeTag> initialize) {
+        PostLikeTag postLikeTag = aPostLikeTag()
+            .withId(null)
+            .withOwner(null)
+            .withPost(null);
+
+        postLikeTag = initialize.apply(postLikeTag);
+        if (postLikeTag.getOwner() == null) {
+            postLikeTag.setOwner(generateAccount());
+        }
+        if (postLikeTag.getPost() == null) {
+            postLikeTag.setPost(generatePost());
+        }
+
+        em.persist(postLikeTag);
+        return postLikeTag;
     }
 
     public Recipe generateRecipe() {
