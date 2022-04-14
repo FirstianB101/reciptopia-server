@@ -5,5 +5,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReplyRepository extends BaseRepository<Reply, Long> {
+
     void deleteAllInBatchByOwnerId(Long ownerId);
+
+    void deleteAllInBatchByCommentId(Long commentId);
 }
