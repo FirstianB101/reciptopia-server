@@ -2,6 +2,7 @@ package kr.reciptopia.reciptopiaserver.domain.model;
 
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
+
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -35,16 +36,5 @@ public abstract class LikeTag extends TimeEntity {
 
     protected LikeTag(Account owner) {
         setOwner(owner);
-    }
-
-    public void setOwner(Account owner) {
-        if (this.owner != owner) {
-            if (this.owner != null && owner != null)
-                this.owner.removeLikeTag(this);
-            this.owner = owner;
-            if (owner != null) {
-                owner.addLikeTag(this);
-            }
-        }
     }
 }

@@ -66,17 +66,6 @@ public class Reply extends TimeEntity {
 		setContent(content);
 	}
 
-	public void setOwner(Account owner) {
-		if (this.owner != owner) {
-			if (this.owner != null && owner != null)
-				this.owner.removeReply(this);
-			this.owner = owner;
-			if (owner != null) {
-				owner.addReply(this);
-			}
-		}
-	}
-
 	public void setComment(Comment comment) {
 		if (this.comment != comment) {
 			if (this.comment != null && comment != null)
