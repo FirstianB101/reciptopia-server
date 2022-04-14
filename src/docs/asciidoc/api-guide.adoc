@@ -684,7 +684,7 @@ operation::postLikeTag-list-example[snippets='request-parameters,curl-request,ht
 operation::postLikeTag-create-example[snippets='request-fields,curl-request,http-response']
 
 [[resources_postLikeTag_delete]]
-=== PostLikeTag 삭제서
+=== PostLikeTag 삭제
 
 `DELETE /post/likeTags/{id}` 요청으로 PostLikeTag를 삭제합니다.
 요청의 `Authorization` 헤더로 요청을 보낸 `PostLikeTag` 의 소유자(게시물 좋아요를 누른) `Account` 엑세스 토큰이 제공되어야 합니다.
