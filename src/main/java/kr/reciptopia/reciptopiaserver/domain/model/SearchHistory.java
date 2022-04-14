@@ -52,17 +52,6 @@ public class SearchHistory extends TimeEntity {
         this.ingredientNames = ingredientNames;
     }
 
-    public void setOwner(Account owner) {
-        if (this.owner != owner) {
-            if (this.owner != null && owner != null)
-                this.owner.removeSearchHistory(this);
-            this.owner = owner;
-            if (owner != null) {
-                owner.addSearchHistory(this);
-            }
-        }
-    }
-
     public SearchHistory withIngredientName(String ingredientName) {
         return SearchHistory.builder()
             .ingredientNames(ingredientNames)

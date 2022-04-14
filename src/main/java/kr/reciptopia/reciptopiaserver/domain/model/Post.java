@@ -104,17 +104,6 @@ public class Post extends TimeEntity {
             .withViews(views);
     }
 
-    public void setOwner(Account owner) {
-        if (this.owner != owner) {
-            if (this.owner != null && owner != null)
-                this.owner.removePost(this);
-            this.owner = owner;
-            if (owner != null) {
-                owner.addPost(this);
-            }
-        }
-    }
-
     public void setRecipe(Recipe recipe) {
         if (this.recipe != recipe) {
             if (this.recipe != null)
