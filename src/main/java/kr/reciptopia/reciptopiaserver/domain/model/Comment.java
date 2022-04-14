@@ -73,17 +73,6 @@ public class Comment extends TimeEntity {
         setContent(content);
     }
 
-    public void setPost(Post post) {
-        if (this.post != post) {
-            if (this.post != null && post != null)
-                this.post.removeComment(this);
-            this.post = post;
-            if (post != null) {
-                post.addComment(this);
-            }
-        }
-    }
-
     public void addLikeTag(CommentLikeTag likeTag) {
         commentLikeTags.add(likeTag);
         if (!this.equals(likeTag.getComment())) {

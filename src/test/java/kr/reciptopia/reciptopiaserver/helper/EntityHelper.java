@@ -11,6 +11,7 @@ import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReply;
 import static kr.reciptopia.reciptopiaserver.helper.SearchHistoryHelper.aSearchHistory;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStep;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredient;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,7 +54,6 @@ public record EntityHelper(EntityManager em) {
         Post post = aPost()
             .withId(null)
             .withOwner(null)
-            .withRecipe(null)
             .withPictureUrls(new ArrayList<>());
 
         post = initialize.apply(post);

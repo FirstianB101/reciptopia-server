@@ -68,16 +68,6 @@ public class Recipe extends TimeEntity {
         setPost(post);
     }
 
-    public void setPost(Post post) {
-        if (this.post != post) {
-            if (this.post != null)
-                this.post.setRecipe(null);
-            this.post = post;
-            if (post != null)
-                post.setRecipe(this);
-        }
-    }
-
     public void addStep(Step step) {
         steps.add(step);
         if (!this.equals(step.getRecipe())) {
