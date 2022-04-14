@@ -10,6 +10,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final ReplyRepository replyRepository;
     private final RepositoryHelper repoHelper;
     private final CommentAuthorizer commentAuthorizer;
 
@@ -66,7 +68,7 @@ public class CommentService {
     public void delete(Long id, Authentication authentication) {
         Comment comment = repoHelper.findCommentOrThrow(id);
         commentAuthorizer.requireCommentOwner(authentication, comment);
-        comment.removeAllCollections();
+        replyRepository.deleteAllInBatchByCommentId(comment.getId());
 
         commentRepository.delete(comment);
     }
