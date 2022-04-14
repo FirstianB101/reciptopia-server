@@ -20,7 +20,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -29,6 +28,7 @@ import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
+import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
 import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
@@ -37,6 +37,7 @@ import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.PostAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.RecipeAuthHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.RecipeRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
@@ -490,6 +491,37 @@ public class PostIntegrationTest {
             assertThat(recipeRepository.existsById(recipeId)).isFalse();
             assertThat(repository.existsById(postId)).isFalse();
         }
+
+        @Test
+        void PostLikeTag가_있는_Post_삭제(
+            @Autowired PostLikeTagRepository postLikeTagRepository) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                PostLikeTag postLikeTag = entityHelper.generatePostLikeTag();
+                String token = postAuthHelper.generateToken(postLikeTag.getPost());
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("postId", postLikeTag.getPost().getId())
+                    .withValue("postLikeTagId", postLikeTag.getId());
+            });
+            String token = given.valueOf("token");
+            Long postId = given.valueOf("postId");
+            Long postLikeTagId = given.valueOf("postLikeTagId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/posts/{id}", postId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(postLikeTagRepository.existsById(postLikeTagId)).isFalse();
+            assertThat(repository.existsById(postId)).isFalse();
+        }
+
     }
 
 }
