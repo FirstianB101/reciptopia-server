@@ -2,6 +2,7 @@ package kr.reciptopia.reciptopiaserver.helper;
 
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aComment;
+import static kr.reciptopia.reciptopiaserver.helper.FavoriteHelper.aFavorite;
 import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.aMainIngredient;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPost;
 import static kr.reciptopia.reciptopiaserver.helper.PostLikeTagHelper.aPostLikeTag;
@@ -17,6 +18,7 @@ import java.util.function.Function;
 import javax.persistence.EntityManager;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
+import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
@@ -231,6 +233,29 @@ public record EntityHelper(EntityManager em) {
         em.persist(searchHistory);
 
         return searchHistory;
+    }
+
+    public Favorite generateFavorite() {
+        return generateFavorite(noInit());
+    }
+
+    public Favorite generateFavorite(Function<? super Favorite, ? extends Favorite> initialize) {
+        Favorite favorite = aFavorite()
+            .withId(null)
+            .withOwner(null)
+            .withPost(null);
+
+        favorite = initialize.apply(favorite);
+        if (favorite.getOwner() == null) {
+            favorite.setOwner(generateAccount());
+        }
+        if(favorite.getPost() == null){
+            favorite.setPost(generatePost());
+        }
+
+        em.persist(favorite);
+
+        return favorite;
     }
 
 }
