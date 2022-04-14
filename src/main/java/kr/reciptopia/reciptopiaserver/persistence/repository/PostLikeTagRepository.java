@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PostLikeTagRepository extends BaseRepository<PostLikeTag, Long> {
-
+    void deleteAllInBatchByOwnerId(Long ownerId);
 }

@@ -9,4 +9,5 @@ public interface PostRepository extends BaseRepository<Post, Long> {
 
 	Optional<Post> findByOwnerIdAndRecipeId(Long ownerId, Long recipeId);
 
+	void deleteAllInBatchByOwnerId(Long ownerId);
 }
