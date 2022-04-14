@@ -1,6 +1,7 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
 import static javax.persistence.FetchType.LAZY;
+
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -58,16 +59,5 @@ public class PostLikeTag extends LikeTag {
 				.post(post)
 				.build()
 				.withId(id);
-	}
-
-	public void setPost(Post post) {
-		if (this.post != post) {
-			if (this.post != null && post != null)
-				this.post.removeLikeTag(this);
-			this.post = post;
-			if (post != null) {
-				post.addLikeTag(this);
-			}
-		}
 	}
 }
