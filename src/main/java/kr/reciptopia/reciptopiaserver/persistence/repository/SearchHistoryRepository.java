@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SearchHistoryRepository extends BaseRepository<SearchHistory, Long> {
-
+    void deleteAllInBatchByOwnerId(Long ownerId);
 }
