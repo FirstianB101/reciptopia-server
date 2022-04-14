@@ -4,6 +4,7 @@ import javax.persistence.EntityManager;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
+import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
@@ -75,5 +76,9 @@ public record RepositoryHelper(EntityManager em,
 
     public SearchHistory findSearchHistoryOrThrow(Long id) throws ResponseStatusException {
         return findOrThrow(SearchHistory.class, id);
+    }
+
+    public Favorite findFavoriteOrThrow(Long id) throws ResponseStatusException {
+        return findOrThrow(Favorite.class, id);
     }
 }
