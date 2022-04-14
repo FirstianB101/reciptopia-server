@@ -60,11 +60,11 @@ public interface FavoriteDto {
             this.postId = postId;
         }
 
-        public static Result of(Favorite entity) {
+        public static Result of(Favorite favorite) {
             return Result.builder()
-                .id(entity.getId())
-                .ownerId(entity.getOwner().getId())
-                .postId(entity.getPost().getId())
+                .id(favorite.getId())
+                .ownerId(favorite.getOwner().getId())
+                .postId(favorite.getPost().getId())
                 .build();
         }
 
