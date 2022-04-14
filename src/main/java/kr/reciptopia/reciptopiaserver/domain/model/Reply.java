@@ -66,17 +66,6 @@ public class Reply extends TimeEntity {
 		setContent(content);
 	}
 
-	public void setComment(Comment comment) {
-		if (this.comment != comment) {
-			if (this.comment != null && comment != null)
-				this.comment.removeReply(this);
-			this.comment = comment;
-			if (comment != null) {
-				comment.addReply(this);
-			}
-		}
-	}
-
 	public void addLikeTag(ReplyLikeTag likeTag) {
 		replyLikeTags.add(likeTag);
 		if (!this.equals(likeTag.getReply())) {
