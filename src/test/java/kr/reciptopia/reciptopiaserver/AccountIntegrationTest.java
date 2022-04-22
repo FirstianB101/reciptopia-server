@@ -578,6 +578,46 @@ public class AccountIntegrationTest {
         }
 
         @Test
+        void Comment들이_있는_Account_삭제(
+            @Autowired CommentRepository commentRepository,
+            @Autowired CommentAuthHelper commentAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Account owner = entityHelper.generateAccount();
+                Comment commentA = entityHelper.generateComment(it -> it
+                    .withOwner(owner));
+                Comment commentB = entityHelper.generateComment(it -> it
+                    .withOwner(owner));
+
+                String token = commentAuthHelper.generateToken(commentA);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("commentAId", commentA.getId())
+                    .withValue("commentBId", commentB.getId())
+                    .withValue("ownerId", owner.getId());
+            });
+            String token = given.valueOf("token");
+            Long commentAId = given.valueOf("commentAId");
+            Long commentBId = given.valueOf("commentBId");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.findById(ownerId)).isEmpty();
+            assertThat(commentRepository.findById(commentAId)).isEmpty();
+            assertThat(commentRepository.findById(commentBId)).isEmpty();
+        }
+
+        @Test
         void Reply가_있는_Account_삭제(
             @Autowired ReplyRepository replyRepository,
             @Autowired CommentRepository commentRepository,
