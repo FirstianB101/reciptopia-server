@@ -652,6 +652,47 @@ public class AccountIntegrationTest {
             assertThat(replyRepository.existsById(replyId)).isFalse();
             assertThat(commentRepository.existsById(commentId)).isTrue();
         }
+
+        @Test
+        void Reply들이_있는_Account_삭제(
+            @Autowired ReplyRepository replyRepository,
+            @Autowired ReplyAuthHelper replyAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Account owner = entityHelper.generateAccount();
+                Reply replyA = entityHelper.generateReply(it -> it
+                    .withOwner(owner));
+                Reply replyB = entityHelper.generateReply(it -> it
+                    .withOwner(owner));
+
+                String token = replyAuthHelper.generateToken(replyA);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("replyAId", replyA.getId())
+                    .withValue("replyBId", replyB.getId())
+                    .withValue("ownerId", owner.getId());
+            });
+            String token = given.valueOf("token");
+            Long replyAId = given.valueOf("replyAId");
+            Long replyBId = given.valueOf("replyBId");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.findById(ownerId)).isEmpty();
+            assertThat(replyRepository.findById(replyAId)).isEmpty();
+            assertThat(replyRepository.findById(replyBId)).isEmpty();
+        }
+
     }
 
     @Nested
