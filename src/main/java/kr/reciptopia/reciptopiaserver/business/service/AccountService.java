@@ -13,12 +13,6 @@ import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
-import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
-import kr.reciptopia.reciptopiaserver.persistence.repository.FavoriteRepository;
-import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagRepository;
-import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
-import kr.reciptopia.reciptopiaserver.persistence.repository.ReplyRepository;
-import kr.reciptopia.reciptopiaserver.persistence.repository.SearchHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,12 +29,6 @@ public class AccountService {
 
     private final PasswordEncoder passwordEncoder;
     private final AccountRepository accountRepository;
-    private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
-    private final ReplyRepository replyRepository;
-    private final FavoriteRepository favoriteRepository;
-    private final SearchHistoryRepository searchHistoryRepository;
-    private final PostLikeTagRepository postLikeTagRepository;
     private final RepositoryHelper repoHelper;
     private final ServiceErrorHelper errorHelper;
     private final AccountAuthorizer accountAuthorizer;
@@ -91,12 +79,6 @@ public class AccountService {
         Account account = repoHelper.findAccountOrThrow(id);
         accountAuthorizer.requireByOneself(authentication, account);
 
-        postRepository.deleteAllInBatchByOwnerId(account.getId());
-        commentRepository.deleteAllInBatchByOwnerId(account.getId());
-        replyRepository.deleteAllInBatchByOwnerId(account.getId());
-        favoriteRepository.deleteAllInBatchByOwnerId(account.getId());
-        searchHistoryRepository.deleteAllInBatchByOwnerId(account.getId());
-        postLikeTagRepository.deleteAllInBatchByOwnerId(account.getId());
         accountRepository.delete(account);
     }
 
