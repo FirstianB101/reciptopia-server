@@ -32,6 +32,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
+import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
 import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
@@ -43,12 +44,14 @@ import kr.reciptopia.reciptopiaserver.helper.auth.FavoriteAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.LikeTagAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.PostAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.ReplyAuthHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.SearchHistoryAuthHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.FavoriteRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.ReplyRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.SearchHistoryRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -772,6 +775,78 @@ public class AccountIntegrationTest {
             assertThat(repository.findById(ownerId)).isEmpty();
             assertThat(favoriteRepository.findById(favoriteAId)).isEmpty();
             assertThat(favoriteRepository.findById(favoriteBId)).isEmpty();
+        }
+
+        @Test
+        void SearchHistory가_있는_Account_삭제(
+            @Autowired SearchHistoryRepository searchHistoryRepository,
+            @Autowired SearchHistoryAuthHelper searchHistoryAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                SearchHistory searchHistory = entityHelper.generateSearchHistory();
+                String token = searchHistoryAuthHelper.generateToken(searchHistory);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("searchHistoryId", searchHistory.getId())
+                    .withValue("ownerId", searchHistory.getOwner().getId());
+            });
+            String token = given.valueOf("token");
+            Long searchHistoryId = given.valueOf("searchHistoryId");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.findById(ownerId)).isEmpty();
+            assertThat(searchHistoryRepository.findById(searchHistoryId)).isEmpty();
+        }
+
+        @Test
+        void SearchHistory들이_있는_Account_삭제(
+            @Autowired SearchHistoryRepository searchHistoryRepository,
+            @Autowired SearchHistoryAuthHelper searchHistoryAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Account owner = entityHelper.generateAccount();
+                SearchHistory searchHistoryA = entityHelper.generateSearchHistory(it -> it
+                    .withOwner(owner));
+                SearchHistory searchHistoryB = entityHelper.generateSearchHistory(it -> it
+                    .withOwner(owner));
+
+                String token = searchHistoryAuthHelper.generateToken(searchHistoryA);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("searchHistoryAId", searchHistoryA.getId())
+                    .withValue("searchHistoryBId", searchHistoryB.getId())
+                    .withValue("ownerId", owner.getId());
+            });
+            String token = given.valueOf("token");
+            Long searchHistoryAId = given.valueOf("searchHistoryAId");
+            Long searchHistoryBId = given.valueOf("searchHistoryBId");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.findById(ownerId)).isEmpty();
+            assertThat(searchHistoryRepository.findById(searchHistoryAId)).isEmpty();
+            assertThat(searchHistoryRepository.findById(searchHistoryBId)).isEmpty();
         }
     }
 
