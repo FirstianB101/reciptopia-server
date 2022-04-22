@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SubIngredientRepository extends BaseRepository<SubIngredient, Long> {
-    void deleteAllInBatchByRecipeId(Long recipeId);
+
 }
