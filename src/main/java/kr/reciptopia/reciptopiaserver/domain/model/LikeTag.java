@@ -15,6 +15,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @MappedSuperclass
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,6 +34,7 @@ public abstract class LikeTag extends TimeEntity {
     @ToString.Exclude
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "account_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     protected Account owner;
 
     protected LikeTag(Account owner) {
