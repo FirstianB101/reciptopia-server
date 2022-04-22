@@ -29,6 +29,7 @@ import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
+import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
@@ -38,10 +39,14 @@ import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.AccountAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.CommentAuthHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.FavoriteAuthHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.LikeTagAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.PostAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.ReplyAuthHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.FavoriteRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.ReplyRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
@@ -693,6 +698,81 @@ public class AccountIntegrationTest {
             assertThat(replyRepository.findById(replyBId)).isEmpty();
         }
 
+        @Test
+        void Favorite가_있는_Account_삭제(
+            @Autowired FavoriteRepository favoriteRepository,
+            @Autowired PostRepository postRepository,
+            @Autowired FavoriteAuthHelper favoriteAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Favorite favorite = entityHelper.generateFavorite();
+                String token = favoriteAuthHelper.generateToken(favorite);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("favoriteId", favorite.getId())
+                    .withValue("postId", favorite.getPost().getId())
+                    .withValue("ownerId", favorite.getOwner().getId());
+            });
+            String token = given.valueOf("token");
+            Long favoriteId = given.valueOf("favoriteId");
+            Long postId = given.valueOf("postId");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(ownerId)).isFalse();
+            assertThat(favoriteRepository.existsById(favoriteId)).isFalse();
+            assertThat(postRepository.existsById(postId)).isTrue();
+        }
+
+        @Test
+        void Favorite들이_있는_Account_삭제(
+            @Autowired FavoriteRepository favoriteRepository,
+            @Autowired FavoriteAuthHelper favoriteAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Account owner = entityHelper.generateAccount();
+                Favorite favoriteA = entityHelper.generateFavorite(it -> it
+                    .withOwner(owner));
+                Favorite favoriteB = entityHelper.generateFavorite(it -> it
+                    .withOwner(owner));
+
+                String token = favoriteAuthHelper.generateToken(favoriteA);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("favoriteAId", favoriteA.getId())
+                    .withValue("favoriteBId", favoriteB.getId())
+                    .withValue("ownerId", owner.getId());
+            });
+            String token = given.valueOf("token");
+            Long favoriteAId = given.valueOf("favoriteAId");
+            Long favoriteBId = given.valueOf("favoriteBId");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.findById(ownerId)).isEmpty();
+            assertThat(favoriteRepository.findById(favoriteAId)).isEmpty();
+            assertThat(favoriteRepository.findById(favoriteBId)).isEmpty();
+        }
     }
 
     @Nested
