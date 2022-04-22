@@ -7,10 +7,7 @@ import kr.reciptopia.reciptopiaserver.business.service.authorizer.RecipeAuthoriz
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
-import kr.reciptopia.reciptopiaserver.persistence.repository.MainIngredientRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.RecipeRepository;
-import kr.reciptopia.reciptopiaserver.persistence.repository.StepRepository;
-import kr.reciptopia.reciptopiaserver.persistence.repository.SubIngredientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -22,9 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecipeService {
 
     private final RecipeRepository RecipeRepository;
-    private final StepRepository stepRepository;
-    private final MainIngredientRepository mainIngredientRepository;
-    private final SubIngredientRepository subIngredientRepository;
     private final RepositoryHelper repoHelper;
     private final RecipeAuthorizer recipeAuthorizer;
 
@@ -47,9 +41,6 @@ public class RecipeService {
         Recipe recipe = repoHelper.findRecipeOrThrow(id);
         recipeAuthorizer.requireRecipeOwner(authentication, recipe);
 
-        stepRepository.deleteAllInBatchByRecipeId(recipe.getId());
-        mainIngredientRepository.deleteAllInBatchByRecipeId(recipe.getId());
-        subIngredientRepository.deleteAllInBatchByRecipeId(recipe.getId());
         RecipeRepository.delete(recipe);
     }
 }
