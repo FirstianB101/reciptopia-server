@@ -31,6 +31,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
+import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
@@ -847,6 +848,82 @@ public class AccountIntegrationTest {
             assertThat(repository.findById(ownerId)).isEmpty();
             assertThat(searchHistoryRepository.findById(searchHistoryAId)).isEmpty();
             assertThat(searchHistoryRepository.findById(searchHistoryBId)).isEmpty();
+        }
+
+        @Test
+        void PostLikeTag가_있는_Account_삭제(
+            @Autowired PostLikeTagRepository postLikeTagRepository,
+            @Autowired PostRepository postRepository,
+            @Autowired LikeTagAuthHelper likeTagAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                PostLikeTag postLikeTag = entityHelper.generatePostLikeTag();
+                String token = likeTagAuthHelper.generateToken(postLikeTag);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("postLikeTagId", postLikeTag.getId())
+                    .withValue("postId", postLikeTag.getPost().getId())
+                    .withValue("ownerId", postLikeTag.getOwner().getId());
+            });
+            String token = given.valueOf("token");
+            Long postLikeTagId = given.valueOf("postLikeTagId");
+            Long ownerId = given.valueOf("ownerId");
+            Long postId = given.valueOf("postId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(ownerId)).isFalse();
+            assertThat(postLikeTagRepository.existsById(postLikeTagId)).isFalse();
+            assertThat(postRepository.existsById(postId)).isTrue();
+        }
+
+        @Test
+        void PostLikeTag들이_있는_Account_삭제(
+            @Autowired PostLikeTagRepository postLikeTagRepository,
+            @Autowired LikeTagAuthHelper likeTagAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Account owner = entityHelper.generateAccount();
+                PostLikeTag postLikeTagA = entityHelper.generatePostLikeTag(it -> it
+                    .withOwner(owner));
+                PostLikeTag postLikeTagB = entityHelper.generatePostLikeTag(it -> it
+                    .withOwner(owner));
+
+                String token = likeTagAuthHelper.generateToken(postLikeTagA);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("postLikeTagAId", postLikeTagA.getId())
+                    .withValue("postLikeTagBId", postLikeTagB.getId())
+                    .withValue("ownerId", owner.getId());
+            });
+            String token = given.valueOf("token");
+            Long postLikeTagAId = given.valueOf("postLikeTagAId");
+            Long postLikeTagBId = given.valueOf("postLikeTagBId");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.findById(ownerId)).isEmpty();
+            assertThat(postLikeTagRepository.findById(postLikeTagAId)).isEmpty();
+            assertThat(postLikeTagRepository.findById(postLikeTagBId)).isEmpty();
         }
     }
 
