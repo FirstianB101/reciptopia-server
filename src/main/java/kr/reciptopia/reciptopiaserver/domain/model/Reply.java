@@ -1,22 +1,16 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
-import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
-import java.util.HashSet;
-import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import kr.reciptopia.reciptopiaserver.domain.error.exception.LikeTagNotFoundException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +19,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -42,11 +38,13 @@ public class Reply extends TimeEntity {
 
 	@ToString.Exclude
 	@ManyToOne(fetch = LAZY)
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinColumn(name = "account_id")
 	private Account owner;
 
 	@ToString.Exclude
 	@ManyToOne(fetch = LAZY)
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinColumn(name = "comment_id")
 	private Comment comment;
 
@@ -54,40 +52,10 @@ public class Reply extends TimeEntity {
 	@Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
 	private String content;
 
-	@NotNull
-	@ToString.Exclude
-	@OneToMany(mappedBy = "reply", cascade = REMOVE, orphanRemoval = true)
-	private Set<ReplyLikeTag> replyLikeTags = new HashSet<>();
-
 	@Builder
 	public Reply(Account owner, Comment comment, String content) {
 		setOwner(owner);
 		setComment(comment);
 		setContent(content);
-	}
-
-	public void addLikeTag(ReplyLikeTag likeTag) {
-		replyLikeTags.add(likeTag);
-		if (!this.equals(likeTag.getReply())) {
-			likeTag.setReply(this);
-		}
-	}
-
-	public void removeLikeTag(ReplyLikeTag likeTag) {
-		if (!replyLikeTags.contains(likeTag))
-			throw new LikeTagNotFoundException();
-
-		replyLikeTags.remove(likeTag);
-		if (this.equals(likeTag.getReply())) {
-			likeTag.setReply(null);
-		}
-	}
-
-	public void removeLikeTags() {
-		replyLikeTags.forEach(this::removeLikeTag);
-	}
-
-	public void removeAllCollections() {
-		removeLikeTags();
 	}
 }

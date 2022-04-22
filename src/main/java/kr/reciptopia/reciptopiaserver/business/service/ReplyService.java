@@ -66,7 +66,6 @@ public class ReplyService {
     public void delete(Long id, Authentication authentication) {
         Reply reply = repoHelper.findReplyOrThrow(id);
         replyAuthorizer.requireReplyOwner(authentication, reply);
-        reply.removeAllCollections();
 
         ReplyRepository.delete(reply);
     }
