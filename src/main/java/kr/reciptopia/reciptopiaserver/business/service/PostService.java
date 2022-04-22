@@ -8,11 +8,7 @@ import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Result;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
-import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
-import kr.reciptopia.reciptopiaserver.persistence.repository.FavoriteRepository;
-import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
-import kr.reciptopia.reciptopiaserver.persistence.repository.RecipeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,10 +24,6 @@ public class PostService {
 
     private final PostAuthorizer postAuthorizer;
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
-    private final PostLikeTagRepository postLikeTagRepository;
-    private final RecipeRepository recipeRepository;
-    private final FavoriteRepository favoriteRepository;
     private final RepositoryHelper repoHelper;
 
 
@@ -77,11 +69,6 @@ public class PostService {
     public void delete(Long id, Authentication authentication) {
         Post post = repoHelper.findPostOrThrow(id);
         postAuthorizer.requirePostOwner(authentication, post);
-
-        commentRepository.deleteAllInBatchByPostId(post.getId());
-        postLikeTagRepository.deleteAllInBatchByPostId(post.getId());
-        recipeRepository.deleteAllInBatchByPostId(post.getId());
-        favoriteRepository.deleteAllInBatchByPostId(post.getId());
 
         postRepository.delete(post);
     }
