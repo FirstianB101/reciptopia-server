@@ -6,7 +6,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CommentRepository extends BaseRepository<Comment, Long> {
 
-    void deleteAllInBatchByOwnerId(Long ownerId);
-
-    void deleteAllInBatchByPostId(Long postId);
 }
