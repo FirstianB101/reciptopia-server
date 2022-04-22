@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,11 +36,13 @@ public class Favorite extends TimeEntity {
 
     @ToString.Exclude
     @ManyToOne(fetch = LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "account_id")
     private Account owner;
 
     @ToString.Exclude
     @ManyToOne(fetch = LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "post_id")
     private Post post;
 
