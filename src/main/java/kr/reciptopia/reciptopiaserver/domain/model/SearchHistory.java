@@ -47,6 +47,8 @@ public class SearchHistory extends TimeEntity {
 
     @Singular
     @ElementCollection(fetch = LAZY)
+    @JoinColumn(name = "search_history_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<String> ingredientNames = new HashSet<>();
 
     @Builder
