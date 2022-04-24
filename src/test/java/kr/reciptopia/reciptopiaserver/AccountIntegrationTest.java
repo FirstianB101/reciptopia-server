@@ -23,12 +23,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
+import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
@@ -47,6 +47,7 @@ import kr.reciptopia.reciptopiaserver.helper.auth.PostAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.ReplyAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.SearchHistoryAuthHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.CommentLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.FavoriteRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagRepository;
@@ -925,6 +926,83 @@ public class AccountIntegrationTest {
             assertThat(postLikeTagRepository.findById(postLikeTagAId)).isEmpty();
             assertThat(postLikeTagRepository.findById(postLikeTagBId)).isEmpty();
         }
+
+        @Test
+        void CommentLikeTag가_있는_Account_삭제(
+            @Autowired CommentLikeTagRepository commentLikeTagRepository,
+            @Autowired CommentRepository commentRepository,
+            @Autowired LikeTagAuthHelper likeTagAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                CommentLikeTag commentLikeTag = entityHelper.generateCommentLikeTag();
+                String token = likeTagAuthHelper.generateToken(commentLikeTag);
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", commentLikeTag.getOwner().getId())
+                    .withValue("commentId", commentLikeTag.getComment().getId())
+                    .withValue("commentLikeTagId", commentLikeTag.getId());
+            });
+
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+            Long commentId = given.valueOf("commentId");
+            Long commentLikeTagId = given.valueOf("commentLikeTagId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(ownerId)).isFalse();
+            assertThat(commentLikeTagRepository.existsById(commentLikeTagId)).isFalse();
+            assertThat(commentRepository.existsById(commentId)).isTrue();
+        }
+
+        @Test
+        void CommentLikeTag들이_있는_Account_삭제(
+            @Autowired CommentLikeTagRepository commentLikeTagRepository,
+            @Autowired LikeTagAuthHelper likeTagAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+                CommentLikeTag commentLikeTagA = entityHelper.generateCommentLikeTag(it -> it
+                    .withOwner(owner));
+                CommentLikeTag commentLikeTagB = entityHelper.generateCommentLikeTag(it -> it
+                    .withOwner(owner));
+                String token = likeTagAuthHelper.generateToken(commentLikeTagA);
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", owner.getId())
+                    .withValue("commentLikeTagAId", commentLikeTagA.getId())
+                    .withValue("commentLikeTagBId", commentLikeTagB.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+            Long commentLikeTagAId = given.valueOf("commentLikeTagAId");
+            Long commentLikeTagBId = given.valueOf("commentLikeTagBId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(ownerId)).isFalse();
+            assertThat(commentLikeTagRepository.existsById(commentLikeTagAId)).isFalse();
+            assertThat(commentLikeTagRepository.existsById(commentLikeTagBId)).isFalse();
+        }
+
     }
 
     @Nested
