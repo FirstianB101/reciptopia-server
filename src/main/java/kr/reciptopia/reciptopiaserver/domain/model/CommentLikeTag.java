@@ -1,7 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
 import static javax.persistence.FetchType.LAZY;
-
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -13,7 +12,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.With;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -22,7 +20,6 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @Setter
 @ToString
-@With
 @Entity
 public class CommentLikeTag extends LikeTag {
 
@@ -35,7 +32,34 @@ public class CommentLikeTag extends LikeTag {
 
     @Builder
     public CommentLikeTag(Account owner, Comment comment) {
-        setOwner(owner);
+        super(owner);
         setComment(comment);
+    }
+
+    public CommentLikeTag withId(Long id) {
+        CommentLikeTag commentLikeTag = CommentLikeTag.builder()
+            .owner(owner)
+            .comment(comment)
+            .build();
+        commentLikeTag.setId(id);
+        return this.id != null && this.id.equals(id) ? this : commentLikeTag;
+    }
+
+    public CommentLikeTag withOwner(Account owner) {
+        return this.owner != null && this.owner.equals(owner) ? this :
+            CommentLikeTag.builder()
+                .owner(owner)
+                .comment(comment)
+                .build()
+                .withId(id);
+    }
+
+    public CommentLikeTag withComment(Comment comment) {
+        return this.comment != null && this.comment.equals(comment) ? this :
+            CommentLikeTag.builder()
+                .owner(owner)
+                .comment(comment)
+                .build()
+                .withId(id);
     }
 }
