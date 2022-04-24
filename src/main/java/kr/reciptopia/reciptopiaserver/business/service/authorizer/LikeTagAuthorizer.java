@@ -2,6 +2,7 @@ package kr.reciptopia.reciptopiaserver.business.service.authorizer;
 
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
+import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.LikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,8 @@ public class LikeTagAuthorizer extends AbstractAuthorizer {
         if (account != requestedLikeTag.getOwner()) {
             if (requestedLikeTag instanceof PostLikeTag)
                 throw errorHelper.forbidden("Not the owner of the PostLikeTag");
+            if (requestedLikeTag instanceof CommentLikeTag)
+                throw errorHelper.forbidden("Not the owner of the CommentLikeTag");
         }
     }
 
