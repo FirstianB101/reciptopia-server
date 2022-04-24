@@ -638,7 +638,7 @@ public class PostIntegrationTest {
         }
 
         @Test
-        void Favorite들에_추가되어__있는_Post_삭제(
+        void Favorite들에_추가되어_있는_Post_삭제(
             @Autowired FavoriteRepository favoriteRepository
         ) throws Exception {
             // Given
