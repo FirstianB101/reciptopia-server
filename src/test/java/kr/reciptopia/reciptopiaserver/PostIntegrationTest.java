@@ -28,6 +28,7 @@ import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
+import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
@@ -38,6 +39,7 @@ import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.PostAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.RecipeAuthHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.FavoriteRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.RecipeRepository;
@@ -599,6 +601,75 @@ public class PostIntegrationTest {
             assertThat(repository.existsById(postId)).isFalse();
             assertThat(postLikeTagRepository.existsById(postLikeTagAId)).isFalse();
             assertThat(postLikeTagRepository.existsById(postLikeTagBId)).isFalse();
+        }
+
+        @Test
+        void Favorite에_추가되어_있는_Post_삭제(
+            @Autowired FavoriteRepository favoriteRepository) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Favorite favorite = entityHelper.generateFavorite();
+                String token = postAuthHelper.generateToken(favorite.getPost());
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("postId", favorite.getPost().getId())
+                    .withValue("favoriteId", favorite.getId());
+            });
+            String token = given.valueOf("token");
+            Long postId = given.valueOf("postId");
+            Long favoriteId = given.valueOf("favoriteId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/posts/{id}", postId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(favoriteRepository.existsById(favoriteId)).isFalse();
+            assertThat(repository.existsById(postId)).isFalse();
+        }
+
+        @Test
+        void Favorite들에_추가되어__있는_Post_삭제(
+            @Autowired FavoriteRepository favoriteRepository
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Post post = entityHelper.generatePost();
+                Favorite favoriteA = entityHelper.generateFavorite(it -> it
+                    .withPost(post));
+                Favorite favoriteB = entityHelper.generateFavorite(it -> it
+                    .withPost(post));
+
+                String token = postAuthHelper.generateToken(post);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("favoriteAId", favoriteA.getId())
+                    .withValue("favoriteBId", favoriteB.getId())
+                    .withValue("postId", post.getId());
+            });
+            String token = given.valueOf("token");
+            Long favoriteAId = given.valueOf("favoriteAId");
+            Long favoriteBId = given.valueOf("favoriteBId");
+            Long postId = given.valueOf("postId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/posts/{id}", postId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(postId)).isFalse();
+            assertThat(favoriteRepository.existsById(favoriteAId)).isFalse();
+            assertThat(favoriteRepository.existsById(favoriteBId)).isFalse();
         }
     }
 
