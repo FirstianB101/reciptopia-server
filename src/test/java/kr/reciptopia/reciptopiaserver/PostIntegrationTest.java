@@ -461,6 +461,45 @@ public class PostIntegrationTest {
         }
 
         @Test
+        void Comment들이_있는_Post_삭제(
+            @Autowired CommentRepository commentRepository
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Post post = entityHelper.generatePost();
+                Comment commentA = entityHelper.generateComment(it -> it
+                    .withPost(post));
+                Comment commentB = entityHelper.generateComment(it -> it
+                    .withPost(post));
+
+                String token = postAuthHelper.generateToken(post);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("commentAId", commentA.getId())
+                    .withValue("commentBId", commentB.getId())
+                    .withValue("postId", post.getId());
+            });
+            String token = given.valueOf("token");
+            Long commentAId = given.valueOf("commentAId");
+            Long commentBId = given.valueOf("commentBId");
+            Long postId = given.valueOf("postId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/posts/{id}", postId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(postId)).isFalse();
+            assertThat(commentRepository.existsById(commentAId)).isFalse();
+            assertThat(commentRepository.existsById(commentBId)).isFalse();
+        }
+
+        @Test
         void Recipe가_있는_Post_삭제(
             @Autowired RecipeAuthHelper recipeAuthHelper,
             @Autowired RecipeRepository recipeRepository
