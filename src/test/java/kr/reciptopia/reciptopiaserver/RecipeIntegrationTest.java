@@ -37,6 +37,7 @@ import kr.reciptopia.reciptopiaserver.helper.auth.IngredientAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.RecipeAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.StepAuthHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.MainIngredientRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.RecipeRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.StepRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.SubIngredientRepository;
@@ -274,17 +275,19 @@ public class RecipeIntegrationTest {
     class DeleteRecipe {
 
         @Test
-        void deleteRecipe() throws Exception {
+        void deleteRecipe(@Autowired PostRepository postRepository) throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
                 Recipe recipe = entityHelper.generateRecipe();
                 String token = recipeAuthHelper.generateToken(recipe.getPost().getOwner());
                 return new Struct()
                     .withValue("token", token)
+                    .withValue("postId", recipe.getPost().getId())
                     .withValue("id", recipe.getId());
             });
             String token = given.valueOf("token");
             Long id = given.valueOf("id");
+            Long postId = given.valueOf("postId");
 
             // When
             ResultActions actions = mockMvc.perform(delete("/post/recipes/{id}", id)
@@ -296,6 +299,7 @@ public class RecipeIntegrationTest {
                 .andExpect(content().string(emptyString()));
 
             assertThat(repository.existsById(id)).isFalse();
+            assertThat(postRepository.existsById(postId)).isTrue();
 
             // Document
             actions.andDo(document("recipe-delete-example"));
