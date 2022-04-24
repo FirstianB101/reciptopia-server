@@ -415,6 +415,45 @@ public class RecipeIntegrationTest {
         }
 
         @Test
+        void MainIngredient들이_있는_Recipe_삭제(
+            @Autowired MainIngredientRepository mainIngredientRepository
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Recipe recipe = entityHelper.generateRecipe();
+                MainIngredient mainIngredientA = entityHelper.generateMainIngredient(it -> it
+                    .withRecipe(recipe));
+                MainIngredient mainIngredientB = entityHelper.generateMainIngredient(it -> it
+                    .withRecipe(recipe));
+
+                String token = recipeAuthHelper.generateToken(recipe);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("mainIngredientAId", mainIngredientA.getId())
+                    .withValue("mainIngredientBId", mainIngredientB.getId())
+                    .withValue("recipeId", recipe.getId());
+            });
+            String token = given.valueOf("token");
+            Long mainIngredientAId = given.valueOf("mainIngredientAId");
+            Long mainIngredientBId = given.valueOf("mainIngredientBId");
+            Long recipeId = given.valueOf("recipeId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/post/recipes/{id}", recipeId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(recipeId)).isFalse();
+            assertThat(mainIngredientRepository.existsById(mainIngredientAId)).isFalse();
+            assertThat(mainIngredientRepository.existsById(mainIngredientBId)).isFalse();
+        }
+
+        @Test
         void SubIngredient가_있는_Recipe_삭제(
             @Autowired
                 SubIngredientRepository subIngredientRepository,
