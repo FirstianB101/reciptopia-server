@@ -485,5 +485,44 @@ public class RecipeIntegrationTest {
             assertThat(repository.existsById(recipeId)).isFalse();
             assertThat(subIngredientRepository.existsById(subIngredientId)).isFalse();
         }
+
+        @Test
+        void SubIngredient들이_있는_Recipe_삭제(
+            @Autowired SubIngredientRepository subIngredientRepository
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Recipe recipe = entityHelper.generateRecipe();
+                SubIngredient subIngredientA = entityHelper.generateSubIngredient(it -> it
+                    .withRecipe(recipe));
+                SubIngredient subIngredientB = entityHelper.generateSubIngredient(it -> it
+                    .withRecipe(recipe));
+
+                String token = recipeAuthHelper.generateToken(recipe);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("subIngredientAId", subIngredientA.getId())
+                    .withValue("subIngredientBId", subIngredientB.getId())
+                    .withValue("recipeId", recipe.getId());
+            });
+            String token = given.valueOf("token");
+            Long subIngredientAId = given.valueOf("subIngredientAId");
+            Long subIngredientBId = given.valueOf("subIngredientBId");
+            Long recipeId = given.valueOf("recipeId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/post/recipes/{id}", recipeId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(recipeId)).isFalse();
+            assertThat(subIngredientRepository.existsById(subIngredientAId)).isFalse();
+            assertThat(subIngredientRepository.existsById(subIngredientBId)).isFalse();
+        }
     }
 }
