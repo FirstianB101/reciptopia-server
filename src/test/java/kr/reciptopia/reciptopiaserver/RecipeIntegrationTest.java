@@ -343,6 +343,45 @@ public class RecipeIntegrationTest {
         }
 
         @Test
+        void Step들이_있는_Recipe_삭제(
+            @Autowired StepRepository stepRepository
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Recipe recipe = entityHelper.generateRecipe();
+                Step stepA = entityHelper.generateStep(it -> it
+                    .withRecipe(recipe));
+                Step stepB = entityHelper.generateStep(it -> it
+                    .withRecipe(recipe));
+
+                String token = recipeAuthHelper.generateToken(recipe);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("stepAId", stepA.getId())
+                    .withValue("stepBId", stepB.getId())
+                    .withValue("recipeId", recipe.getId());
+            });
+            String token = given.valueOf("token");
+            Long stepAId = given.valueOf("stepAId");
+            Long stepBId = given.valueOf("stepBId");
+            Long recipeId = given.valueOf("recipeId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/post/recipes/{id}", recipeId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(recipeId)).isFalse();
+            assertThat(stepRepository.existsById(stepAId)).isFalse();
+            assertThat(stepRepository.existsById(stepBId)).isFalse();
+        }
+
+        @Test
         void MainIngredient가_있는_Recipe_삭제(
             @Autowired
                 MainIngredientRepository mainIngredientRepository,
