@@ -10,14 +10,14 @@
 
 WARNING: 이 API는 아직 구현 중에 있으며 추후에 변경될 수 있습니다.
 
-NOTE: v0.11.0-alpha
+NOTE: v0.12.0-alpha
 
 ****
-v0.11.0-alpha 변경사항
+v0.12.0-alpha 변경사항
 
 '''
 
-* Favorite 리소스
+* CommentLikeTag 리소스
 
 ****
 
@@ -690,6 +690,48 @@ operation::postLikeTag-create-example[snippets='request-fields,curl-request,http
 요청의 `Authorization` 헤더로 요청을 보낸 `PostLikeTag` 의 소유자(게시물 좋아요를 누른) `Account` 엑세스 토큰이 제공되어야 합니다.
 
 operation::postLikeTag-delete-example[snippets='curl-request,http-response']
+
+[[resources_commentLikeTag]]
+== CommentLikeTag 리소스
+
+[[resources_commentLikeTag_retrieve]]
+=== CommentLikeTag 조회
+
+`GET /post/comment/likeTags/{id}` 요청으로 하나의 CommentLikeTag를 조회합니다.
+유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
+
+operation::commentLikeTag-retrieve-example[snippets='response-fields,curl-request,http-response']
+
+[[resources_commentLikeTag_list]]
+=== CommentLikeTag 목록 조회
+
+`GET /post/comment/likeTags` 요청으로 다수의 CommentLikeTag들을 조회합니다.
+<<overview_paging_and_sorting, Paging 혹은 Sorting>> 요청 패러미터를 추가하면 원하는 방식으로 목록을 조회할 수 있습니다.
+
+operation::commentLikeTag-list-example[snippets='request-parameters,curl-request,http-response']
+
+//[[resources_commentLikeTag_search]]
+//=== CommentLikeTag 목록 검색
+//
+//<<resources_commentLikeTag_list, CommentLikeTag 목록 조회 API>>에 요청 패러미터를 추가하면 특정 조건을 기준으로 CommentLikeTag를 검색할 수 있습니다.
+//
+//operation::commentLikeTag-search-example[snippets='request-parameters,curl-request,http-response']
+
+[[resources_commentLikeTag_create]]
+=== CommentLikeTag 생성
+
+`POST /post/comment/likeTags` 요청으로 CommentLikeTag를 생성합니다.
+성공 시 생성한 CommentLikeTag를 응답 Body로 전달합니다.
+
+operation::commentLikeTag-create-example[snippets='request-fields,curl-request,http-response']
+
+[[resources_commentLikeTag_delete]]
+=== CommentLikeTag 삭제
+
+`DELETE /post/comment/likeTags/{id}` 요청으로 CommentLikeTag를 삭제합니다.
+요청의 `Authorization` 헤더로 요청을 보낸 `CommentLikeTag` 의 소유자(댓글 좋아요를 누른) `Account` 엑세스 토큰이 제공되어야 합니다.
+
+operation::commentLikeTag-delete-example[snippets='curl-request,http-response']
 
 [[resources_searchHistory]]
 == SearchHistory 리소스
