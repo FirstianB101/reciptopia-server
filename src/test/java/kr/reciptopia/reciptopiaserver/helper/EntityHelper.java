@@ -2,6 +2,7 @@ package kr.reciptopia.reciptopiaserver.helper;
 
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aComment;
+import static kr.reciptopia.reciptopiaserver.helper.CommentLikeTagHelper.aCommentLikeTag;
 import static kr.reciptopia.reciptopiaserver.helper.FavoriteHelper.aFavorite;
 import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.aMainIngredient;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPost;
@@ -11,7 +12,6 @@ import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReply;
 import static kr.reciptopia.reciptopiaserver.helper.SearchHistoryHelper.aSearchHistory;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStep;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredient;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,6 +19,7 @@ import java.util.function.Function;
 import javax.persistence.EntityManager;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
+import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
@@ -130,6 +131,29 @@ public record EntityHelper(EntityManager em) {
 
         em.persist(postLikeTag);
         return postLikeTag;
+    }
+
+    public CommentLikeTag generateCommentLikeTag() {
+        return generateCommentLikeTag(noInit());
+    }
+
+    public CommentLikeTag generateCommentLikeTag(
+        Function<? super CommentLikeTag, ? extends CommentLikeTag> initialize) {
+        CommentLikeTag commentLikeTag = aCommentLikeTag()
+            .withId(null)
+            .withOwner(null)
+            .withComment(null);
+
+        commentLikeTag = initialize.apply(commentLikeTag);
+        if (commentLikeTag.getOwner() == null) {
+            commentLikeTag.setOwner(generateAccount());
+        }
+        if (commentLikeTag.getComment() == null) {
+            commentLikeTag.setComment(generateComment());
+        }
+
+        em.persist(commentLikeTag);
+        return commentLikeTag;
     }
 
     public Recipe generateRecipe() {
