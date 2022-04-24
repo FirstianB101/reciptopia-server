@@ -316,7 +316,7 @@ public class RecipeIntegrationTest {
         }
 
         @Test
-        void Step가_있는_Recipe_삭제(
+        void Step이_있는_Recipe_삭제(
             @Autowired StepRepository stepRepository,
             @Autowired StepAuthHelper stepAuthHelper
         ) throws Exception {
