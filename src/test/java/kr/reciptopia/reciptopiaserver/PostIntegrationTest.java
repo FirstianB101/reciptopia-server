@@ -38,6 +38,7 @@ import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.PostAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.RecipeAuthHelper;
+import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.FavoriteRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagRepository;
@@ -390,7 +391,7 @@ public class PostIntegrationTest {
     class DeletePost {
 
         @Test
-        void deletePost() throws Exception {
+        void deletePost(@Autowired AccountRepository accountRepository) throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
                 Post post = entityHelper.generatePost(it ->
@@ -402,10 +403,12 @@ public class PostIntegrationTest {
                 String token = postAuthHelper.generateToken(post.getOwner());
 
                 return new Struct()
+                    .withValue("ownerId", post.getOwner().getId())
                     .withValue("token", token)
                     .withValue("id", post.getId());
             });
             Long id = given.valueOf("id");
+            Long ownerId = given.valueOf("ownerId");
             String token = given.valueOf("token");
 
             // When
@@ -418,6 +421,7 @@ public class PostIntegrationTest {
                 .andExpect(content().string(emptyString()));
 
             assertThat(repository.existsById(id)).isFalse();
+            assertThat(accountRepository.existsById(ownerId)).isTrue();
 
             // Document
             actions.andDo(document("post-delete-example"));
