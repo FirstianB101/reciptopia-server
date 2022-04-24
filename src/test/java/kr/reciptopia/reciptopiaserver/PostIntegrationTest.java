@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -561,6 +562,44 @@ public class PostIntegrationTest {
             assertThat(repository.existsById(postId)).isFalse();
         }
 
+        @Test
+        void PostLikeTag들이_있는_Post_삭제(
+            @Autowired PostLikeTagRepository postLikeTagRepository
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Post post = entityHelper.generatePost();
+                PostLikeTag postLikeTagA = entityHelper.generatePostLikeTag(it -> it
+                    .withPost(post));
+                PostLikeTag postLikeTagB = entityHelper.generatePostLikeTag(it -> it
+                    .withPost(post));
+
+                String token = postAuthHelper.generateToken(post);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("postLikeTagAId", postLikeTagA.getId())
+                    .withValue("postLikeTagBId", postLikeTagB.getId())
+                    .withValue("postId", post.getId());
+            });
+            String token = given.valueOf("token");
+            Long postLikeTagAId = given.valueOf("postLikeTagAId");
+            Long postLikeTagBId = given.valueOf("postLikeTagBId");
+            Long postId = given.valueOf("postId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/posts/{id}", postId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(postId)).isFalse();
+            assertThat(postLikeTagRepository.existsById(postLikeTagAId)).isFalse();
+            assertThat(postLikeTagRepository.existsById(postLikeTagBId)).isFalse();
+        }
     }
 
 }
