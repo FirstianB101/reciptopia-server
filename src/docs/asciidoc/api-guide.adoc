@@ -10,14 +10,14 @@
 
 WARNING: 이 API는 아직 구현 중에 있으며 추후에 변경될 수 있습니다.
 
-NOTE: v0.12.0-alpha
+NOTE: v0.13.0-alpha
 
 ****
-v0.12.0-alpha 변경사항
+v0.13.0-alpha 변경사항
 
 '''
 
-* CommentLikeTag 리소스
+* ReplyLikeTag 리소스
 
 ****
 
@@ -732,6 +732,48 @@ operation::commentLikeTag-create-example[snippets='request-fields,curl-request,h
 요청의 `Authorization` 헤더로 요청을 보낸 `CommentLikeTag` 의 소유자(댓글 좋아요를 누른) `Account` 엑세스 토큰이 제공되어야 합니다.
 
 operation::commentLikeTag-delete-example[snippets='curl-request,http-response']
+
+[[resources_replyLikeTag]]
+== ReplyLikeTag 리소스
+
+[[resources_replyLikeTag_retrieve]]
+=== ReplyLikeTag 조회
+
+`GET /post/comment/reply/likeTags/{id}` 요청으로 하나의 ReplyLikeTag를 조회합니다.
+유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
+
+operation::replyLikeTag-retrieve-example[snippets='response-fields,curl-request,http-response']
+
+[[resources_replyLikeTag_list]]
+=== ReplyLikeTag 목록 조회
+
+`GET /post/comment/reply/likeTags` 요청으로 다수의 ReplyLikeTag들을 조회합니다.
+<<overview_paging_and_sorting, Paging 혹은 Sorting>> 요청 패러미터를 추가하면 원하는 방식으로 목록을 조회할 수 있습니다.
+
+operation::replyLikeTag-list-example[snippets='request-parameters,curl-request,http-response']
+
+//[[resources_replyLikeTag_search]]
+//=== ReplyLikeTag 목록 검색
+//
+//<<resources_replyLikeTag_list, ReplyLikeTag 목록 조회 API>>에 요청 패러미터를 추가하면 특정 조건을 기준으로 ReplyLikeTag를 검색할 수 있습니다.
+//
+//operation::replyLikeTag-search-example[snippets='request-parameters,curl-request,http-response']
+
+[[resources_replyLikeTag_create]]
+=== ReplyLikeTag 생성
+
+`POST /post/comment/reply/likeTags` 요청으로 ReplyLikeTag를 생성합니다.
+성공 시 생성한 ReplyLikeTag를 응답 Body로 전달합니다.
+
+operation::replyLikeTag-create-example[snippets='request-fields,curl-request,http-response']
+
+[[resources_replyLikeTag_delete]]
+=== ReplyLikeTag 삭제
+
+`DELETE /post/comment/reply/likeTags/{id}` 요청으로 ReplyLikeTag를 삭제합니다.
+요청의 `Authorization` 헤더로 요청을 보낸 `ReplyLikeTag` 의 소유자(답글 좋아요를 누른) `Account` 엑세스 토큰이 제공되어야 합니다.
+
+operation::replyLikeTag-delete-example[snippets='curl-request,http-response']
 
 [[resources_searchHistory]]
 == SearchHistory 리소스
