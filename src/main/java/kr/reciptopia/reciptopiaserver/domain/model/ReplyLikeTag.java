@@ -1,7 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
 import static javax.persistence.FetchType.LAZY;
-
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -13,7 +12,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.With;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -22,7 +20,6 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @Setter
 @ToString
-@With
 @Entity
 public class ReplyLikeTag extends LikeTag {
 
@@ -35,7 +32,34 @@ public class ReplyLikeTag extends LikeTag {
 
 	@Builder
 	public ReplyLikeTag(Account owner, Reply reply) {
-		setOwner(owner);
+		super(owner);
 		setReply(reply);
+	}
+
+	public ReplyLikeTag withId(Long id) {
+		ReplyLikeTag replyLikeTag = ReplyLikeTag.builder()
+			.owner(owner)
+			.reply(reply)
+			.build();
+		replyLikeTag.setId(id);
+		return this.id != null && this.id.equals(id) ? this : replyLikeTag;
+	}
+
+	public ReplyLikeTag withOwner(Account owner) {
+		return this.owner != null && this.owner.equals(owner) ? this :
+			ReplyLikeTag.builder()
+				.owner(owner)
+				.reply(reply)
+				.build()
+				.withId(id);
+	}
+
+	public ReplyLikeTag withReply(Reply reply) {
+		return this.reply != null && this.reply.equals(reply) ? this :
+			ReplyLikeTag.builder()
+				.owner(owner)
+				.reply(reply)
+				.build()
+				.withId(id);
 	}
 }
