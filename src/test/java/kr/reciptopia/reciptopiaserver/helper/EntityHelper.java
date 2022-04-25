@@ -9,6 +9,7 @@ import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPost;
 import static kr.reciptopia.reciptopiaserver.helper.PostLikeTagHelper.aPostLikeTag;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
 import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReply;
+import static kr.reciptopia.reciptopiaserver.helper.ReplyLikeTagHelper.aReplyLikeTag;
 import static kr.reciptopia.reciptopiaserver.helper.SearchHistoryHelper.aSearchHistory;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStep;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredient;
@@ -26,6 +27,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
+import kr.reciptopia.reciptopiaserver.domain.model.ReplyLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
 import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
@@ -154,6 +156,29 @@ public record EntityHelper(EntityManager em) {
 
         em.persist(commentLikeTag);
         return commentLikeTag;
+    }
+
+    public ReplyLikeTag generateReplyLikeTag() {
+        return generateReplyLikeTag(noInit());
+    }
+
+    public ReplyLikeTag generateReplyLikeTag(
+        Function<? super ReplyLikeTag, ? extends ReplyLikeTag> initialize) {
+        ReplyLikeTag replyLikeTag = aReplyLikeTag()
+            .withId(null)
+            .withOwner(null)
+            .withReply(null);
+
+        replyLikeTag = initialize.apply(replyLikeTag);
+        if (replyLikeTag.getOwner() == null) {
+            replyLikeTag.setOwner(generateAccount());
+        }
+        if (replyLikeTag.getReply() == null) {
+            replyLikeTag.setReply(generateReply());
+        }
+
+        em.persist(replyLikeTag);
+        return replyLikeTag;
     }
 
     public Recipe generateRecipe() {
