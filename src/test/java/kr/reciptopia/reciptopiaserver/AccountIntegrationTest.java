@@ -33,6 +33,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
+import kr.reciptopia.reciptopiaserver.domain.model.ReplyLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
@@ -52,6 +53,7 @@ import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.FavoriteRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.ReplyLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.ReplyRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.SearchHistoryRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
@@ -1001,6 +1003,81 @@ public class AccountIntegrationTest {
             assertThat(repository.existsById(ownerId)).isFalse();
             assertThat(commentLikeTagRepository.existsById(commentLikeTagAId)).isFalse();
             assertThat(commentLikeTagRepository.existsById(commentLikeTagBId)).isFalse();
+        }
+
+        @Test
+        void ReplyLikeTag가_있는_Account_삭제(
+            @Autowired ReplyLikeTagRepository replyLikeTagRepository,
+            @Autowired ReplyRepository replyRepository,
+            @Autowired LikeTagAuthHelper likeTagAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                ReplyLikeTag replyLikeTag = entityHelper.generateReplyLikeTag();
+                String token = likeTagAuthHelper.generateToken(replyLikeTag);
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", replyLikeTag.getOwner().getId())
+                    .withValue("replyId", replyLikeTag.getReply().getId())
+                    .withValue("replyLikeTagId", replyLikeTag.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+            Long replyId = given.valueOf("replyId");
+            Long replyLikeTagId = given.valueOf("replyLikeTagId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(ownerId)).isFalse();
+            assertThat(replyLikeTagRepository.existsById(replyLikeTagId)).isFalse();
+            assertThat(replyRepository.existsById(replyId)).isTrue();
+        }
+
+        @Test
+        void ReplyLikeTag들이_있는_Account_삭제(
+            @Autowired ReplyLikeTagRepository replyLikeTagRepository,
+            @Autowired LikeTagAuthHelper likeTagAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+                ReplyLikeTag replyLikeTagA = entityHelper.generateReplyLikeTag(it -> it
+                    .withOwner(owner));
+                ReplyLikeTag replyLikeTagB = entityHelper.generateReplyLikeTag(it -> it
+                    .withOwner(owner));
+                String token = likeTagAuthHelper.generateToken(replyLikeTagA);
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", owner.getId())
+                    .withValue("replyLikeTagAId", replyLikeTagA.getId())
+                    .withValue("replyLikeTagBId", replyLikeTagB.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+            Long replyLikeTagAId = given.valueOf("replyLikeTagAId");
+            Long replyLikeTagBId = given.valueOf("replyLikeTagBId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(ownerId)).isFalse();
+            assertThat(replyLikeTagRepository.existsById(replyLikeTagAId)).isFalse();
+            assertThat(replyLikeTagRepository.existsById(replyLikeTagBId)).isFalse();
         }
 
     }
