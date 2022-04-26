@@ -407,14 +407,14 @@ public class ReplyIntegrationTest {
 
                 return new Struct()
                     .withValue("token", token)
-                    .withValue("ownerId", replyLikeTag.getOwner().getId())
                     .withValue("replyId", replyLikeTag.getReply().getId())
-                    .withValue("replyLikeTagId", replyLikeTag.getId());
+                    .withValue("replyLikeTagId", replyLikeTag.getId())
+                    .withValue("replyLikeTagOwnerId", replyLikeTag.getOwner().getId());
             });
             String token = given.valueOf("token");
-            Long ownerId = given.valueOf("ownerId");
             Long replyId = given.valueOf("replyId");
             Long replyLikeTagId = given.valueOf("replyLikeTagId");
+            Long replyLikeTagOwnerId = given.valueOf("replyLikeTagOwnerId");
 
             // When
             ResultActions actions = mockMvc.perform(
@@ -428,7 +428,7 @@ public class ReplyIntegrationTest {
 
             assertThat(repository.existsById(replyId)).isFalse();
             assertThat(replyLikeTagRepository.existsById(replyLikeTagId)).isFalse();
-            assertThat(accountRepository.existsById(ownerId)).isTrue();
+            assertThat(accountRepository.existsById(replyLikeTagOwnerId)).isTrue();
         }
 
         @Test
