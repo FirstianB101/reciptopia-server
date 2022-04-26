@@ -35,6 +35,7 @@ import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.ReplyAuthHelper;
+import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.ReplyLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.ReplyRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
@@ -397,7 +398,8 @@ public class ReplyIntegrationTest {
 
         @Test
         void ReplyLikeTag가_있는_Reply_삭제(
-            @Autowired ReplyLikeTagRepository replyLikeTagRepository) throws Exception {
+            @Autowired ReplyLikeTagRepository replyLikeTagRepository,
+            @Autowired AccountRepository accountRepository) throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
                 ReplyLikeTag replyLikeTag = entityHelper.generateReplyLikeTag();
@@ -405,10 +407,12 @@ public class ReplyIntegrationTest {
 
                 return new Struct()
                     .withValue("token", token)
+                    .withValue("ownerId", replyLikeTag.getOwner().getId())
                     .withValue("replyId", replyLikeTag.getReply().getId())
                     .withValue("replyLikeTagId", replyLikeTag.getId());
             });
             String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
             Long replyId = given.valueOf("replyId");
             Long replyLikeTagId = given.valueOf("replyLikeTagId");
 
@@ -424,6 +428,7 @@ public class ReplyIntegrationTest {
 
             assertThat(repository.existsById(replyId)).isFalse();
             assertThat(replyLikeTagRepository.existsById(replyLikeTagId)).isFalse();
+            assertThat(accountRepository.existsById(ownerId)).isTrue();
         }
 
         @Test
