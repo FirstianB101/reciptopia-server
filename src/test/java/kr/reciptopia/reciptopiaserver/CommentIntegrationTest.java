@@ -35,6 +35,7 @@ import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.CommentAuthHelper;
+import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
@@ -395,7 +396,8 @@ public class CommentIntegrationTest {
 
         @Test
         void CommentLikeTag가_있는_Comment_삭제(
-            @Autowired CommentLikeTagRepository commentLikeTagRepository) throws Exception {
+            @Autowired CommentLikeTagRepository commentLikeTagRepository,
+            @Autowired AccountRepository accountRepository) throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
                 CommentLikeTag commentLikeTag = entityHelper.generateCommentLikeTag();
@@ -404,11 +406,13 @@ public class CommentIntegrationTest {
                 return new Struct()
                     .withValue("token", token)
                     .withValue("commentId", commentLikeTag.getComment().getId())
-                    .withValue("commentLikeTagId", commentLikeTag.getId());
+                    .withValue("commentLikeTagId", commentLikeTag.getId())
+                    .withValue("commentLikeTagOwnerId", commentLikeTag.getOwner().getId());
             });
             String token = given.valueOf("token");
             Long commentId = given.valueOf("commentId");
             Long commentLikeTagId = given.valueOf("commentLikeTagId");
+            Long commentLikeTagOwnerId = given.valueOf("commentLikeTagOwnerId");
 
             // When
             ResultActions actions = mockMvc.perform(delete("/post/comments/{id}", commentId)
@@ -421,6 +425,7 @@ public class CommentIntegrationTest {
 
             assertThat(repository.existsById(commentId)).isFalse();
             assertThat(commentLikeTagRepository.existsById(commentLikeTagId)).isFalse();
+            assertThat(accountRepository.existsById(commentLikeTagOwnerId)).isTrue();
         }
 
         @Test
