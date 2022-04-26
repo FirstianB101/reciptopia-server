@@ -29,11 +29,13 @@ import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Update;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
+import kr.reciptopia.reciptopiaserver.domain.model.ReplyLikeTag;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
 import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.ReplyAuthHelper;
+import kr.reciptopia.reciptopiaserver.persistence.repository.ReplyLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.ReplyRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
 import org.junit.jupiter.api.BeforeEach;
@@ -391,6 +393,75 @@ public class ReplyIntegrationTest {
             // Then
             actions
                 .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void ReplyLikeTag가_있는_Reply_삭제(
+            @Autowired ReplyLikeTagRepository replyLikeTagRepository) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                ReplyLikeTag replyLikeTag = entityHelper.generateReplyLikeTag();
+                String token = replyAuthHelper.generateToken(replyLikeTag.getReply());
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("replyId", replyLikeTag.getReply().getId())
+                    .withValue("replyLikeTagId", replyLikeTag.getId());
+            });
+            String token = given.valueOf("token");
+            Long replyId = given.valueOf("replyId");
+            Long replyLikeTagId = given.valueOf("replyLikeTagId");
+
+            // When
+            ResultActions actions = mockMvc.perform(
+                delete("/post/comment/replies/{id}", replyId)
+                    .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(replyId)).isFalse();
+            assertThat(replyLikeTagRepository.existsById(replyLikeTagId)).isFalse();
+        }
+
+        @Test
+        void ReplyLikeTag들이_있는_Reply_삭제(
+            @Autowired ReplyLikeTagRepository replyLikeTagRepository) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Reply reply = entityHelper.generateReply();
+                ReplyLikeTag replyLikeTagA = entityHelper.generateReplyLikeTag(it -> it
+                    .withReply(reply));
+                ReplyLikeTag replyLikeTagB = entityHelper.generateReplyLikeTag(it -> it
+                    .withReply(reply));
+                String token = replyAuthHelper.generateToken(reply);
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("replyId", reply.getId())
+                    .withValue("replyLikeTagAId", replyLikeTagA.getId())
+                    .withValue("replyLikeTagBId", replyLikeTagB.getId());
+            });
+            String token = given.valueOf("token");
+            Long replyId = given.valueOf("replyId");
+            Long replyLikeTagAId = given.valueOf("replyLikeTagAId");
+            Long replyLikeTagBId = given.valueOf("replyLikeTagBId");
+
+            // When
+            ResultActions actions = mockMvc.perform(
+                delete("/post/comment/replies/{id}", replyId)
+                    .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(replyId)).isFalse();
+            assertThat(replyLikeTagRepository.existsById(replyLikeTagAId)).isFalse();
+            assertThat(replyLikeTagRepository.existsById(replyLikeTagBId)).isFalse();
         }
 
     }
