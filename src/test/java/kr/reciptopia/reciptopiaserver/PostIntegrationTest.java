@@ -20,7 +20,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -540,7 +539,8 @@ public class PostIntegrationTest {
 
         @Test
         void PostLikeTag가_있는_Post_삭제(
-            @Autowired PostLikeTagRepository postLikeTagRepository) throws Exception {
+            @Autowired PostLikeTagRepository postLikeTagRepository,
+            @Autowired AccountRepository accountRepository) throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
                 PostLikeTag postLikeTag = entityHelper.generatePostLikeTag();
@@ -549,11 +549,13 @@ public class PostIntegrationTest {
                 return new Struct()
                     .withValue("token", token)
                     .withValue("postId", postLikeTag.getPost().getId())
-                    .withValue("postLikeTagId", postLikeTag.getId());
+                    .withValue("postLikeTagId", postLikeTag.getId())
+                    .withValue("postLikeTagOwnerId", postLikeTag.getOwner().getId());
             });
             String token = given.valueOf("token");
             Long postId = given.valueOf("postId");
             Long postLikeTagId = given.valueOf("postLikeTagId");
+            Long postLikeTagOwnerId = given.valueOf("postLikeTagOwnerId");
 
             // When
             ResultActions actions = mockMvc.perform(delete("/posts/{id}", postId)
@@ -564,8 +566,9 @@ public class PostIntegrationTest {
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(emptyString()));
 
-            assertThat(postLikeTagRepository.existsById(postLikeTagId)).isFalse();
             assertThat(repository.existsById(postId)).isFalse();
+            assertThat(postLikeTagRepository.existsById(postLikeTagId)).isFalse();
+            assertThat(accountRepository.existsById(postLikeTagOwnerId)).isTrue();
         }
 
         @Test
