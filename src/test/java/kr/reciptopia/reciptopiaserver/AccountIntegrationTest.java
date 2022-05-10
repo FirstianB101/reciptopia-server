@@ -248,8 +248,8 @@ public class AccountIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.accounts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.accounts.[*].id").value(containsInAnyOrder(
                     accountAId.intValue(),
                     accountBId.intValue()
                 )));
@@ -287,8 +287,8 @@ public class AccountIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(contains(
+                .andExpect(jsonPath("$.accounts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.accounts.[*].id").value(contains(
                     accountBId.intValue(),
                     accountAId.intValue()
                 )));
