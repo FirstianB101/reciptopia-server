@@ -6,10 +6,10 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccountUpdateDto;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -270,18 +271,21 @@ public class AccountIntegrationTest {
                 entityHelper.generateAccount();
                 Account accountA = entityHelper.generateAccount();
                 Account accountB = entityHelper.generateAccount();
+                Account accountC = entityHelper.generateAccount();
+                Account accountD = entityHelper.generateAccount();
+                Account accountE = entityHelper.generateAccount();
 
                 return new Struct()
-                    .withValue("accountAId", accountA.getId())
-                    .withValue("accountBId", accountB.getId());
+                    .withValue("accountBId", accountB.getId())
+                    .withValue("accountCId", accountC.getId());
             });
-            Long accountAId = given.valueOf("accountAId");
             Long accountBId = given.valueOf("accountBId");
+            Long accountCId = given.valueOf("accountCId");
 
             // When
             ResultActions actions = mockMvc.perform(get("/accounts")
                 .param("size", "2")
-                .param("page", "0")
+                .param("page", "1")
                 .param("sort", "id,desc"));
 
             // Then
@@ -289,8 +293,8 @@ public class AccountIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accounts").value(aMapWithSize(2)))
                 .andExpect(jsonPath("$.accounts.[*].id").value(contains(
-                    accountBId.intValue(),
-                    accountAId.intValue()
+                    accountCId.intValue(),
+                    accountBId.intValue()
                 )));
 
             // Document
