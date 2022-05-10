@@ -32,13 +32,13 @@ public class RecipeController {
 
     @PostMapping("/post/recipes")
     @ResponseStatus(HttpStatus.CREATED)
-    public RecipeDto.Result post(@Valid @RequestBody RecipeDto.Create dto,
+    public Result post(@Valid @RequestBody Create dto,
         Authentication authentication) {
         return service.create(dto, authentication);
     }
 
     @GetMapping("/post/recipes/{id}")
-    public RecipeDto.Result get(@PathVariable Long id) {
+    public Result get(@PathVariable Long id) {
         return service.read(id);
     }
 
