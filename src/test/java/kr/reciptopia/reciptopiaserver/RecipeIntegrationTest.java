@@ -8,11 +8,11 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -44,7 +44,6 @@ import kr.reciptopia.reciptopiaserver.persistence.repository.StepRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.SubIngredientRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -197,7 +196,6 @@ public class RecipeIntegrationTest {
 
     }
 
-    @Disabled
     @Nested
     class SearchRecipes {
 
@@ -272,6 +270,231 @@ public class RecipeIntegrationTest {
             actions.andDo(document("recipe-list-with-paging-example"));
         }
 
+        @Test
+        void mainIngredients로_reicpe검색() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipeA = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeA));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeA));
+
+                Recipe recipeB = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeB));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeB));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeB));
+
+                Recipe recipeC = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("양파")
+                        .withRecipe(recipeC));
+
+                Recipe recipeD = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeD));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeD));
+
+                Recipe recipeE = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeE));
+                return new Struct()
+                    .withValue("recipeBId", recipeB.getId())
+                    .withValue("recipeCId", recipeC.getId());
+            });
+            Long recipeBId = given.valueOf("recipeBId");
+            Long recipeCId = given.valueOf("recipeCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/recipes")
+                .param("mainIngredientNames", "닭다리, 감자, 고추장")
+            );
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.recipes").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.recipes.[*].id").value(contains(
+                    recipeBId.intValue(),
+                    recipeCId.intValue()
+                )));
+        }
+
+        @Test
+        void subIngredients로_정렬() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipeA = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeA));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeA));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeA));
+
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("라면")
+                        .withRecipe(recipeA));
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("당면")
+                        .withRecipe(recipeA));
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("깻잎")
+                        .withRecipe(recipeA));
+
+                Recipe recipeB = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeB));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeB));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeB));
+
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("떡")
+                        .withRecipe(recipeB));
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("라면")
+                        .withRecipe(recipeB));
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("당면")
+                        .withRecipe(recipeB));
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("깻잎")
+                        .withRecipe(recipeB));
+
+                Recipe recipeC = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeC));
+
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("떡")
+                        .withRecipe(recipeC));
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("라면")
+                        .withRecipe(recipeC));
+
+                Recipe recipeD = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeD));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeD));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeD));
+
+                Recipe recipeE = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeE));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeE));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeE));
+
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("떡")
+                        .withRecipe(recipeE));
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("깻잎")
+                        .withRecipe(recipeE));
+
+                Recipe recipeF = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeF));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeF));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeF));
+
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("떡")
+                        .withRecipe(recipeF));
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("라면")
+                        .withRecipe(recipeF));
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("당면")
+                        .withRecipe(recipeF));
+                entityHelper.generateSubIngredient(
+                    ig -> ig.withName("깻잎")
+                        .withRecipe(recipeF));
+
+                return new Struct()
+                    .withValue("recipeAId", recipeA.getId())
+                    .withValue("recipeBId", recipeB.getId())
+                    .withValue("recipeCId", recipeC.getId())
+                    .withValue("recipeDId", recipeD.getId())
+                    .withValue("recipeEId", recipeE.getId())
+                    .withValue("recipeFId", recipeF.getId());
+            });
+            Long recipeAId = given.valueOf("recipeAId");
+            Long recipeBId = given.valueOf("recipeBId");
+            Long recipeCId = given.valueOf("recipeCId");
+            Long recipeDId = given.valueOf("recipeDId");
+            Long recipeEId = given.valueOf("recipeEId");
+            Long recipeFId = given.valueOf("recipeFId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/recipes")
+                .param("mainIngredientNames", "닭다리, 감자, 고추장")
+                .param("subIngredientNames", "떡, 라면, 당면, 꺳잎")
+            );
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.recipes").value(aMapWithSize(6)))
+                .andExpect(jsonPath("$.recipes.[*].id").value(contains(
+                    recipeBId.intValue(), //4
+                    recipeFId.intValue(), //4
+                    recipeAId.intValue(), //3
+                    recipeCId.intValue(), //2
+                    recipeEId.intValue(), //2
+                    recipeDId.intValue()  //0
+                )));
+        }
     }
 
     @Nested
