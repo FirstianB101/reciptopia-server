@@ -1,22 +1,21 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Bulk;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.CheckDuplicationResult;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Update;
 
-import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.AccountAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.AccountRepositoryImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +28,7 @@ public class AccountService {
 
     private final PasswordEncoder passwordEncoder;
     private final AccountRepository accountRepository;
+    private final AccountRepositoryImpl accountRepositoryImpl;
     private final RepositoryHelper repoHelper;
     private final ServiceErrorHelper errorHelper;
     private final AccountAuthorizer accountAuthorizer;
@@ -48,9 +48,8 @@ public class AccountService {
         return Result.of(repoHelper.findAccountOrThrow(id));
     }
 
-    public List<Result> search(Specification<Account> spec, Pageable pageable) {
-        Page<Account> entities = accountRepository.findAll(spec, pageable);
-        return Result.of(entities);
+    public Bulk.Result search(Pageable pageable) {
+        return accountRepositoryImpl.search(pageable);
     }
 
     @Transactional
