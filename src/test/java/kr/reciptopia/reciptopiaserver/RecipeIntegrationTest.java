@@ -243,19 +243,21 @@ public class RecipeIntegrationTest {
                 entityHelper.generateRecipe();
                 Recipe recipeA = entityHelper.generateRecipe();
                 Recipe recipeB = entityHelper.generateRecipe();
+                Recipe recipeC = entityHelper.generateRecipe();
+                Recipe recipeD = entityHelper.generateRecipe();
+                Recipe recipeE = entityHelper.generateRecipe();
 
                 return new Struct()
-                    .withValue("recipeAId", recipeA.getId())
-                    .withValue("recipeBId", recipeB.getId());
+                    .withValue("recipeBId", recipeB.getId())
+                    .withValue("recipeCId", recipeC.getId());
             });
-            Long recipeAId = given.valueOf("recipeAId");
             Long recipeBId = given.valueOf("recipeBId");
+            Long recipeCId = given.valueOf("recipeCId");
 
             // When
             ResultActions actions = mockMvc.perform(get("/post/recipes")
                 .param("size", "2")
-                .param("page", "0")
-                .param("sort", "id,desc"));
+                .param("page", "1"));
 
             // Then
             actions
@@ -263,7 +265,7 @@ public class RecipeIntegrationTest {
                 .andExpect(jsonPath("$.recipes").value(aMapWithSize(2)))
                 .andExpect(jsonPath("$.recipes.[*].id").value(contains(
                     recipeBId.intValue(),
-                    recipeAId.intValue()
+                    recipeCId.intValue()
                 )));
 
             // Document
