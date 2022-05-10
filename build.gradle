@@ -1,9 +1,17 @@
+buildscript {
+    dependencies {
+        classpath("gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:1.0.10")
+    }
+}
+
 plugins {
     id 'org.springframework.boot' version '2.6.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'org.asciidoctor.convert' version '1.5.8'
     id 'java-library'
 }
+
+apply plugin: "com.ewerk.gradle.plugins.querydsl"
 
 group = 'kr.reciptopia'
 version = '0.0.1-SNAPSHOT'
@@ -32,6 +40,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-web-services'
     implementation 'org.projectlombok:lombok'
+    implementation 'com.querydsl:querydsl-jpa'
+    implementation 'com.querydsl:querydsl-apt'
+
     api 'io.jsonwebtoken:jjwt-api:0.11.2'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2', 'io.jsonwebtoken:jjwt-jackson:0.11.2'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -59,4 +70,24 @@ bootJar {
     from("${asciidoctor.outputDir}/html5") {
         into 'static/docs'
     }
+}
+
+def querydslDir = "$buildDir/generated/querydsl"
+querydsl {
+    library = "com.querydsl:querydsl-apt"
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', querydslDir]
+        }
+    }
+}
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
+configurations {
+    querydsl.extendsFrom compileClasspath
 }
