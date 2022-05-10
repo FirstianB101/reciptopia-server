@@ -53,6 +53,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -68,6 +69,10 @@ public class RecipeIntegrationTest {
         fieldWithPath("id").description("레시피 ID");
     private static final FieldDescriptor DOC_FIELD_POST_ID =
         fieldWithPath("postId").description("레시피가 게시된 게시글 ID");
+    private static final ParameterDescriptor DOC_MAIN_INGREDIENT_NAMES =
+        parameterWithName("mainIngredientNames").description("주 재료 이름").optional();
+    private static final ParameterDescriptor DOC_SUB_INGREDIENT_NAMES =
+        parameterWithName("subIngredientNames").description("부 재료 이름").optional();
     @Autowired
     PasswordEncoder passwordEncoder;
     private MockMvc mockMvc;
@@ -229,8 +234,7 @@ public class RecipeIntegrationTest {
             actions.andDo(document("recipe-list-example",
                 requestParameters(
                     ApiDocumentation.DOC_PARAMETER_PAGE,
-                    ApiDocumentation.DOC_PARAMETER_SIZE,
-                    ApiDocumentation.DOC_PARAMETER_SORT
+                    ApiDocumentation.DOC_PARAMETER_SIZE
                 )));
         }
 
@@ -338,6 +342,13 @@ public class RecipeIntegrationTest {
                 .andExpect(jsonPath("$.recipes.[*].id").value(contains(
                     recipeBId.intValue(),
                     recipeCId.intValue()
+                )));
+
+            // Document
+            actions.andDo(document("recipe-search-example",
+                requestParameters(
+                    DOC_MAIN_INGREDIENT_NAMES,
+                    DOC_SUB_INGREDIENT_NAMES
                 )));
         }
 
