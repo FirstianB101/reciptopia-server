@@ -4,6 +4,7 @@ import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocument
 import static kr.reciptopia.reciptopiaserver.domain.dto.RecipeDto.Create;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipeCreateDto;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
@@ -220,8 +221,8 @@ public class RecipeIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.recipes").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.recipes.[*].id").value(containsInAnyOrder(
                     recipeAId.intValue(),
                     recipeBId.intValue()
                 )));
@@ -259,8 +260,8 @@ public class RecipeIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(contains(
+                .andExpect(jsonPath("$.recipes").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.recipes.[*].id").value(contains(
                     recipeBId.intValue(),
                     recipeAId.intValue()
                 )));
