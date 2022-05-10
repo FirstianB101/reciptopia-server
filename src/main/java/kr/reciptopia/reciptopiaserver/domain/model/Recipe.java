@@ -5,6 +5,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -64,6 +65,23 @@ public class Recipe extends TimeEntity {
     @Builder
     public Recipe(Post post) {
         setPost(post);
+    }
+
+    public boolean hasAllMainIngredients(Set<String> targetIngredientNamse) {
+        return this.mainIngredients.stream()
+            .map(Ingredient::getName)
+            .collect(Collectors.toSet())
+            .containsAll(targetIngredientNamse);
+    }
+
+    public int countIncludedSubIngredients(Set<String> targetIngredientNamse) {
+        int count = 0;
+        for (var subIngredient : this.subIngredients) {
+            if (targetIngredientNamse.contains(subIngredient.name))
+                count++;
+        }
+
+        return count;
     }
 
     public <I extends Ingredient> void addIngredient(I ingredient) {
