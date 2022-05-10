@@ -1,6 +1,8 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.validation.constraints.Email;
@@ -11,10 +13,43 @@ import javax.validation.constraints.Size;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import lombok.Builder;
+import lombok.Singular;
 import lombok.With;
+import org.springframework.data.domain.Page;
 import org.springframework.data.util.Streamable;
 
 public interface AccountDto {
+
+    interface Bulk {
+
+        @With
+        record Result(
+            Map<Long, AccountDto.Result> accounts
+        ) {
+
+            @Builder
+            public Result(
+                @NotEmpty
+                @Singular
+                Map<Long, AccountDto.Result> accounts
+            ) {
+                this.accounts = accounts;
+            }
+
+            public static Result of(Page<Account> accounts) {
+                return Result.builder()
+                    .accounts((Map<? extends Long, ? extends AccountDto.Result>) accounts.stream()
+                        .map(AccountDto.Result::of)
+                        .collect(
+                            Collectors.toMap(
+                                AccountDto.Result::id,
+                                result -> result,
+                                (x, y) -> y,
+                                LinkedHashMap::new)))
+                    .build();
+            }
+        }
+    }
 
     @With
     record Create(
@@ -80,6 +115,15 @@ public interface AccountDto {
     }
 
     @With
+    record CheckDuplicationResult(Boolean exists) {
+
+        @Builder
+        public CheckDuplicationResult(@NotNull Boolean exists) {
+            this.exists = exists;
+        }
+    }
+
+    @With
     record Result(
         Long id, String email, String nickname, String profilePictureUrl, UserRole role) {
 
@@ -124,12 +168,4 @@ public interface AccountDto {
         }
     }
 
-    @With
-    record CheckDuplicationResult(Boolean exists) {
-
-        @Builder
-        public CheckDuplicationResult(@NotNull Boolean exists) {
-            this.exists = exists;
-        }
-    }
 }
