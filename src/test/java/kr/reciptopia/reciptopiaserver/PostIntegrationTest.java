@@ -268,11 +268,12 @@ public class PostIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.posts").value(aMapWithSize(2)))
-                .andExpect(jsonPath("$.posts.[*].id").value(containsInAnyOrder(
-                    postAId.intValue(),
-                    postBId.intValue()
-                )));
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts.[*].post.id").value(
+                    containsInAnyOrder(
+                        postAId.intValue(),
+                        postBId.intValue()
+                    )));
 
             // Document
             actions.andDo(document("post-list-example",
@@ -309,8 +310,8 @@ public class PostIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.posts").value(aMapWithSize(2)))
-                .andExpect(jsonPath("$.posts.[*].id").value(contains(
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts.[*].post.id").value(contains(
                     postCId.intValue(),
                     postBId.intValue()
                 )));
@@ -347,11 +348,12 @@ public class PostIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.posts").value(aMapWithSize(2)))
-                .andExpect(jsonPath("$.posts.[*].id").value(containsInAnyOrder(
-                    postCId.intValue(),
-                    postBId.intValue()
-                )));
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts.[*].post.id").value(
+                    containsInAnyOrder(
+                        postCId.intValue(),
+                        postBId.intValue()
+                    )));
 
             // Document
             actions.andDo(document("post-search-example",
@@ -387,11 +389,12 @@ public class PostIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.posts").value(aMapWithSize(2)))
-                .andExpect(jsonPath("$.posts.[*].id").value(containsInAnyOrder(
-                    postCId.intValue(),
-                    postBId.intValue()
-                )));
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts.[*].post.id").value(
+                    containsInAnyOrder(
+                        postCId.intValue(),
+                        postBId.intValue()
+                    )));
         }
 
     }
