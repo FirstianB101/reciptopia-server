@@ -12,6 +12,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -55,6 +56,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -78,6 +80,11 @@ public class PostIntegrationTest {
         fieldWithPath("views").description("게시물 조회 수");
     private static final FieldDescriptor DOC_FIELD_OWNER_ID =
         fieldWithPath("ownerId").description("글쓴이 ID");
+
+    private static final ParameterDescriptor DOC_OWNER_ID =
+        parameterWithName("ownerId").description("글쓴이 ID").optional();
+    private static final ParameterDescriptor DOC_TITLE_LIKE =
+        parameterWithName("titleLike").description("유사한 게시물 제목").optional();
 
     private MockMvc mockMvc;
 
