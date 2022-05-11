@@ -4,9 +4,10 @@ import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocument
 import static kr.reciptopia.reciptopiaserver.domain.dto.SearchHistoryDto.Create;
 import static kr.reciptopia.reciptopiaserver.helper.SearchHistoryHelper.aSearchHistoryCreateDto;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -58,6 +59,8 @@ public class SearchHistoryIntegrationTest {
         "검색기록 소유자 ID");
     private static final FieldDescriptor DOC_FIELD_INGREDIENT_NAMES = fieldWithPath(
         "ingredientNames").description("검색 재료 이름들");
+    private static final FieldDescriptor DOC_FIELD_CREATE_DATE = fieldWithPath(
+        "createdDate").description("검색 기록 생성 시간");
     @Autowired
     PasswordEncoder passwordEncoder;
     private MockMvc mockMvc;
@@ -172,7 +175,8 @@ public class SearchHistoryIntegrationTest {
                 responseFields(
                     DOC_FIELD_ID,
                     DOC_FIELD_OWNER_ID,
-                    DOC_FIELD_INGREDIENT_NAMES)));
+                    DOC_FIELD_INGREDIENT_NAMES,
+                    DOC_FIELD_CREATE_DATE)));
         }
 
         @Test
@@ -219,8 +223,8 @@ public class SearchHistoryIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.searchHistories").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.searchHistories.[*].id").value(containsInAnyOrder(
                     searchHistoryAId.intValue(),
                     searchHistoryBId.intValue()
                 )));
@@ -229,7 +233,8 @@ public class SearchHistoryIntegrationTest {
             actions.andDo(document("search-history-list-example",
                 requestParameters(
                     ApiDocumentation.DOC_PARAMETER_PAGE,
-                    ApiDocumentation.DOC_PARAMETER_SIZE
+                    ApiDocumentation.DOC_PARAMETER_SIZE,
+                    ApiDocumentation.DOC_PARAMETER_SORT
                 )));
         }
 
@@ -242,33 +247,40 @@ public class SearchHistoryIntegrationTest {
                     it -> it.withOwner(owner));
                 SearchHistory searchHistoryB = entityHelper.generateSearchHistory(
                     it -> it.withOwner(owner));
+                SearchHistory searchHistoryC = entityHelper.generateSearchHistory(
+                    it -> it.withOwner(owner));
+                SearchHistory searchHistoryD = entityHelper.generateSearchHistory(
+                    it -> it.withOwner(owner));
+                SearchHistory searchHistoryE = entityHelper.generateSearchHistory(
+                    it -> it.withOwner(owner));
                 String token = searchHistoryAuthHelper.generateToken(owner);
 
                 return new Struct()
                     .withValue("ownerId", owner.getId())
                     .withValue("token", token)
-                    .withValue("searchHistoryAId", searchHistoryA.getId())
-                    .withValue("searchHistoryBId", searchHistoryB.getId());
+                    .withValue("searchHistoryBId", searchHistoryB.getId())
+                    .withValue("searchHistoryCId", searchHistoryC.getId());
             });
             String token = given.valueOf("token");
             Long ownerId = given.valueOf("ownerId");
-            Long searchHistoryAId = given.valueOf("searchHistoryAId");
             Long searchHistoryBId = given.valueOf("searchHistoryBId");
+            Long searchHistoryCId = given.valueOf("searchHistoryCId");
 
             // When
             ResultActions actions = mockMvc.perform(
                 get("/account/{ownerId}/searchHistories", ownerId)
                     .header("Authorization", "Bearer " + token)
                     .param("size", "2")
-                    .param("page", "0"));
+                    .param("page", "1")
+                    .param("sort", "id,desc"));
 
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
-                    searchHistoryBId.intValue(),
-                    searchHistoryAId.intValue()
+                .andExpect(jsonPath("$.searchHistories").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.searchHistories.[*].id").value(contains(
+                    searchHistoryCId.intValue(),
+                    searchHistoryBId.intValue()
                 )));
 
             // Document

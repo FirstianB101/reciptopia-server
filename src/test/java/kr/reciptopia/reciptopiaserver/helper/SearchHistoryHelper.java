@@ -4,6 +4,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.SearchHistoryDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SearchHistoryDto.Result;
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 
@@ -12,6 +13,8 @@ public class SearchHistoryHelper {
     private static final Long ARBITRARY_OWNER_ID = 0L;
     private static final Long ARBITRARY_SEARCH_HISTORY_ID = 0L;
     private static final Set<String> ARBITRARY_INGRESIENT_NAMES = Set.of("된장", "감자", "두부");
+    private static final LocalDateTime ARBITRARY_CREATE_TIME = LocalDateTime.of(2022, 10, 24, 9, 41,
+        12);
 
     public static SearchHistory aSearchHistory() {
         return SearchHistory.builder()
@@ -33,6 +36,7 @@ public class SearchHistoryHelper {
             .id(ARBITRARY_OWNER_ID)
             .ownerId(ARBITRARY_OWNER_ID)
             .ingredientNames(ARBITRARY_INGRESIENT_NAMES)
+            .createdDate(ARBITRARY_CREATE_TIME)
             .build();
     }
 
