@@ -3,6 +3,7 @@ package kr.reciptopia.reciptopiaserver.domain.dto;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -39,6 +40,36 @@ public interface PostDto {
                                 result -> result,
                                 (x, y) -> y,
                                 LinkedHashMap::new)))
+                    .build();
+            }
+        }
+
+        @With
+        record ResultWithCommentAndLikeTagCount(
+            Map<Long, PostDto.ResultWithCommentAndLikeTagCount> postWithCommentAndLikeTagCounts) {
+
+            @Builder
+            public ResultWithCommentAndLikeTagCount(
+                @NotEmpty
+                @Singular
+                    Map<Long, PostDto.ResultWithCommentAndLikeTagCount> postWithCommentAndLikeTagCounts
+            ) {
+                this.postWithCommentAndLikeTagCounts = postWithCommentAndLikeTagCounts;
+            }
+
+            public static ResultWithCommentAndLikeTagCount of(Page<Post> posts,
+                Function<Long, Integer> commentCount, Function<Long, Integer> likeTagCount) {
+                return ResultWithCommentAndLikeTagCount.builder()
+                    .postWithCommentAndLikeTagCounts(
+                        (Map<? extends Long, ? extends PostDto.ResultWithCommentAndLikeTagCount>) posts.stream()
+                            .map(post -> PostDto.ResultWithCommentAndLikeTagCount.of(post,
+                                commentCount.apply(post.getId()), likeTagCount.apply(post.getId())))
+                            .collect(
+                                Collectors.toMap(
+                                    resultWithCommentAndLikeTagCount -> resultWithCommentAndLikeTagCount.post().id,
+                                    result -> result,
+                                    (x, y) -> y,
+                                    LinkedHashMap::new)))
                     .build();
             }
         }
@@ -89,6 +120,23 @@ public interface PostDto {
             this.title = title;
             this.content = content;
             this.pictureUrls = pictureUrls;
+        }
+    }
+
+    @With
+    record ResultWithCommentAndLikeTagCount(Result post, int commentCount, int likeTagCount) {
+
+        @Builder
+        public ResultWithCommentAndLikeTagCount {
+        }
+
+        public static ResultWithCommentAndLikeTagCount of(Post post, int commentCount,
+            int likeTagCount) {
+            return ResultWithCommentAndLikeTagCount.builder()
+                .post(Result.of(post))
+                .commentCount(commentCount)
+                .likeTagCount(likeTagCount)
+                .build();
         }
     }
 
