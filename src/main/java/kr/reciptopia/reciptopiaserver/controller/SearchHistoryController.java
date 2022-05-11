@@ -3,9 +3,9 @@ package kr.reciptopia.reciptopiaserver.controller;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SearchHistoryDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SearchHistoryDto.Result;
 
-import java.util.List;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.SearchHistoryService;
+import kr.reciptopia.reciptopiaserver.domain.dto.SearchHistoryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -39,7 +39,7 @@ public class SearchHistoryController {
     }
 
     @GetMapping("/account/{ownerId}/searchHistories")
-    public List<Result> search(
+    public SearchHistoryDto.Bulk.Result search(
         @PathVariable Long ownerId,
         Authentication authentication,
         Pageable pageable
