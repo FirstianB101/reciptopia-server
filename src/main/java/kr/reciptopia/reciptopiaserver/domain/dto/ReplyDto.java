@@ -1,17 +1,52 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import lombok.Builder;
+import lombok.Singular;
 import lombok.With;
+import org.springframework.data.domain.Page;
 import org.springframework.data.util.Streamable;
 
 public interface ReplyDto {
+
+    interface Bulk {
+
+        @With
+        record Result(Map<Long, ReplyDto.Result> replies) {
+
+            @Builder
+            public Result(
+                @NotEmpty
+                @Singular
+                    Map<Long, ReplyDto.Result> replies
+            ) {
+                this.replies = replies;
+            }
+
+            public static Result of(Page<Reply> replies) {
+                return Result.builder()
+                    .replies((Map<? extends Long, ? extends ReplyDto.Result>) replies.stream()
+                        .map(ReplyDto.Result::of)
+                        .collect(
+                            Collectors.toMap(
+                                ReplyDto.Result::id,
+                                result -> result,
+                                (x, y) -> y,
+                                LinkedHashMap::new
+                            )))
+                    .build();
+            }
+        }
+    }
 
     @With
     record Create(
