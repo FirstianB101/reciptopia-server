@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostLikeTagRepository extends BaseRepository<PostLikeTag, Long> {
 
+    int countByPostId(Long postId);
 }
