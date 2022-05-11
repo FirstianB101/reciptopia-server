@@ -1,5 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -47,17 +48,19 @@ public interface SearchHistoryDto {
 
     @With
     record Result(
-        Long id, Long ownerId, Set<String> ingredientNames
+        Long id, Long ownerId, Set<String> ingredientNames, LocalDateTime createdDate
     ) {
 
         @Builder
         public Result(
             @NotNull Long id,
             @NotNull Long ownerId,
-            @Singular Set<String> ingredientNames) {
+            @Singular Set<String> ingredientNames,
+            LocalDateTime createdDate) {
             this.id = id;
             this.ownerId = ownerId;
             this.ingredientNames = ingredientNames;
+            this.createdDate = createdDate;
         }
 
         public static Result of(SearchHistory searchHistory) {
@@ -65,6 +68,7 @@ public interface SearchHistoryDto {
                 .id(searchHistory.getId())
                 .ownerId(searchHistory.getOwner().getId())
                 .ingredientNames(searchHistory.getIngredientNames())
+                .createdDate(searchHistory.getCreatedDate())
                 .build();
         }
 
