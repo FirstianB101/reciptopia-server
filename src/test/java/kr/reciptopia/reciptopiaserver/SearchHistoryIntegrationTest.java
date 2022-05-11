@@ -5,6 +5,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.SearchHistoryDto.Create;
 import static kr.reciptopia.reciptopiaserver.helper.SearchHistoryHelper.aSearchHistoryCreateDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -245,33 +246,40 @@ public class SearchHistoryIntegrationTest {
                     it -> it.withOwner(owner));
                 SearchHistory searchHistoryB = entityHelper.generateSearchHistory(
                     it -> it.withOwner(owner));
+                SearchHistory searchHistoryC = entityHelper.generateSearchHistory(
+                    it -> it.withOwner(owner));
+                SearchHistory searchHistoryD = entityHelper.generateSearchHistory(
+                    it -> it.withOwner(owner));
+                SearchHistory searchHistoryE = entityHelper.generateSearchHistory(
+                    it -> it.withOwner(owner));
                 String token = searchHistoryAuthHelper.generateToken(owner);
 
                 return new Struct()
                     .withValue("ownerId", owner.getId())
                     .withValue("token", token)
-                    .withValue("searchHistoryAId", searchHistoryA.getId())
-                    .withValue("searchHistoryBId", searchHistoryB.getId());
+                    .withValue("searchHistoryBId", searchHistoryB.getId())
+                    .withValue("searchHistoryCId", searchHistoryC.getId());
             });
             String token = given.valueOf("token");
             Long ownerId = given.valueOf("ownerId");
-            Long searchHistoryAId = given.valueOf("searchHistoryAId");
             Long searchHistoryBId = given.valueOf("searchHistoryBId");
+            Long searchHistoryCId = given.valueOf("searchHistoryCId");
 
             // When
             ResultActions actions = mockMvc.perform(
                 get("/account/{ownerId}/searchHistories", ownerId)
                     .header("Authorization", "Bearer " + token)
                     .param("size", "2")
-                    .param("page", "0"));
+                    .param("page", "1")
+                    .param("sort", "id,desc"));
 
             // Then
             actions
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.searchHistories").value(aMapWithSize(2)))
-                .andExpect(jsonPath("$.searchHistories.[*].id").value(containsInAnyOrder(
-                    searchHistoryBId.intValue(),
-                    searchHistoryAId.intValue()
+                .andExpect(jsonPath("$.searchHistories.[*].id").value(contains(
+                    searchHistoryCId.intValue(),
+                    searchHistoryBId.intValue()
                 )));
 
             // Document
