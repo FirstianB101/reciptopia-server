@@ -1,8 +1,9 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
-import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.CommentAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
+import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.CommentSearchCondition;
+import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Bulk;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Result;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Update;
@@ -10,10 +11,9 @@ import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.CommentRepositoryImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final CommentRepositoryImpl commentRepositoryImpl;
     private final RepositoryHelper repoHelper;
     private final CommentAuthorizer commentAuthorizer;
 
@@ -45,9 +46,8 @@ public class CommentService {
         return Result.of(repoHelper.findCommentOrThrow(id));
     }
 
-    public List<Result> search(Specification<Comment> spec, Pageable pageable) {
-        Page<Comment> entities = commentRepository.findAll(spec, pageable);
-        return Result.of(entities);
+    public Bulk.Result search(CommentSearchCondition commentSearchCondition, Pageable pageable) {
+        return commentRepositoryImpl.search(commentSearchCondition, pageable);
     }
 
     @Transactional

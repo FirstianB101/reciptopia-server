@@ -1,16 +1,14 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
-import java.util.List;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.CommentService;
-import kr.reciptopia.reciptopiaserver.business.service.spec.CommentSpecs;
+import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.CommentSearchCondition;
+import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Bulk;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Result;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Update;
-import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -43,28 +41,15 @@ public class CommentController {
     }
 
     @GetMapping("/post/comments")
-    public List<Result> search(
-        @RequestParam(required = false) Long ownerId,
+    public Bulk.Result search(
         @RequestParam(required = false) Long postId,
-        @RequestParam(required = false) Long replyId,
-        @RequestParam(required = false) Long commentLikeTagId,
         Pageable pageable
     ) {
-        Specification<Comment> spec = null;
-        if (ownerId != null) {
-            spec = CommentSpecs.isOwner(ownerId).and(spec);
-        }
-        if (postId != null) {
-            spec = CommentSpecs.isPost(postId).and(spec);
-        }
-        if (replyId != null) {
-            spec = CommentSpecs.hasReply(replyId).and(spec);
-        }
-        if (commentLikeTagId != null) {
-            spec = CommentSpecs.hasCommentLikeTag(commentLikeTagId).and(spec);
-        }
+        CommentSearchCondition commentSearchCondition = CommentSearchCondition.builder()
+            .postId(postId)
+            .build();
 
-        return service.search(spec, pageable);
+        return service.search(commentSearchCondition, pageable);
     }
 
     @PatchMapping("/post/comments/{id}")
