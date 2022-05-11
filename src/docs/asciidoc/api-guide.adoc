@@ -10,10 +10,10 @@
 
 WARNING: 이 API는 아직 구현 중에 있으며 추후에 변경될 수 있습니다.
 
-NOTE: v0.13.3-alpha
+NOTE: v0.13.4-alpha
 
 ****
-v0.13.3-alpha 변경사항
+v0.13.4-alpha 변경사항
 
 '''
 
