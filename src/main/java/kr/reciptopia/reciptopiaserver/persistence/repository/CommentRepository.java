@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CommentRepository extends BaseRepository<Comment, Long> {
 
+    int countByPostId(Long postId);
 }
