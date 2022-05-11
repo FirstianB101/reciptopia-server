@@ -233,7 +233,8 @@ public class SearchHistoryIntegrationTest {
             actions.andDo(document("search-history-list-example",
                 requestParameters(
                     ApiDocumentation.DOC_PARAMETER_PAGE,
-                    ApiDocumentation.DOC_PARAMETER_SIZE
+                    ApiDocumentation.DOC_PARAMETER_SIZE,
+                    ApiDocumentation.DOC_PARAMETER_SORT
                 )));
         }
 
