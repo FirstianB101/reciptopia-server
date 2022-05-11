@@ -312,6 +312,81 @@ public class PostIntegrationTest {
             actions.andDo(document("post-list-with-paging-example"));
         }
 
+        @Test
+        void searchPostsByOwnerId() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                Post postA = entityHelper.generatePost();
+                Post postB = entityHelper.generatePost(it -> it.withOwner(owner));
+                Post postC = entityHelper.generatePost(it -> it.withOwner(owner));
+                Post postD = entityHelper.generatePost();
+                Post postE = entityHelper.generatePost();
+
+                return new Struct()
+                    .withValue("ownerId", owner.getId())
+                    .withValue("postBId", postB.getId())
+                    .withValue("postCId", postC.getId());
+            });
+            Long ownerId = given.valueOf("ownerId");
+            Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/posts")
+                .param("ownerId", ownerId.toString()));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.posts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.posts.[*].id").value(containsInAnyOrder(
+                    postCId.intValue(),
+                    postBId.intValue()
+                )));
+
+            // Document
+            actions.andDo(document("post-search-example",
+                requestParameters(
+                    DOC_OWNER_ID,
+                    DOC_TITLE_LIKE
+                )));
+        }
+
+        @Test
+        void searchPostsByTitleLike() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Post postA = entityHelper.generatePost();
+                Post postB = entityHelper.generatePost(it -> it
+                    .withTitle("가문어 쭈꾸미 덮밥 만들기"));
+                Post postC = entityHelper.generatePost(it -> it
+                    .withTitle("가문어 쭈꾸미 튀김 만들기"));
+                Post postD = entityHelper.generatePost();
+                Post postE = entityHelper.generatePost();
+
+                return new Struct()
+                    .withValue("postBId", postB.getId())
+                    .withValue("postCId", postC.getId());
+            });
+            Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/posts")
+                .param("titleLike", "가문어 쭈꾸미"));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.posts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.posts.[*].id").value(containsInAnyOrder(
+                    postCId.intValue(),
+                    postBId.intValue()
+                )));
+        }
+
     }
 
     @Nested
