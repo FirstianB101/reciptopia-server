@@ -1,16 +1,14 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
-import java.util.List;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.ReplyService;
-import kr.reciptopia.reciptopiaserver.business.service.spec.ReplySpecs;
+import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.ReplySearchCondition;
+import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Bulk;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Result;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Update;
-import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -43,24 +41,15 @@ public class ReplyController {
     }
 
     @GetMapping("/post/comment/replies")
-    public List<Result> search(
-        @RequestParam(required = false) Long ownerId,
+    public Bulk.Result search(
         @RequestParam(required = false) Long commentId,
-        @RequestParam(required = false) Long replyLikeTagId,
         Pageable pageable
     ) {
-        Specification<Reply> spec = null;
-        if (ownerId != null) {
-            spec = ReplySpecs.isOwner(ownerId).and(spec);
-        }
-        if (commentId != null) {
-            spec = ReplySpecs.isComment(commentId).and(spec);
-        }
-        if (replyLikeTagId != null) {
-            spec = ReplySpecs.hasReplyLikeTag(replyLikeTagId).and(spec);
-        }
+        ReplySearchCondition replySearchCondition = ReplySearchCondition.builder()
+            .commentId(commentId)
+            .build();
 
-        return service.search(spec, pageable);
+        return service.search(replySearchCondition, pageable);
     }
 
     @PatchMapping("/post/comment/replies/{id}")
