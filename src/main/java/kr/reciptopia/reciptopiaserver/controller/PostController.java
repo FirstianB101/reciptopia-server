@@ -1,16 +1,14 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
-import java.util.List;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.PostService;
-import kr.reciptopia.reciptopiaserver.business.service.spec.PostSpecs;
+import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.PostSearchCondition;
+import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Bulk;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Result;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
-import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -43,28 +41,16 @@ public class PostController {
     }
 
     @GetMapping("/posts")
-    public List<Result> search(
+    public Bulk.Result search(
         @RequestParam(required = false) Long ownerId,
-        @RequestParam(required = false) Long recipeId,
-        @RequestParam(required = false) Long commentId,
-        @RequestParam(required = false) String title,
+        @RequestParam(required = false) String titleLike,
         Pageable pageable
     ) {
-        Specification<Post> spec = null;
-        if (ownerId != null) {
-            spec = PostSpecs.isOwner(ownerId).and(spec);
-        }
-        if (recipeId != null) {
-            spec = PostSpecs.hasRecipe(recipeId).and(spec);
-        }
-        if (commentId != null) {
-            spec = PostSpecs.hasComment(commentId).and(spec);
-        }
-        if (title != null) {
-            spec = PostSpecs.titleLike(title).and(spec);
-        }
-
-        return service.search(spec, pageable);
+        PostSearchCondition postSearchCondition = PostSearchCondition.builder()
+            .ownerId(ownerId)
+            .titleLike(titleLike)
+            .build();
+        return service.search(postSearchCondition, pageable);
     }
 
     @PatchMapping("/posts/{id}")
