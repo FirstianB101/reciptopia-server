@@ -58,6 +58,8 @@ public class SearchHistoryIntegrationTest {
         "검색기록 소유자 ID");
     private static final FieldDescriptor DOC_FIELD_INGREDIENT_NAMES = fieldWithPath(
         "ingredientNames").description("검색 재료 이름들");
+    private static final FieldDescriptor DOC_FIELD_CREATE_DATE = fieldWithPath(
+        "createdDate").description("검색 기록 생성 시간");
     @Autowired
     PasswordEncoder passwordEncoder;
     private MockMvc mockMvc;
@@ -172,7 +174,8 @@ public class SearchHistoryIntegrationTest {
                 responseFields(
                     DOC_FIELD_ID,
                     DOC_FIELD_OWNER_ID,
-                    DOC_FIELD_INGREDIENT_NAMES)));
+                    DOC_FIELD_INGREDIENT_NAMES,
+                    DOC_FIELD_CREATE_DATE)));
         }
 
         @Test
