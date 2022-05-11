@@ -1,18 +1,55 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.With;
+import org.springframework.data.domain.Page;
 import org.springframework.data.util.Streamable;
 
 public interface SearchHistoryDto {
+
+    interface Bulk {
+
+        @With
+        record Result(
+            Map<Long, SearchHistoryDto.Result> searchHistories
+        ) {
+
+            @Builder
+            public Result(
+                @NotEmpty
+                @Singular
+                    Map<Long, SearchHistoryDto.Result> searchHistories
+            ) {
+                this.searchHistories = searchHistories;
+            }
+
+            public static Result of(Page<SearchHistory> searchHistories) {
+                return Result.builder()
+                    .searchHistories(
+                        (Map<? extends Long, ? extends SearchHistoryDto.Result>) searchHistories.stream()
+                            .map(SearchHistoryDto.Result::of)
+                            .collect(
+                                Collectors.toMap(
+                                    SearchHistoryDto.Result::id,
+                                    result -> result,
+                                    (x, y) -> y,
+                                    LinkedHashMap::new)))
+                    .build();
+            }
+        }
+    }
+
 
     @With
     record Create(
