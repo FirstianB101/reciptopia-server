@@ -3,6 +3,7 @@ package kr.reciptopia.reciptopiaserver;
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPostUpdateDto;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
@@ -260,8 +261,8 @@ public class PostIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.posts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.posts.[*].id").value(containsInAnyOrder(
                     postAId.intValue(),
                     postBId.intValue()
                 )));
@@ -298,10 +299,10 @@ public class PostIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(contains(
-                    postBId.intValue(),
-                    postAId.intValue()
+                .andExpect(jsonPath("$.posts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.posts.[*].id").value(contains(
+                    postCId.intValue(),
+                    postBId.intValue()
                 )));
 
             // Document
