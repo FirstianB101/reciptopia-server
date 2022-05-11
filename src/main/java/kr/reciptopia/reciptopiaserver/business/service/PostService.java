@@ -12,6 +12,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.PostRepositoryImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,8 @@ public class PostService {
     }
 
     public Bulk.Result search(PostSearchCondition postSearchCondition, Pageable pageable) {
-        return postRepositoryImpl.search(postSearchCondition, pageable);
+        PageImpl<Post> pageImpl = postRepositoryImpl.search(postSearchCondition, pageable);
+        return Bulk.Result.of(pageImpl);
     }
 
     @Transactional
