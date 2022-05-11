@@ -1,10 +1,10 @@
 package kr.reciptopia.reciptopiaserver.persistence.repository.custom;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Bulk;
-
+import kr.reciptopia.reciptopiaserver.domain.model.Account;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 public interface AccountRepositoryCustom {
 
-    Bulk.Result search(Pageable pageable);
+    PageImpl<Account> search(Pageable pageable);
 }
