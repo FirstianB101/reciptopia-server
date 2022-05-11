@@ -1,6 +1,8 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -8,9 +10,39 @@ import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.With;
+import org.springframework.data.domain.Page;
 import org.springframework.data.util.Streamable;
 
 public interface PostDto {
+
+    interface Bulk {
+
+        @With
+        record Result(Map<Long, PostDto.Result> posts) {
+
+            @Builder
+            public Result(
+                @NotEmpty
+                @Singular
+                    Map<Long, PostDto.Result> posts
+            ) {
+                this.posts = posts;
+            }
+
+            public static Result of(Page<Post> posts) {
+                return Result.builder()
+                    .posts((Map<? extends Long, ? extends PostDto.Result>) posts.stream()
+                        .map(PostDto.Result::of)
+                        .collect(
+                            Collectors.toMap(
+                                PostDto.Result::id,
+                                result -> result,
+                                (x, y) -> y,
+                                LinkedHashMap::new)))
+                    .build();
+            }
+        }
+    }
 
     @With
     record Create(Long ownerId,
