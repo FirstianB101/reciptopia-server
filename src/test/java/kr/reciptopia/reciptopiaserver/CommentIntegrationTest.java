@@ -4,14 +4,15 @@ import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocument
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aCommentCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aCommentUpdateDto;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -49,6 +50,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -67,6 +69,9 @@ public class CommentIntegrationTest {
         fieldWithPath("postId").description("댓글 게시물 ID");
     private static final FieldDescriptor DOC_FIELD_CONTENT =
         fieldWithPath("content").description("댓글 내용");
+
+    private static final ParameterDescriptor DOC_POST_ID =
+        parameterWithName("postId").description("댓글이 달린 게시물 ID").optional();
 
     private MockMvc mockMvc;
 
@@ -243,8 +248,8 @@ public class CommentIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.comments").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.comments.[*].id").value(containsInAnyOrder(
                     commentAId.intValue(),
                     commentBId.intValue()
                 )));
@@ -262,34 +267,77 @@ public class CommentIntegrationTest {
         void listCommentsWithPaging() throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
-                entityHelper.generateComment();
                 Comment commentA = entityHelper.generateComment();
                 Comment commentB = entityHelper.generateComment();
+                Comment commentC = entityHelper.generateComment();
+                Comment commentD = entityHelper.generateComment();
+                Comment commentE = entityHelper.generateComment();
 
                 return new Struct()
-                    .withValue("commentAId", commentA.getId())
-                    .withValue("commentBId", commentB.getId());
+                    .withValue("commentBId", commentB.getId())
+                    .withValue("commentCId", commentC.getId());
             });
-            Long commentAId = given.valueOf("commentAId");
             Long commentBId = given.valueOf("commentBId");
+            Long commentCId = given.valueOf("commentCId");
 
             // When
             ResultActions actions = mockMvc.perform(get("/post/comments")
                 .param("size", "2")
-                .param("page", "0")
+                .param("page", "1")
                 .param("sort", "id,desc"));
 
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(contains(
-                    commentBId.intValue(),
-                    commentAId.intValue()
+                .andExpect(jsonPath("$.comments").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.comments.[*].id").value(contains(
+                    commentCId.intValue(),
+                    commentBId.intValue()
                 )));
 
             // Document
             actions.andDo(document("comment-list-with-paging-example"));
+        }
+
+        @Test
+        void searchCommentsByPostId() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Post post = entityHelper.generatePost();
+
+                Comment commentA = entityHelper.generateComment();
+                Comment commentB = entityHelper.generateComment(it -> it.withPost(post));
+                Comment commentC = entityHelper.generateComment(it -> it.withPost(post));
+                Comment commentD = entityHelper.generateComment();
+                Comment commentE = entityHelper.generateComment();
+
+                return new Struct()
+                    .withValue("postId", post.getId())
+                    .withValue("commentBId", commentB.getId())
+                    .withValue("commentCId", commentC.getId());
+            });
+            Long postId = given.valueOf("postId");
+            Long commentBId = given.valueOf("commentBId");
+            Long commentCId = given.valueOf("commentCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/comments")
+                .param("postId", postId.toString()));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.comments").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.comments.[*].id").value(containsInAnyOrder(
+                    commentBId.intValue(),
+                    commentCId.intValue()
+                )));
+
+            // Document
+            actions.andDo(document("comment-search-example",
+                requestParameters(
+                    DOC_POST_ID
+                )));
         }
 
     }
