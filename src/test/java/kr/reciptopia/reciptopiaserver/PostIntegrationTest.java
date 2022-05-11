@@ -282,18 +282,21 @@ public class PostIntegrationTest {
             Struct given = trxHelper.doInTransaction(() -> {
                 Post postA = entityHelper.generatePost();
                 Post postB = entityHelper.generatePost();
+                Post postC = entityHelper.generatePost();
+                Post postD = entityHelper.generatePost();
+                Post postE = entityHelper.generatePost();
 
                 return new Struct()
-                    .withValue("postAId", postA.getId())
-                    .withValue("postBId", postB.getId());
+                    .withValue("postBId", postB.getId())
+                    .withValue("postCId", postC.getId());
             });
-            Long postAId = given.valueOf("postAId");
             Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
 
             // When
             ResultActions actions = mockMvc.perform(get("/posts")
                 .param("size", "2")
-                .param("page", "0")
+                .param("page", "1")
                 .param("sort", "id,desc"));
 
             // Then
