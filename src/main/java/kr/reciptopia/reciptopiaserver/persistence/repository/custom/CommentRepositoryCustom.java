@@ -1,10 +1,11 @@
 package kr.reciptopia.reciptopiaserver.persistence.repository.custom;
 
 import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.CommentSearchCondition;
-import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Bulk;
+import kr.reciptopia.reciptopiaserver.domain.model.Comment;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 public interface CommentRepositoryCustom {
 
-	Bulk.Result search(CommentSearchCondition commentSearchCondition, Pageable pageable);
+	PageImpl<Comment> search(CommentSearchCondition commentSearchCondition, Pageable pageable);
 }

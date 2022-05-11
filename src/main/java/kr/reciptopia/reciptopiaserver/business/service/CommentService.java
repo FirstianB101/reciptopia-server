@@ -13,6 +13,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.CommentRepositoryImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,8 @@ public class CommentService {
     }
 
     public Bulk.Result search(CommentSearchCondition commentSearchCondition, Pageable pageable) {
-        return commentRepositoryImpl.search(commentSearchCondition, pageable);
+        PageImpl<Comment> pageImpl = commentRepositoryImpl.search(commentSearchCondition, pageable);
+        return Bulk.Result.of(pageImpl);
     }
 
     @Transactional

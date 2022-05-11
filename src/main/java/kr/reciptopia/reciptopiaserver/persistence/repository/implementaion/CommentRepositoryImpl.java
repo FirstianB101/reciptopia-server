@@ -7,7 +7,6 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.CommentSearchCondition;
 import kr.reciptopia.reciptopiaserver.config.querydsl.PagingUtil;
-import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Bulk;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.persistence.repository.custom.CommentRepositoryCustom;
 import lombok.RequiredArgsConstructor;
@@ -21,14 +20,14 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 	private final PagingUtil pagingUtil;
 
 	@Override
-	public Bulk.Result search(CommentSearchCondition commentSearchCondition, Pageable pageable) {
+	public PageImpl<Comment> search(CommentSearchCondition commentSearchCondition,
+		Pageable pageable) {
 		JPAQuery<Comment> query = queryFactory
 			.selectFrom(comment)
 			.innerJoin(comment.post, post)
 			.where(eqPostId(commentSearchCondition.postId()));
 
-		PageImpl<Comment> pageImpl = pagingUtil.getPageImpl(pageable, query, Comment.class);
-		return Bulk.Result.of(pageImpl);
+		return pagingUtil.getPageImpl(pageable, query, Comment.class);
 	}
 
 	private BooleanExpression eqPostId(Long postId) {
