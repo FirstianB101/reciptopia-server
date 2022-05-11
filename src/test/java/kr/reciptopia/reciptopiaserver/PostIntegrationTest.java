@@ -3,6 +3,7 @@ package kr.reciptopia.reciptopiaserver;
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPostUpdateDto;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
@@ -11,6 +12,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -54,6 +56,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -77,6 +80,11 @@ public class PostIntegrationTest {
         fieldWithPath("views").description("게시물 조회 수");
     private static final FieldDescriptor DOC_FIELD_OWNER_ID =
         fieldWithPath("ownerId").description("글쓴이 ID");
+
+    private static final ParameterDescriptor DOC_OWNER_ID =
+        parameterWithName("ownerId").description("글쓴이 ID").optional();
+    private static final ParameterDescriptor DOC_TITLE_LIKE =
+        parameterWithName("titleLike").description("유사한 게시물 제목").optional();
 
     private MockMvc mockMvc;
 
@@ -260,8 +268,8 @@ public class PostIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.posts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.posts.[*].id").value(containsInAnyOrder(
                     postAId.intValue(),
                     postBId.intValue()
                 )));
@@ -281,31 +289,109 @@ public class PostIntegrationTest {
             Struct given = trxHelper.doInTransaction(() -> {
                 Post postA = entityHelper.generatePost();
                 Post postB = entityHelper.generatePost();
+                Post postC = entityHelper.generatePost();
+                Post postD = entityHelper.generatePost();
+                Post postE = entityHelper.generatePost();
 
                 return new Struct()
-                    .withValue("postAId", postA.getId())
-                    .withValue("postBId", postB.getId());
+                    .withValue("postBId", postB.getId())
+                    .withValue("postCId", postC.getId());
             });
-            Long postAId = given.valueOf("postAId");
             Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
 
             // When
             ResultActions actions = mockMvc.perform(get("/posts")
                 .param("size", "2")
-                .param("page", "0")
+                .param("page", "1")
                 .param("sort", "id,desc"));
 
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(contains(
-                    postBId.intValue(),
-                    postAId.intValue()
+                .andExpect(jsonPath("$.posts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.posts.[*].id").value(contains(
+                    postCId.intValue(),
+                    postBId.intValue()
                 )));
 
             // Document
             actions.andDo(document("post-list-with-paging-example"));
+        }
+
+        @Test
+        void searchPostsByOwnerId() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                Post postA = entityHelper.generatePost();
+                Post postB = entityHelper.generatePost(it -> it.withOwner(owner));
+                Post postC = entityHelper.generatePost(it -> it.withOwner(owner));
+                Post postD = entityHelper.generatePost();
+                Post postE = entityHelper.generatePost();
+
+                return new Struct()
+                    .withValue("ownerId", owner.getId())
+                    .withValue("postBId", postB.getId())
+                    .withValue("postCId", postC.getId());
+            });
+            Long ownerId = given.valueOf("ownerId");
+            Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/posts")
+                .param("ownerId", ownerId.toString()));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.posts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.posts.[*].id").value(containsInAnyOrder(
+                    postCId.intValue(),
+                    postBId.intValue()
+                )));
+
+            // Document
+            actions.andDo(document("post-search-example",
+                requestParameters(
+                    DOC_OWNER_ID,
+                    DOC_TITLE_LIKE
+                )));
+        }
+
+        @Test
+        void searchPostsByTitleLike() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Post postA = entityHelper.generatePost();
+                Post postB = entityHelper.generatePost(it -> it
+                    .withTitle("가문어 쭈꾸미 덮밥 만들기"));
+                Post postC = entityHelper.generatePost(it -> it
+                    .withTitle("가문어 쭈꾸미 튀김 만들기"));
+                Post postD = entityHelper.generatePost();
+                Post postE = entityHelper.generatePost();
+
+                return new Struct()
+                    .withValue("postBId", postB.getId())
+                    .withValue("postCId", postC.getId());
+            });
+            Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/posts")
+                .param("titleLike", "가문어 쭈꾸미"));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.posts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.posts.[*].id").value(containsInAnyOrder(
+                    postCId.intValue(),
+                    postBId.intValue()
+                )));
         }
 
     }
