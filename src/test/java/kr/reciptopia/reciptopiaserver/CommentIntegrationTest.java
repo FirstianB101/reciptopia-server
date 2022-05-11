@@ -262,21 +262,23 @@ public class CommentIntegrationTest {
         void listCommentsWithPaging() throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
-                entityHelper.generateComment();
                 Comment commentA = entityHelper.generateComment();
                 Comment commentB = entityHelper.generateComment();
+                Comment commentC = entityHelper.generateComment();
+                Comment commentD = entityHelper.generateComment();
+                Comment commentE = entityHelper.generateComment();
 
                 return new Struct()
-                    .withValue("commentAId", commentA.getId())
-                    .withValue("commentBId", commentB.getId());
+                    .withValue("commentBId", commentB.getId())
+                    .withValue("commentCId", commentC.getId());
             });
-            Long commentAId = given.valueOf("commentAId");
             Long commentBId = given.valueOf("commentBId");
+            Long commentCId = given.valueOf("commentCId");
 
             // When
             ResultActions actions = mockMvc.perform(get("/post/comments")
                 .param("size", "2")
-                .param("page", "0")
+                .param("page", "1")
                 .param("sort", "id,desc"));
 
             // Then
