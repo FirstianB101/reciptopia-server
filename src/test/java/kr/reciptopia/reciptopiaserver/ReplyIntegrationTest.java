@@ -262,21 +262,23 @@ public class ReplyIntegrationTest {
         void listRepliesWithPaging() throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
-                entityHelper.generateReply();
                 Reply replyA = entityHelper.generateReply();
                 Reply replyB = entityHelper.generateReply();
+                Reply replyC = entityHelper.generateReply();
+                Reply replyD = entityHelper.generateReply();
+                Reply replyE = entityHelper.generateReply();
 
                 return new Struct()
-                    .withValue("replyAId", replyA.getId())
-                    .withValue("replyBId", replyB.getId());
+                    .withValue("replyBId", replyB.getId())
+                    .withValue("replyCId", replyC.getId());
             });
-            Long replyAId = given.valueOf("replyAId");
             Long replyBId = given.valueOf("replyBId");
+            Long replyCId = given.valueOf("replyCId");
 
             // When
             ResultActions actions = mockMvc.perform(get("/post/comment/replies")
                 .param("size", "2")
-                .param("page", "0")
+                .param("page", "1")
                 .param("sort", "id,desc"));
 
             // Then
