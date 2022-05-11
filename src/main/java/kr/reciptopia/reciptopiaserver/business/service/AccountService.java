@@ -6,7 +6,6 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.CheckDuplicat
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Update;
-
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.AccountAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
@@ -15,6 +14,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.AccountRepositoryImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -49,7 +49,8 @@ public class AccountService {
     }
 
     public Bulk.Result search(Pageable pageable) {
-        return accountRepositoryImpl.search(pageable);
+        PageImpl<Account> pageImpl = accountRepositoryImpl.search(pageable);
+        return Bulk.Result.of(pageImpl);
     }
 
     @Transactional
