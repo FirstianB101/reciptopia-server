@@ -4,10 +4,10 @@ import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocument
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aCommentCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aCommentUpdateDto;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -243,8 +243,8 @@ public class CommentIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.comments").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.comments.[*].id").value(containsInAnyOrder(
                     commentAId.intValue(),
                     commentBId.intValue()
                 )));
@@ -282,10 +282,10 @@ public class CommentIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(contains(
-                    commentBId.intValue(),
-                    commentAId.intValue()
+                .andExpect(jsonPath("$.comments").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.comments.[*].id").value(contains(
+                    commentCId.intValue(),
+                    commentBId.intValue()
                 )));
 
             // Document
