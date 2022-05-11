@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -253,7 +254,22 @@ public class PostIntegrationTest {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
                 Post postA = entityHelper.generatePost();
+                entityHelper.generateComment(it -> it.withPost(postA));
+                entityHelper.generateComment(it -> it.withPost(postA));
+                entityHelper.generateComment(it -> it.withPost(postA));
+                entityHelper.generatePostLikeTag(it -> it.withPost(postA));
+                entityHelper.generatePostLikeTag(it -> it.withPost(postA));
+                entityHelper.generatePostLikeTag(it -> it.withPost(postA));
+                entityHelper.generatePostLikeTag(it -> it.withPost(postA));
+
                 Post postB = entityHelper.generatePost();
+                entityHelper.generateComment(it -> it.withPost(postB));
+                entityHelper.generateComment(it -> it.withPost(postB));
+                entityHelper.generateComment(it -> it.withPost(postB));
+                entityHelper.generateComment(it -> it.withPost(postB));
+                entityHelper.generateComment(it -> it.withPost(postB));
+                entityHelper.generatePostLikeTag(it -> it.withPost(postB));
+                entityHelper.generatePostLikeTag(it -> it.withPost(postB));
 
                 return new Struct()
                     .withValue("postAId", postA.getId())
@@ -273,7 +289,15 @@ public class PostIntegrationTest {
                     containsInAnyOrder(
                         postAId.intValue(),
                         postBId.intValue()
-                    )));
+                    )))
+                .andExpect(jsonPath(
+                    "$.postWithCommentAndLikeTagCounts." + postAId + ".commentCount").value(3))
+                .andExpect(jsonPath(
+                    "$.postWithCommentAndLikeTagCounts." + postAId + ".likeTagCount").value(4))
+                .andExpect(jsonPath(
+                    "$.postWithCommentAndLikeTagCounts." + postBId + ".commentCount").value(5))
+                .andExpect(jsonPath(
+                    "$.postWithCommentAndLikeTagCounts." + postBId + ".likeTagCount").value(2));
 
             // Document
             actions.andDo(document("post-list-example",
