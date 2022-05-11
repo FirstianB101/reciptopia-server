@@ -41,7 +41,7 @@ public class PostController {
     }
 
     @GetMapping("/posts")
-    public Bulk.Result search(
+    public Bulk.ResultWithCommentAndLikeTagCount search(
         @RequestParam(required = false) Long ownerId,
         @RequestParam(required = false) String titleLike,
         Pageable pageable
