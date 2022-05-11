@@ -9,6 +9,8 @@ import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Result;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
+import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.PostRepositoryImpl;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final PostLikeTagRepository postLikeTagRepository;
     private final PostRepositoryImpl postRepositoryImpl;
     private final RepositoryHelper repoHelper;
     private final PostAuthorizer postAuthorizer;
@@ -43,9 +47,11 @@ public class PostService {
         return Result.of(repoHelper.findPostOrThrow(id));
     }
 
-    public Bulk.Result search(PostSearchCondition postSearchCondition, Pageable pageable) {
-        PageImpl<Post> pageImpl = postRepositoryImpl.search(postSearchCondition, pageable);
-        return Bulk.Result.of(pageImpl);
+    public Bulk.ResultWithCommentAndLikeTagCount search(PostSearchCondition condition,
+        Pageable pageable) {
+        PageImpl<Post> posts = postRepositoryImpl.search(condition, pageable);
+        return Bulk.ResultWithCommentAndLikeTagCount.of(posts, commentRepository::countByPostId,
+            postLikeTagRepository::countByPostId);
     }
 
     @Transactional
