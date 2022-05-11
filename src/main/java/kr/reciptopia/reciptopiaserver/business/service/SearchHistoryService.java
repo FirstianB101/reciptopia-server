@@ -1,9 +1,9 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.SearchHistoryDto.Bulk;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SearchHistoryDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SearchHistoryDto.Result;
 
-import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.SearchHistoryAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
@@ -42,12 +42,12 @@ public class SearchHistoryService {
         return Result.of(searchHistory);
     }
 
-    public List<Result> search(Long ownerId, Authentication authentication, Pageable pageable) {
+    public Bulk.Result search(Long ownerId, Authentication authentication, Pageable pageable) {
         Account owner = repoHelper.findAccountOrThrow(ownerId);
         searchHistoryAuthorizer.requireByOneself(authentication, owner);
 
         Page<SearchHistory> searchHistoryRepositories = searchHistoryRepository.findAll(pageable);
-        return Result.of(searchHistoryRepositories);
+        return Bulk.Result.of(searchHistoryRepositories);
     }
 
     @Transactional
