@@ -12,6 +12,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -49,6 +50,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -67,6 +69,9 @@ public class ReplyIntegrationTest {
         fieldWithPath("commentId").description("상위 댓글 ID");
     private static final FieldDescriptor DOC_FIELD_CONTENT =
         fieldWithPath("content").description("답글 내용");
+
+    private static final ParameterDescriptor DOC_COMMENT_ID =
+        parameterWithName("commentId").description("상위 댓글 ID").optional();
 
     private MockMvc mockMvc;
 
@@ -292,6 +297,47 @@ public class ReplyIntegrationTest {
 
             // Document
             actions.andDo(document("reply-list-with-paging-example"));
+        }
+
+        @Test
+        void searchRepliesByCommentId() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Comment comment = entityHelper.generateComment();
+
+                Reply replyA = entityHelper.generateReply();
+                Reply replyB = entityHelper.generateReply(it -> it.withComment(comment));
+                Reply replyC = entityHelper.generateReply(it -> it.withComment(comment));
+                Reply replyD = entityHelper.generateReply();
+                Reply replyE = entityHelper.generateReply();
+
+                return new Struct()
+                    .withValue("commentId", comment.getId())
+                    .withValue("replyBId", replyB.getId())
+                    .withValue("replyCId", replyC.getId());
+            });
+            Long commentId = given.valueOf("commentId");
+            Long replyBId = given.valueOf("replyBId");
+            Long replyCId = given.valueOf("replyCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/comment/replies")
+                .param("commentId", commentId.toString()));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.replies").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.replies.[*].id").value(containsInAnyOrder(
+                    replyBId.intValue(),
+                    replyCId.intValue()
+                )));
+
+            // Document
+            actions.andDo(document("reply-search-example",
+                requestParameters(
+                    DOC_COMMENT_ID
+                )));
         }
 
     }
