@@ -609,20 +609,25 @@ operation::sub-ingredient-delete-example[snippets='curl-request,http-response']
 
 operation::recipe-retrieve-example[snippets='response-fields,curl-request,http-response']
 
-//[[resources_recipe_list]]
-//=== Recipe 목록 조회
-//
-//`GET /post/recipes` 요청으로 다수의 Recipe들을 조회합니다.
-//<<overview_paging_and_sorting, Paging 혹은 Sorting>> 요청 패러미터를 추가하면 원하는 방식으로 목록을 조회할 수 있습니다.
-//
-//operation::recipe-list-example[snippets='request-parameters,curl-request,http-response']
-//
-//[[resources_recipe_search]]
-//=== Recipe 목록 검색
-//
-//<<resources_recipe_list, Recipe 목록 조회 API>>에 요청 패러미터를 추가하면 특정 조건을 기준으로 Recipe를 검색할 수 있습니다.
-//
-//operation::recipe-search-example[snippets='request-parameters,curl-request,http-response']
+[[resources_recipe_list]]
+=== Recipe 목록 조회
+
+`GET /post/recipes` 요청으로 다수의 Recipe들을 조회합니다.
+<<overview_paging_and_sorting, Paging 혹은 Sorting>> 요청 패러미터를 추가하면 원하는 방식으로 목록을 조회할 수 있습니다.
+
+operation::recipe-list-example[snippets='request-parameters,curl-request,http-response']
+
+[[resources_recipe_search]]
+=== Recipe 목록 검색
+
+<<resources_recipe_list, Recipe 목록 조회 API>>에 요청 패러미터를 추가하면 특정 조건을 기준으로 Recipe를 검색할 수 있습니다.
+
+검색 패러미터의 `MainIngredient` 들의 이름이 모두 포함된 `Recipe` 를 검색 패러미터의 `SubIngredient` 들의 이름이 많이 포함된 순으로 가져옵니다.
+
+`MainIngredient` 들의 검색 패러미터가 존재하지 않으면 모든 `Recipe` 를 검색하며, +
+`SubIngredient` 들의 검색 패러미터가 존재하지 않으면 `Recipe` 의 `id` 의 오름차순으로 가져옵니다
+
+operation::recipe-search-example[snippets='request-parameters,curl-request,http-response']
 
 [[resources_recipe_create]]
 === Recipe 생성
