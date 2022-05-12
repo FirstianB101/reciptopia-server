@@ -6,11 +6,16 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStepCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStepUpdateDto;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -22,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.sql.SQLException;
 import javax.sql.DataSource;
+import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
@@ -41,6 +47,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -60,6 +67,8 @@ public class StepIntegrationTest {
         fieldWithPath("description").description("단계별 조리 방법 설명");
     private static final FieldDescriptor DOC_FIELD_PICTURE_URL =
         fieldWithPath("pictureUrl").description("참고 이미지 URL");
+    private static final ParameterDescriptor DOC_PARAMETER_RECIPE_ID =
+        parameterWithName("recipeId").description("레시피 ID").optional();
     @Autowired
     PasswordEncoder passwordEncoder;
     private MockMvc mockMvc;
@@ -209,6 +218,123 @@ public class StepIntegrationTest {
             // Then
             actions
                 .andExpect(status().isNotFound());
+        }
+
+    }
+
+    @Nested
+    class SearchSteps {
+
+        @Test
+        void listSteps() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Step stepA = entityHelper.generateStep();
+                Step stepB = entityHelper.generateStep();
+
+                return new Struct()
+                    .withValue("stepAId", stepA.getId())
+                    .withValue("stepBId", stepB.getId());
+            });
+            Long stepAId = given.valueOf("stepAId");
+            Long stepBId = given.valueOf("stepBId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/recipe/steps"));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.steps").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.steps.[*].id").value(containsInAnyOrder(
+                    stepAId.intValue(),
+                    stepBId.intValue()
+                )));
+
+            // Document
+            actions.andDo(document("step-list-example",
+                requestParameters(
+                    ApiDocumentation.DOC_PARAMETER_PAGE,
+                    ApiDocumentation.DOC_PARAMETER_SIZE,
+                    ApiDocumentation.DOC_PARAMETER_SORT
+                )));
+        }
+
+        @Test
+        void listStepsWithPaging() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Step stepA = entityHelper.generateStep();
+                Step stepB = entityHelper.generateStep();
+                Step stepC = entityHelper.generateStep();
+                Step stepD = entityHelper.generateStep();
+                Step stepE = entityHelper.generateStep();
+
+                return new Struct()
+                    .withValue("stepBId", stepB.getId())
+                    .withValue("stepCId", stepC.getId());
+            });
+            Long stepBId = given.valueOf("stepBId");
+            Long stepCId = given.valueOf("stepCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/recipe/steps")
+                .param("size", "2")
+                .param("page", "1")
+                .param("sort", "id,desc"));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.steps").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.steps.[*].id").value(contains(
+                    stepCId.intValue(),
+                    stepBId.intValue()
+                )));
+
+            // Document
+            actions.andDo(document("step-list-with-paging-example"));
+        }
+
+        @Test
+        void searchStepsByRecipeId() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipe = entityHelper.generateRecipe();
+
+                Step stepA = entityHelper.generateStep();
+                Step stepB = entityHelper.generateStep(it -> it.withRecipe(recipe));
+                Step stepC = entityHelper.generateStep(it -> it.withRecipe(recipe));
+                Step stepD = entityHelper.generateStep();
+                Step stepE = entityHelper.generateStep();
+
+                return new Struct()
+                    .withValue("recipeId", recipe.getId())
+                    .withValue("stepBId", stepB.getId())
+                    .withValue("stepCId", stepC.getId());
+            });
+            Long recipeId = given.valueOf("recipeId");
+            Long stepBId = given.valueOf("stepBId");
+            Long stepCId = given.valueOf("stepCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/recipe/steps")
+                .param("recipeId", recipeId.toString()));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.steps").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.steps.[*].id").value(containsInAnyOrder(
+                    stepBId.intValue(),
+                    stepCId.intValue()
+                )));
+
+            // Document
+            actions.andDo(document("step-search-example",
+                requestParameters(
+                    DOC_PARAMETER_RECIPE_ID
+                )));
         }
 
     }
