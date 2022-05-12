@@ -2,7 +2,7 @@ package kr.reciptopia.reciptopiaserver.controller;
 
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.StepService;
-import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.StepSearchCondition;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.StepSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.StepDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

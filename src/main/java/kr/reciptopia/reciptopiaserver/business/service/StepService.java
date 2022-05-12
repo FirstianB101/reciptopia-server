@@ -8,7 +8,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
 import java.util.stream.Collectors;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.StepAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
-import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.StepSearchCondition;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.StepSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
 import kr.reciptopia.reciptopiaserver.persistence.repository.StepRepository;
