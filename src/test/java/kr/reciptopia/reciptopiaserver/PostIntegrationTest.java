@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -409,6 +408,49 @@ public class PostIntegrationTest {
             // When
             ResultActions actions = mockMvc.perform(get("/posts")
                 .param("titleLike", "가문어 쭈꾸미"));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts.[*].post.id").value(
+                    containsInAnyOrder(
+                        postCId.intValue(),
+                        postBId.intValue()
+                    )));
+        }
+
+        @Test
+        void searchPostsByOwnerIdAndTitleLike() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                Post postA = entityHelper.generatePost();
+                Post postB = entityHelper.generatePost(it -> it
+                    .withOwner(owner)
+                    .withTitle("김치 볶음밥 만들기")
+                );
+                Post postC = entityHelper.generatePost(it -> it
+                    .withOwner(owner)
+                    .withTitle("김치 찌개 만들기")
+                );
+                Post postD = entityHelper.generatePost();
+                Post postE = entityHelper.generatePost();
+
+                return new Struct()
+                    .withValue("ownerId", owner.getId())
+                    .withValue("postBId", postB.getId())
+                    .withValue("postCId", postC.getId());
+            });
+            Long ownerId = given.valueOf("ownerId");
+            Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/posts")
+                .param("ownerId", ownerId.toString())
+                .param("titleLike", "김치"));
 
             // Then
             actions
