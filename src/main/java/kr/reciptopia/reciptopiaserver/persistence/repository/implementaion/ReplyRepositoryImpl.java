@@ -1,7 +1,7 @@
 package kr.reciptopia.reciptopiaserver.persistence.repository.implementaion;
 
-import static kr.reciptopia.reciptopiaserver.domain.model.QComment.comment;
 import static kr.reciptopia.reciptopiaserver.domain.model.QReply.reply;
+
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -23,7 +23,6 @@ public class ReplyRepositoryImpl implements ReplyRepositoryCustom {
 	public PageImpl<Reply> search(ReplySearchCondition replySearchCondition, Pageable pageable) {
 		JPAQuery<Reply> query = queryFactory
 			.selectFrom(reply)
-			.innerJoin(reply.comment, comment)
 			.where(eqCommentId(replySearchCondition.commentId()));
 
 		return pagingUtil.getPageImpl(pageable, query, Reply.class);
