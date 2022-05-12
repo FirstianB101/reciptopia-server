@@ -1,7 +1,7 @@
 package kr.reciptopia.reciptopiaserver.persistence.repository.implementaion;
 
-import static kr.reciptopia.reciptopiaserver.domain.model.QAccount.account;
 import static kr.reciptopia.reciptopiaserver.domain.model.QPost.post;
+
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -23,7 +23,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 	public PageImpl<Post> search(PostSearchCondition postSearchCondition, Pageable pageable) {
 		JPAQuery<Post> query = queryFactory
 			.selectFrom(post)
-			.innerJoin(post.owner, account)
 			.where(
 				eqOwnerId(postSearchCondition.ownerId()),
 				likeTitle(postSearchCondition.titleLike())
