@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class RecipeService {
 
-    private final RecipeRepository RecipeRepository;
+    private final RecipeRepository recipeRepository;
     private final RepositoryHelper repoHelper;
     private final RecipeAuthorizer recipeAuthorizer;
 
@@ -34,7 +34,7 @@ public class RecipeService {
 
         Recipe recipe = dto.asEntity().withPost(post);
 
-        return Result.of(RecipeRepository.save(recipe));
+        return Result.of(recipeRepository.save(recipe));
     }
 
     public Result read(Long id) {
@@ -42,7 +42,7 @@ public class RecipeService {
     }
 
     public Bulk.Result search(RecipeSearchCondition condition, Pageable pageable) {
-        List<Recipe> recipes = RecipeRepository.findAll().stream()
+        List<Recipe> recipes = recipeRepository.findAll().stream()
             .filter(condition.mainIngredientNames().isEmpty() ?
                 recipe -> true :
                 recipe -> recipe.hasAllMainIngredients(condition.mainIngredientNames()))
@@ -63,6 +63,6 @@ public class RecipeService {
         Recipe recipe = repoHelper.findRecipeOrThrow(id);
         recipeAuthorizer.requireRecipeOwner(authentication, recipe);
 
-        RecipeRepository.delete(recipe);
+        recipeRepository.delete(recipe);
     }
 }
