@@ -8,7 +8,7 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 import java.util.Set;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.RecipeService;
-import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.RecipeSearchCondition;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.RecipeSearchCondition;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;

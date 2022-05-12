@@ -5,7 +5,7 @@ import static kr.reciptopia.reciptopiaserver.domain.model.QReply.reply;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.ReplySearchCondition;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.ReplySearchCondition;
 import kr.reciptopia.reciptopiaserver.config.querydsl.PagingUtil;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import kr.reciptopia.reciptopiaserver.persistence.repository.custom.ReplyRepositoryCustom;

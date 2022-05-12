@@ -1,4 +1,4 @@
-package kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition;
+package kr.reciptopia.reciptopiaserver.business.service.searchcondition;
 
 import lombok.Builder;
 
