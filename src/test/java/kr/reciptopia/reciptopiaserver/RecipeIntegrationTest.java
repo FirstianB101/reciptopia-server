@@ -69,9 +69,9 @@ public class RecipeIntegrationTest {
         fieldWithPath("id").description("레시피 ID");
     private static final FieldDescriptor DOC_FIELD_POST_ID =
         fieldWithPath("postId").description("레시피가 게시된 게시글 ID");
-    private static final ParameterDescriptor DOC_MAIN_INGREDIENT_NAMES =
+    private static final ParameterDescriptor DOC_PARAMETER_MAIN_INGREDIENT_NAMES =
         parameterWithName("mainIngredientNames").description("주 재료 이름").optional();
-    private static final ParameterDescriptor DOC_SUB_INGREDIENT_NAMES =
+    private static final ParameterDescriptor DOC_PARAMETER_SUB_INGREDIENT_NAMES =
         parameterWithName("subIngredientNames").description("부 재료 이름").optional();
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -347,8 +347,8 @@ public class RecipeIntegrationTest {
             // Document
             actions.andDo(document("recipe-search-example",
                 requestParameters(
-                    DOC_MAIN_INGREDIENT_NAMES,
-                    DOC_SUB_INGREDIENT_NAMES
+                    DOC_PARAMETER_MAIN_INGREDIENT_NAMES,
+                    DOC_PARAMETER_SUB_INGREDIENT_NAMES
                 )));
         }
 
