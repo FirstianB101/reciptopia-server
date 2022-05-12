@@ -5,7 +5,7 @@ import static kr.reciptopia.reciptopiaserver.domain.model.QStep.step;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.StepSearchCondition;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.StepSearchCondition;
 import kr.reciptopia.reciptopiaserver.config.querydsl.PagingUtil;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
 import kr.reciptopia.reciptopiaserver.persistence.repository.custom.StepRepositoryCustom;
