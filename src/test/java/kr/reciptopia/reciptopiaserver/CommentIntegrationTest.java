@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -70,7 +71,7 @@ public class CommentIntegrationTest {
     private static final FieldDescriptor DOC_FIELD_CONTENT =
         fieldWithPath("content").description("댓글 내용");
 
-    private static final ParameterDescriptor DOC_POST_ID =
+    private static final ParameterDescriptor DOC_PARAMETER_POST_ID =
         parameterWithName("postId").description("댓글이 달린 게시물 ID").optional();
 
     private MockMvc mockMvc;
@@ -336,7 +337,7 @@ public class CommentIntegrationTest {
             // Document
             actions.andDo(document("comment-search-example",
                 requestParameters(
-                    DOC_POST_ID
+                    DOC_PARAMETER_POST_ID
                 )));
         }
 

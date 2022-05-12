@@ -82,9 +82,9 @@ public class PostIntegrationTest {
     private static final FieldDescriptor DOC_FIELD_OWNER_ID =
         fieldWithPath("ownerId").description("글쓴이 ID");
 
-    private static final ParameterDescriptor DOC_OWNER_ID =
+    private static final ParameterDescriptor DOC_PARAMETER_OWNER_ID =
         parameterWithName("ownerId").description("글쓴이 ID").optional();
-    private static final ParameterDescriptor DOC_TITLE_LIKE =
+    private static final ParameterDescriptor DOC_PARAMETER_TITLE_LIKE =
         parameterWithName("titleLike").description("유사한 게시물 제목").optional();
 
     private MockMvc mockMvc;
@@ -382,8 +382,8 @@ public class PostIntegrationTest {
             // Document
             actions.andDo(document("post-search-example",
                 requestParameters(
-                    DOC_OWNER_ID,
-                    DOC_TITLE_LIKE
+                    DOC_PARAMETER_OWNER_ID,
+                    DOC_PARAMETER_TITLE_LIKE
                 )));
         }
 
