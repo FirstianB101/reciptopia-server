@@ -8,10 +8,13 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
 import java.util.stream.Collectors;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.StepAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
+import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.StepSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
 import kr.reciptopia.reciptopiaserver.persistence.repository.StepRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.StepRepositoryImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class StepService {
 
     private final StepRepository stepRepository;
+    private final StepRepositoryImpl stepRepositoryImpl;
     private final RepositoryHelper repoHelper;
     private final StepAuthorizer stepAuthorizer;
 
@@ -62,8 +66,8 @@ public class StepService {
         stepRepository.delete(step);
     }
 
-    public Bulk.Result read() {
-        return Bulk.Result.of(stepRepository.findAll());
+    public Bulk.Result search(StepSearchCondition condition, Pageable pageable) {
+        return Bulk.Result.of(stepRepositoryImpl.search(condition, pageable));
     }
 
     @Transactional
