@@ -1,8 +1,11 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
+import static kr.reciptopia.reciptopiaserver.config.querydsl.PagingUtil.getPage;
 import static kr.reciptopia.reciptopiaserver.domain.dto.RecipeDto.Bulk;
 import static kr.reciptopia.reciptopiaserver.domain.dto.RecipeDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.RecipeDto.Result;
+import static kr.reciptopia.reciptopiaserver.domain.model.Recipe.filterByHasAllMainIngredients;
+import static kr.reciptopia.reciptopiaserver.domain.model.Recipe.sortBySubIngredientCounts;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,19 +46,11 @@ public class RecipeService {
 
     public Bulk.Result search(RecipeSearchCondition condition, Pageable pageable) {
         List<Recipe> recipes = recipeRepository.findAll().stream()
-            .filter(condition.mainIngredientNames().isEmpty() ?
-                recipe -> true :
-                recipe -> recipe.hasAllMainIngredients(condition.mainIngredientNames()))
+            .filter(filterByHasAllMainIngredients(condition.mainIngredientNames()))
             .distinct()
-            .sorted(condition.subIngredientNames().isEmpty() ?
-                (o1, o2) -> (int) (o1.getId() - o2.getId()) :
-                (o1, o2) -> o2.countIncludedSubIngredients(condition.subIngredientNames())
-                    - o1.countIncludedSubIngredients(condition.subIngredientNames()))
+            .sorted(sortBySubIngredientCounts(condition.subIngredientNames()))
             .collect(Collectors.toList());
-        return Bulk.Result.of(recipes.subList(
-            (int) pageable.getOffset(),
-            (int) Math.min((pageable.getOffset() + pageable.getPageSize()),
-                recipes.size() - pageable.getOffset())));
+        return Bulk.Result.of(getPage(recipes, pageable));
     }
 
     @Transactional

@@ -28,4 +28,10 @@ public class PagingUtil {
         return new PageImpl<>(results, pageable, totalCount);
     }
 
+    public static <T> List<T> getPage(List<T> entity, Pageable pageable) {
+        return entity.subList(
+            (int) pageable.getOffset(),
+            (int) Math.min((pageable.getOffset() + pageable.getPageSize()),
+                entity.size() - pageable.getOffset()));
+    }
 }
