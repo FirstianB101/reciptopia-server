@@ -5,7 +5,7 @@ import static kr.reciptopia.reciptopiaserver.domain.model.QComment.comment;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.CommentSearchCondition;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.CommentSearchCondition;
 import kr.reciptopia.reciptopiaserver.config.querydsl.PagingUtil;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.persistence.repository.custom.CommentRepositoryCustom;

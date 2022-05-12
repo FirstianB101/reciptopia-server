@@ -2,7 +2,7 @@ package kr.reciptopia.reciptopiaserver.business.service;
 
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.CommentAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
-import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.CommentSearchCondition;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.CommentSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Bulk;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.CommentDto.Result;

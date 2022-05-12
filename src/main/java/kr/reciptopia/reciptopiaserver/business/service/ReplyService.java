@@ -2,7 +2,7 @@ package kr.reciptopia.reciptopiaserver.business.service;
 
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.ReplyAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
-import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.ReplySearchCondition;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.ReplySearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Bulk;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Result;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.RecipeAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
-import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.RecipeSearchCondition;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.RecipeSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.persistence.repository.RecipeRepository;

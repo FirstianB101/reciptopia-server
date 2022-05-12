@@ -2,7 +2,7 @@ package kr.reciptopia.reciptopiaserver.controller;
 
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.ReplyService;
-import kr.reciptopia.reciptopiaserver.business.service.spec.searchcondition.ReplySearchCondition;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.ReplySearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Bulk;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Result;
