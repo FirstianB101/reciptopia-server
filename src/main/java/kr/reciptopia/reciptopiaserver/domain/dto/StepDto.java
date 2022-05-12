@@ -1,6 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
-import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -11,6 +11,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Step;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.With;
+import org.springframework.data.domain.Page;
 import org.springframework.data.util.Streamable;
 
 public interface StepDto {
@@ -68,11 +69,15 @@ public interface StepDto {
                 this.steps = steps;
             }
 
-            public static Result of(Collection<Step> entities) {
+            public static Result of(Page<Step> entities) {
                 return Result.builder()
-                    .steps(entities.stream()
+                    .steps((Map<? extends Long, ? extends StepDto.Result>) entities.stream()
                         .map(StepDto.Result::of)
-                        .collect(Collectors.toMap(StepDto.Result::id, result -> result)))
+                        .collect(
+                            Collectors.toMap(StepDto.Result::id,
+                                result -> result,
+                                (x, y) -> y,
+                                LinkedHashMap::new)))
                     .build();
             }
         }
