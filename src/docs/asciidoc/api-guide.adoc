@@ -10,14 +10,14 @@
 
 WARNING: 이 API는 아직 구현 중에 있으며 추후에 변경될 수 있습니다.
 
-NOTE: v0.13.5-alpha
+NOTE: v0.13.6-alpha
 
 ****
-v0.13.5-alpha 변경사항
+v0.13.6-alpha 변경사항
 
 '''
 
-* Reply 목록 검색 추가
+* Step 검색 리소스 추가
 
 ****
 
@@ -470,6 +470,21 @@ operation::reply-delete-example[snippets='curl-request,http-response']
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::step-retrieve-example[snippets='response-fields,curl-request,http-response']
+
+[[resources_step_list]]
+=== Step 목록 조회
+
+`GET /post/recipe/steps` 요청으로 다수의 Step들을 조회합니다.
+<<overview_paging_and_sorting, Paging 혹은 Sorting>> 요청 패러미터를 추가하면 원하는 방식으로 목록을 조회할 수 있습니다.
+
+operation::step-list-example[snippets='request-parameters,curl-request,http-response']
+
+[[resources_step_search]]
+=== Step 목록 검색
+
+<<resources_step_list, Step 목록 조회 API>>에 요청 패러미터를 추가하면 특정 조건을 기준으로 Step를 검색할 수 있습니다.
+
+operation::step-search-example[snippets='request-parameters,curl-request,http-response']
 
 [[resources_step_create]]
 === Step 생성
