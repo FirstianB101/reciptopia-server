@@ -3,8 +3,10 @@ package kr.reciptopia.reciptopiaserver.domain.model;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -82,6 +84,21 @@ public class Recipe extends TimeEntity {
         }
 
         return count;
+    }
+
+    public static Comparator<? super Recipe> sortBySubIngredientCounts(
+        Set<String> subIngredientNames) {
+        return subIngredientNames.isEmpty() ?
+            (recipe1, recipe2) -> (int) (recipe1.getId() - recipe2.getId()) :
+            (recipe1, recipe2) -> recipe2.countIncludedSubIngredients(subIngredientNames)
+                - recipe1.countIncludedSubIngredients(subIngredientNames);
+    }
+
+    public static Predicate<? super Recipe> filterByHasAllMainIngredients(
+        Set<String> mainIngredientNames) {
+        return mainIngredientNames.isEmpty() ?
+            recipe -> true :
+            recipe -> recipe.hasAllMainIngredients(mainIngredientNames);
     }
 
     public <I extends Ingredient> void addIngredient(I ingredient) {
