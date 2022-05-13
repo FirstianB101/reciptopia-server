@@ -424,32 +424,41 @@ public class PostIntegrationTest {
         void searchPostsByOwnerIdAndTitleLike() throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
-                Account owner = entityHelper.generateAccount();
+                Account ownerA = entityHelper.generateAccount();
+                Account ownerB = entityHelper.generateAccount();
 
                 Post postA = entityHelper.generatePost();
                 Post postB = entityHelper.generatePost(it -> it
-                    .withOwner(owner)
+                    .withOwner(ownerA)
                     .withTitle("김치 볶음밥 만들기")
                 );
                 Post postC = entityHelper.generatePost(it -> it
-                    .withOwner(owner)
+                    .withOwner(ownerA)
                     .withTitle("김치 찌개 만들기")
                 );
-                Post postD = entityHelper.generatePost();
-                Post postE = entityHelper.generatePost();
+                Post postD = entityHelper.generatePost(it -> it
+                    .withOwner(ownerA)
+                    .withTitle("불고기 만들기")
+                );
+                Post postE = entityHelper.generatePost(it -> it
+                    .withOwner(ownerB)
+                    .withTitle("김치전 만들기")
+                );
+                Post postF = entityHelper.generatePost();
+                Post postG = entityHelper.generatePost();
 
                 return new Struct()
-                    .withValue("ownerId", owner.getId())
+                    .withValue("ownerAId", ownerA.getId())
                     .withValue("postBId", postB.getId())
                     .withValue("postCId", postC.getId());
             });
-            Long ownerId = given.valueOf("ownerId");
+            Long ownerAId = given.valueOf("ownerAId");
             Long postBId = given.valueOf("postBId");
             Long postCId = given.valueOf("postCId");
 
             // When
             ResultActions actions = mockMvc.perform(get("/posts")
-                .param("ownerId", ownerId.toString())
+                .param("ownerId", ownerAId.toString())
                 .param("titleLike", "김치"));
 
             // Then
