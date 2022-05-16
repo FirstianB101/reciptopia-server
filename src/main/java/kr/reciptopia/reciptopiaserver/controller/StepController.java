@@ -33,7 +33,7 @@ public class StepController {
 
     @PostMapping("/post/recipe/steps")
     @ResponseStatus(HttpStatus.CREATED)
-    public StepDto.Result post(@Valid @RequestBody StepDto.Create dto,
+    public Result post(@Valid @RequestBody Create dto,
         Authentication authentication) {
         return service.create(dto, authentication);
     }
@@ -46,12 +46,12 @@ public class StepController {
     }
 
     @GetMapping("/post/recipe/steps/{id}")
-    public StepDto.Result get(@PathVariable Long id) {
+    public Result get(@PathVariable Long id) {
         return service.read(id);
     }
 
     @GetMapping("/post/recipe/steps")
-    public StepDto.Bulk.Result search(
+    public Bulk.Result search(
         @RequestParam(required = false) Long recipeId,
         Pageable pageable) {
         StepSearchCondition stepSearchCondition = StepSearchCondition.builder()
@@ -62,8 +62,8 @@ public class StepController {
     }
 
     @PatchMapping("/post/recipe/steps/{id}")
-    public StepDto.Result patch(@PathVariable Long id,
-        @Valid @RequestBody StepDto.Update dto, Authentication authentication) {
+    public Result patch(@PathVariable Long id,
+        @Valid @RequestBody Update dto, Authentication authentication) {
         return service.update(id, dto, authentication);
     }
 
