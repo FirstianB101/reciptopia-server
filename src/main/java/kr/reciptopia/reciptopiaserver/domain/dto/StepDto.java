@@ -1,5 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,15 +70,20 @@ public interface StepDto {
                 this.steps = steps;
             }
 
-            public static Result of(Page<Step> entities) {
-                return Result.builder()
-                    .steps((Map<? extends Long, ? extends StepDto.Result>) entities.stream()
+            public static Result of(Page<Step> steps) {
+                return Result.of(
+                    steps.stream()
                         .map(StepDto.Result::of)
-                        .collect(
-                            Collectors.toMap(StepDto.Result::id,
-                                result -> result,
-                                (x, y) -> y,
-                                LinkedHashMap::new)))
+                        .collect(Collectors.toList()));
+            }
+
+            public static <T extends Collection<StepDto.Result>> Result of(T results) {
+                return Result.builder()
+                    .steps((Map<? extends Long, ? extends StepDto.Result>) results.stream()
+                        .collect(Collectors.toMap(StepDto.Result::id,
+                            result -> result,
+                            (x, y) -> y,
+                            LinkedHashMap::new)))
                     .build();
             }
         }
