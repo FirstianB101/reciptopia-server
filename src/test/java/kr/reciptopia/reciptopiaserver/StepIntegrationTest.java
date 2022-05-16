@@ -1,8 +1,10 @@
 package kr.reciptopia.reciptopiaserver;
 
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
+import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Bulk;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
+import static kr.reciptopia.reciptopiaserver.helper.StepHelper.Bulk.tripleStepsBulkCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStepCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStepUpdateDto;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,6 +16,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -69,6 +72,15 @@ public class StepIntegrationTest {
         fieldWithPath("pictureUrl").description("참고 이미지 URL");
     private static final ParameterDescriptor DOC_PARAMETER_RECIPE_ID =
         parameterWithName("recipeId").description("레시피 ID").optional();
+
+    private static final FieldDescriptor DOC_FIELD_POST_BULK_STEPS =
+        fieldWithPath("steps").type("Step[]").description("조리 단계 생성 필요필드 배열");
+    private static final FieldDescriptor DOC_FIELD_POST_BULK_STEP =
+        subsectionWithPath("steps.[]").type("Step").description("조리 단계 생성 필요필드와 동일");
+
+    private static final FieldDescriptor DOC_FIELD_PATCH_BULK_STEPS =
+        subsectionWithPath("steps").type("Map<id, step>").description("조리 단계 수정 필요필드 배열");
+
     @Autowired
     PasswordEncoder passwordEncoder;
     private MockMvc mockMvc;
@@ -439,6 +451,284 @@ public class StepIntegrationTest {
             // Then
             actions
                 .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    class StepBulkTest {
+
+        @Nested
+        class BulkPostStep {
+
+            @Test
+            void bulkPostStep() throws Exception {
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipe = entityHelper.generateRecipe();
+                    String token = stepAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("recipeId", recipe.getId())
+                        .withValue("token", token);
+                });
+                Long recipeId = given.valueOf("recipeId");
+                String token = given.valueOf("token");
+
+                // When
+                Bulk.Create dto = tripleStepsBulkCreateDto(it -> it.withRecipeId(recipeId));
+                int dtoNumber = dto.steps().size();
+                String body = jsonHelper.toJson(dto);
+
+                ResultActions actions = mockMvc.perform(post("/post/recipe/bulk-step")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(body));
+
+                // Then
+                MvcResult mvcResult = actions
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.steps").value(aMapWithSize(dtoNumber)))
+                    .andReturn();
+
+                assertThat(repository.count()).isEqualTo(dtoNumber);
+
+                // Document
+                actions.andDo(document("step-bulk-create-example",
+                    requestFields(
+                        DOC_FIELD_POST_BULK_STEPS,
+                        DOC_FIELD_POST_BULK_STEP
+                    )));
+            }
+
+            @Test
+            void 존재하지_않는_Recipe에_Step들을_생성() throws Exception {
+                String body = jsonHelper.toJson(tripleStepsBulkCreateDto());
+
+                ResultActions actions = mockMvc.perform(post("/post/recipe/bulk-step")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body));
+
+                // Then
+                MvcResult mvcResult = actions
+                    .andExpect(status().isNotFound())
+                    .andReturn();
+            }
+
+            @Test
+            void 부적절한_토큰의_Recipe에_Step들을_생성() throws Exception {
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipeA = entityHelper.generateRecipe();
+                    Recipe recipeB = entityHelper.generateRecipe();
+                    String token = stepAuthHelper.generateToken(recipeB);
+                    return new Struct()
+                        .withValue("recipeId", recipeA.getId())
+                        .withValue("token", token);
+                });
+                Long recipeId = given.valueOf("recipeId");
+                String token = given.valueOf("token");
+
+                // When
+                Bulk.Create dto = tripleStepsBulkCreateDto(it -> it.withRecipeId(recipeId));
+                int dtoNumber = dto.steps().size();
+                String body = jsonHelper.toJson(dto);
+
+                ResultActions actions = mockMvc.perform(post("/post/recipe/bulk-step")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(body));
+
+                // Then
+                MvcResult mvcResult = actions
+                    .andExpect(status().isForbidden())
+                    .andReturn();
+            }
+        }
+
+        @Nested
+        class BulkPatchStep {
+
+            @Test
+            void bulkPatchStep() throws Exception {
+
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipe = entityHelper.generateRecipe();
+                    Step stepA = entityHelper.generateStep(it -> it.withRecipe(recipe));
+                    Step stepB = entityHelper.generateStep(it -> it.withRecipe(recipe));
+                    Step stepC = entityHelper.generateStep(it -> it.withRecipe(recipe));
+
+                    String token = stepAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("token", token)
+                        .withValue("stepAId", stepA.getId())
+                        .withValue("stepBId", stepB.getId())
+                        .withValue("stepCId", stepC.getId());
+                });
+                String token = given.valueOf("token");
+                Long stepAId = given.valueOf("stepAId");
+                Long stepBId = given.valueOf("stepBId");
+                Long stepCId = given.valueOf("stepCId");
+
+                // When
+                Bulk.Update dto = Bulk.Update.builder()
+                    .step(stepBId, Update.builder().description("바뀐 StepB").build())
+                    .step(stepCId, Update.builder().description("바뀐 StepC").build())
+                    .build();
+                String body = jsonHelper.toJson(dto);
+
+                ResultActions actions = mockMvc.perform(patch("/post/recipe/bulk-step")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(body));
+
+                // Then
+                MvcResult mvcResult = actions
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.steps.[*].id").value(containsInAnyOrder(
+                        stepBId.intValue(),
+                        stepCId.intValue()
+                    )))
+                    .andExpect(jsonPath("$.steps." + stepBId + ".description").value("바뀐 StepB"))
+                    .andExpect(jsonPath("$.steps." + stepCId + ".description").value("바뀐 StepC"))
+                    .andReturn();
+
+                // Document
+                actions.andDo(document("step-bulk-update-example",
+                    requestFields(
+                        DOC_FIELD_PATCH_BULK_STEPS
+                    )));
+            }
+
+            @Test
+            void 존재하지_않는_Step이_일부있는_Step들을_수정() throws Exception {
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipe = entityHelper.generateRecipe();
+                    Step stepA = entityHelper.generateStep(it -> it
+                        .withDescription("바뀌기 전StepA")
+                        .withRecipe(recipe));
+                    Step stepB = entityHelper.generateStep(it -> it
+                        .withDescription("바뀌기 전StepB")
+                        .withRecipe(recipe));
+                    Step stepC = entityHelper.generateStep(it -> it
+                        .withDescription("바뀌기 전StepC")
+                        .withRecipe(recipe));
+
+                    String token = stepAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("token", token)
+                        .withValue("stepAId", stepA.getId())
+                        .withValue("stepBId", stepB.getId())
+                        .withValue("stepCId", stepC.getId());
+                });
+                String token = given.valueOf("token");
+                Long stepAId = given.valueOf("stepAId");
+                Long stepBId = given.valueOf("stepBId");
+                Long stepCId = given.valueOf("stepCId");
+
+                // When
+                Bulk.Update dto = Bulk.Update.builder()
+                    .step(stepBId, Update.builder().description("바뀐 StepB").build())
+                    .step(2222L, Update.builder().description("존재하지 않는 Step").build())
+                    .step(stepCId, Update.builder().description("바뀐 StepC").build())
+                    .build();
+                String body = jsonHelper.toJson(dto);
+
+                ResultActions actions = mockMvc.perform(patch("/post/recipe/bulk-step")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(body));
+
+                // Then
+                actions
+                    .andExpect(status().isNotFound());
+
+                assertThat(repository.findById(stepAId).get().getDescription()).isEqualTo(
+                    "바뀌기 전StepA");
+                assertThat(repository.findById(stepBId).get().getDescription()).isEqualTo(
+                    "바뀌기 전StepB");
+                assertThat(repository.findById(stepCId).get().getDescription()).isEqualTo(
+                    "바뀌기 전StepC");
+            }
+        }
+
+        @Nested
+        class BulkDeleteStep {
+
+            @Test
+            void bulkDeleteStep() throws Exception {
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+
+                    Recipe recipe = entityHelper.generateRecipe();
+                    Step stepA = entityHelper.generateStep(it -> it.withRecipe(recipe));
+                    Step stepB = entityHelper.generateStep(it -> it.withRecipe(recipe));
+                    Step stepC = entityHelper.generateStep(it -> it.withRecipe(recipe));
+
+                    String token = stepAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("token", token)
+                        .withValue("stepAId", stepA.getId())
+                        .withValue("stepBId", stepB.getId())
+                        .withValue("stepCId", stepC.getId());
+                });
+                String token = given.valueOf("token");
+                Long stepAId = given.valueOf("stepAId");
+                Long stepBId = given.valueOf("stepBId");
+                Long stepCId = given.valueOf("stepCId");
+
+                // When
+                String ids = "" + stepAId + "," + stepBId + "," + stepCId;
+                ResultActions actions = mockMvc.perform(delete("/post/recipe/bulk-step/{ids}", ids)
+                    .header("Authorization", "Bearer " + token));
+
+                // Then
+                actions
+                    .andExpect(status().isNoContent())
+                    .andExpect(content().string(emptyString()));
+
+                assertThat(repository.existsById(stepAId)).isFalse();
+                assertThat(repository.existsById(stepBId)).isFalse();
+                assertThat(repository.existsById(stepCId)).isFalse();
+
+                // Document
+                actions.andDo(document("step-bulk-delete-example"));
+            }
+
+            @Test
+            void 존재하지_않는_Step이_일부있는_Step들을_삭제() throws Exception {
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipe = entityHelper.generateRecipe();
+                    Step stepA = entityHelper.generateStep(it -> it.withRecipe(recipe));
+                    Step stepB = entityHelper.generateStep(it -> it.withRecipe(recipe));
+                    Step stepC = entityHelper.generateStep(it -> it.withRecipe(recipe));
+
+                    String token = stepAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("token", token)
+                        .withValue("stepAId", stepA.getId())
+                        .withValue("stepBId", stepB.getId())
+                        .withValue("stepCId", stepC.getId());
+                });
+                String token = given.valueOf("token");
+                Long stepAId = given.valueOf("stepAId");
+                Long stepBId = given.valueOf("stepBId");
+                Long stepCId = given.valueOf("stepCId");
+
+                // When
+                String ids = "" + stepAId + "," + 2000L + "," + stepCId;
+                ResultActions actions = mockMvc.perform(delete("/post/recipe/bulk-step/{ids}", ids)
+                    .header("Authorization", "Bearer " + token));
+
+                // Then
+                actions
+                    .andExpect(status().isNotFound());
+
+                assertThat(repository.existsById(stepAId)).isTrue();
+                assertThat(repository.existsById(stepBId)).isTrue();
+                assertThat(repository.existsById(stepCId)).isTrue();
+            }
         }
     }
 }
