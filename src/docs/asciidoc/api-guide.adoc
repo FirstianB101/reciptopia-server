@@ -511,6 +511,38 @@ operation::step-update-example[snippets='request-fields,curl-request,http-respon
 
 operation::step-delete-example[snippets='curl-request,http-response']
 
+[[resources_step_bulk_create]]
+=== Step 다중 생성
+
+`POST /post/recipe/bulk-step` 요청으로 Step들을 다중 생성합니다. +
+요청의 `Authorization` 헤더로 요청을 보낸 `Step` 이 속한 `Recipe` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
+
+모든 작업이 성공해야 성공합니다. +
+성공 시 생성한 Step들을 응답 Body로 전달합니다.
+
+operation::step-bulk-create-example[snippets='request-fields,curl-request,http-response']
+
+[[resources_step_bulk_update]]
+=== Step 다중 수정
+
+`PATCH /post/recipe/bulk-step` 요청으로 Step들을 수정합니다. +
+요청의 `Authorization` 헤더로 요청을 보낸 `Step` 이 속한 `Recipe` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
+
+모든 작업이 성공해야 성공합니다. +
+성공 시 갱신된 Step들을 응답 Body로 전달합니다.
+
+operation::step-bulk-update-example[snippets='request-fields,curl-request,http-response']
+
+[[resources_step_bulk_delete]]
+=== Step 다중 삭제
+
+`DELETE /post/recipe/bulk-step/{ids}` 요청으로 Step들을 삭제합니다. +
+요청의 `Authorization` 헤더로 요청을 보낸 `Step` 이 속한 `Recipe` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
+
+모든 작업이 성공해야 성공합니다.
+
+operation::step-bulk-delete-example[snippets='curl-request,http-response']
+
 [[resources_mainIngredient]]
 == MainIngredient 리소스
 
