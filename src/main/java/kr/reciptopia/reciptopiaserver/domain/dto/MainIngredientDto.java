@@ -1,6 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
-import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +12,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.With;
+import org.springframework.data.domain.Page;
 import org.springframework.data.util.Streamable;
 
 public interface MainIngredientDto {
@@ -68,11 +69,16 @@ public interface MainIngredientDto {
                 this.mainIngredients = mainIngredients;
             }
 
-            public static Result of(Collection<MainIngredient> mainIngredients) {
+            public static Result of(Page<MainIngredient> mainIngredients) {
                 return Result.builder()
-                    .mainIngredients(mainIngredients.stream()
-                        .map(MainIngredientDto.Result::of)
-                        .collect(Collectors.toMap(MainIngredientDto.Result::id, result -> result)))
+                    .mainIngredients(
+                        (Map<? extends Long, ? extends MainIngredientDto.Result>) mainIngredients.stream()
+                            .map(MainIngredientDto.Result::of)
+                            .collect(
+                                Collectors.toMap(MainIngredientDto.Result::id,
+                                    result -> result,
+                                    (x, y) -> y,
+                                    LinkedHashMap::new)))
                     .build();
             }
         }
