@@ -71,10 +71,10 @@ public class StepService {
     }
 
     @Transactional
-    public Bulk.Result update(Bulk.Update bulkStep, Authentication authentication) {
+    public Bulk.Result bulkUpdate(Bulk.Update bulkDto, Authentication authentication) {
         return Bulk.Result.builder()
-            .steps(bulkStep.steps().keySet().stream()
-                .map(id -> update(id, bulkStep.steps().get(id), authentication))
+            .steps(bulkDto.steps().keySet().stream()
+                .map(id -> update(id, bulkDto.steps().get(id), authentication))
                 .collect(Collectors.toMap(Result::id, result -> result)))
             .build();
     }
