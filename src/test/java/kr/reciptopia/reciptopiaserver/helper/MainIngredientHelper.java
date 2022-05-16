@@ -5,6 +5,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Result
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
 
+import java.util.function.Function;
 import kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto;
 import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 
@@ -27,12 +28,21 @@ public class MainIngredientHelper {
             .withId(ARBITRARY_ID);
     }
 
-    public static Create aMainIngredientCreateDto() {
+    public static Create aMainIngredientCreateDto(
+        Function<? super Create, ? extends Create> initialize) {
+        Create createDto = Create.builder()
+            .build();
+
+        createDto = initialize.apply(createDto);
         return Create.builder()
-            .recipeId(ARBITRARY_RECIPE_ID)
+            .recipeId(createDto.recipeId() == null ? ARBITRARY_RECIPE_ID : createDto.recipeId())
             .name(ARBITRARY_NAME)
             .detail(ARBITRARY_DETAIL)
             .build();
+    }
+
+    public static Create aMainIngredientCreateDto() {
+        return aMainIngredientCreateDto(noInit());
     }
 
     public static Update aMainIngredientUpdateDto() {
@@ -51,14 +61,23 @@ public class MainIngredientHelper {
             .build();
     }
 
+    private static <T> Function<? super T, ? extends T> noInit() {
+        return (arg) -> arg;
+    }
+
     public interface Bulk {
 
-        static MainIngredientDto.Bulk.Create aMainIngredientCreateDto() {
+        static MainIngredientDto.Bulk.Create aMainIngredientCreateDto(
+            Function<? super Create, ? extends Create> initialize) {
             return MainIngredientDto.Bulk.Create.builder()
-                .mainIngredient(MainIngredientHelper.aMainIngredientCreateDto())
-                .mainIngredient(MainIngredientHelper.aMainIngredientCreateDto())
-                .mainIngredient(MainIngredientHelper.aMainIngredientCreateDto())
+                .mainIngredient(MainIngredientHelper.aMainIngredientCreateDto(initialize))
+                .mainIngredient(MainIngredientHelper.aMainIngredientCreateDto(initialize))
+                .mainIngredient(MainIngredientHelper.aMainIngredientCreateDto(initialize))
                 .build();
+        }
+
+        static MainIngredientDto.Bulk.Create aMainIngredientCreateDto() {
+            return aMainIngredientCreateDto(noInit());
         }
 
         static MainIngredientDto.Bulk.Update aMainIngredientUpdateDto() {
