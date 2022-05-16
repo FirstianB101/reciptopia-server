@@ -5,6 +5,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Update;
 
+import java.util.Set;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.MainIngredientService;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.MainIngredientSearchCondition;
@@ -64,5 +65,24 @@ public class MainIngredientController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id, Authentication authentication) {
         service.delete(id, authentication);
+    }
+
+    @PostMapping("/post/recipe/bulk-mainIngredient")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Bulk.Result bulkCreate(@Valid @RequestBody Bulk.Create bulkDto,
+        Authentication authentication) {
+        return service.bulkCreate(bulkDto, authentication);
+    }
+
+    @PatchMapping("/post/recipe/bulk-mainIngredient")
+    public Bulk.Result bulkPatch(@Valid @RequestBody Bulk.Update bulkDto,
+        Authentication authentication) {
+        return service.bulkUpdate(bulkDto, authentication);
+    }
+
+    @DeleteMapping("/post/recipe/bulk-mainIngredient/{ids}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void bulkDelete(@PathVariable Set<Long> ids, Authentication authentication) {
+        service.bulkDelete(ids, authentication);
     }
 }

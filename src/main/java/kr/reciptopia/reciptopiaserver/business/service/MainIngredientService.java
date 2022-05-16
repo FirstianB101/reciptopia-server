@@ -5,7 +5,8 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Update;
 
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.IngredientAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.MainIngredientSearchCondition;
@@ -71,9 +72,25 @@ public class MainIngredientService {
     }
 
     @Transactional
-    public void update(Bulk.Update bulkMainIngredient, Authentication authentication) {
-        bulkMainIngredient.mainIngredients().keySet()
-            .forEach(
-                id -> update(id, bulkMainIngredient.mainIngredients().get(id), authentication));
+    public Bulk.Result bulkUpdate(Bulk.Update bulkDto, Authentication authentication) {
+        return Bulk.Result.builder()
+            .mainIngredients(bulkDto.mainIngredients().keySet().stream()
+                .map(id -> update(id, bulkDto.mainIngredients().get(id), authentication))
+                .collect(Collectors.toMap(Result::id, result -> result)))
+            .build();
+    }
+
+    @Transactional
+    public Bulk.Result bulkCreate(Bulk.Create bulkDto, Authentication authentication) {
+        return Bulk.Result.builder()
+            .mainIngredients(bulkDto.mainIngredients().stream()
+                .map(dto -> create(dto, authentication))
+                .collect(Collectors.toMap(Result::id, result -> result)))
+            .build();
+    }
+
+    @Transactional
+    public void bulkDelete(Set<Long> ids, Authentication authentication) {
+        ids.forEach(id -> delete(id, authentication));
     }
 }
