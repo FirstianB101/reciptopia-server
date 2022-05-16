@@ -1,11 +1,14 @@
 package kr.reciptopia.reciptopiaserver;
 
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
+import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Bulk;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Update;
+import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.Bulk.tripleMainIngredientsBulkCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.aMainIngredientCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.aMainIngredientUpdateDto;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
@@ -14,6 +17,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -66,6 +70,17 @@ public class MainIngredientIntegrationTest {
         fieldWithPath("name").description("주 재료 이름");
     private static final FieldDescriptor DOC_FIELD_DETAIL =
         fieldWithPath("detail").description("주 재료 세부사항");
+
+    private static final FieldDescriptor DOC_FIELD_POST_BULK_MAIN_INGREDIENTS =
+        fieldWithPath("mainIngredients").type("MainIngredient[]").description("주 재료 생성 필요필드 배열");
+    private static final FieldDescriptor DOC_FIELD_POST_BULK_MAIN_INGREDIENT =
+        subsectionWithPath("mainIngredients.[]").type("MainIngredient")
+            .description("주 재료 생성 필요필드와 동일");
+
+    private static final FieldDescriptor DOC_FIELD_PATCH_BULK_MAIN_INGREDIENTS =
+        subsectionWithPath("mainIngredients").type("Map<id, mainIngredient>")
+            .description("주 재료 수정 필요필드 배열");
+
     @Autowired
     PasswordEncoder passwordEncoder;
     private MockMvc mockMvc;
@@ -387,6 +402,305 @@ public class MainIngredientIntegrationTest {
             // Then
             actions
                 .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    class MainIngredientBulkTest {
+
+        @Nested
+        class BulkPostMainIngredient {
+
+            @Test
+            void bulkPostMainIngredient() throws Exception {
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipe = entityHelper.generateRecipe();
+                    String token = ingredientAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("recipeId", recipe.getId())
+                        .withValue("token", token);
+                });
+                Long recipeId = given.valueOf("recipeId");
+                String token = given.valueOf("token");
+
+                // When
+                Bulk.Create dto = tripleMainIngredientsBulkCreateDto(
+                    it -> it.withRecipeId(recipeId));
+                int dtoNumber = dto.mainIngredients().size();
+                String body = jsonHelper.toJson(dto);
+
+                ResultActions actions = mockMvc.perform(post("/post/recipe/bulk-mainIngredient")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(body));
+
+                // Then
+                MvcResult mvcResult = actions
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.mainIngredients").value(aMapWithSize(dtoNumber)))
+                    .andReturn();
+
+                // Document
+                actions.andDo(document("mainIngredient-bulk-create-example",
+                    requestFields(
+                        DOC_FIELD_POST_BULK_MAIN_INGREDIENTS,
+                        DOC_FIELD_POST_BULK_MAIN_INGREDIENT
+                    )));
+            }
+
+            @Test
+            void 존재하지_않는_Recipe에_MainIngredient들을_생성() throws Exception {
+                String body = jsonHelper.toJson(tripleMainIngredientsBulkCreateDto());
+
+                ResultActions actions = mockMvc.perform(post("/post/recipe/bulk-mainIngredient")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body));
+
+                // Then
+                MvcResult mvcResult = actions
+                    .andExpect(status().isNotFound())
+                    .andReturn();
+            }
+
+            @Test
+            void 부적절한_토큰의_Recipe에_MainIngredient들을_생성() throws Exception {
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipeA = entityHelper.generateRecipe();
+                    Recipe recipeB = entityHelper.generateRecipe();
+                    String token = ingredientAuthHelper.generateToken(recipeB);
+                    return new Struct()
+                        .withValue("recipeId", recipeA.getId())
+                        .withValue("token", token);
+                });
+                Long recipeId = given.valueOf("recipeId");
+                String token = given.valueOf("token");
+
+                // When
+                Bulk.Create dto = tripleMainIngredientsBulkCreateDto(
+                    it -> it.withRecipeId(recipeId));
+                int dtoNumber = dto.mainIngredients().size();
+                String body = jsonHelper.toJson(dto);
+
+                ResultActions actions = mockMvc.perform(post("/post/recipe/bulk-mainIngredient")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(body));
+
+                // Then
+                MvcResult mvcResult = actions
+                    .andExpect(status().isForbidden())
+                    .andReturn();
+            }
+        }
+
+        @Nested
+        class BulkPatchMainIngredient {
+
+            @Test
+            void bulkPatchMainIngredient() throws Exception {
+
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipe = entityHelper.generateRecipe();
+                    MainIngredient mainIngredientA = entityHelper.generateMainIngredient(
+                        it -> it.withRecipe(recipe).withName("바꾸기 전 MainIngredientA"));
+                    MainIngredient mainIngredientB = entityHelper.generateMainIngredient(
+                        it -> it.withRecipe(recipe).withName("바꾸기 전 MainIngredientB"));
+                    MainIngredient mainIngredientC = entityHelper.generateMainIngredient(
+                        it -> it.withRecipe(recipe).withName("바꾸기 전 MainIngredientC"));
+
+                    String token = ingredientAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("token", token)
+                        .withValue("mainIngredientAId", mainIngredientA.getId())
+                        .withValue("mainIngredientBId", mainIngredientB.getId())
+                        .withValue("mainIngredientCId", mainIngredientC.getId());
+                });
+                String token = given.valueOf("token");
+                Long mainIngredientAId = given.valueOf("mainIngredientAId");
+                Long mainIngredientBId = given.valueOf("mainIngredientBId");
+                Long mainIngredientCId = given.valueOf("mainIngredientCId");
+
+                // When
+                Bulk.Update dto = Bulk.Update.builder()
+                    .mainIngredient(mainIngredientBId,
+                        Update.builder().name("바뀐 MainIngredientB").build())
+                    .mainIngredient(mainIngredientCId,
+                        Update.builder().name("바뀐 MainIngredientC").build())
+                    .build();
+                String body = jsonHelper.toJson(dto);
+
+                ResultActions actions = mockMvc.perform(patch("/post/recipe/bulk-mainIngredient")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(body));
+
+                // Then
+                MvcResult mvcResult = actions
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.mainIngredients.[*].id").value(containsInAnyOrder(
+                        mainIngredientBId.intValue(),
+                        mainIngredientCId.intValue()
+                    )))
+                    .andExpect(
+                        jsonPath("$.mainIngredients." + mainIngredientBId + ".name").value(
+                            "바뀐 MainIngredientB"))
+                    .andExpect(
+                        jsonPath("$.mainIngredients." + mainIngredientCId + ".name").value(
+                            "바뀐 MainIngredientC"))
+                    .andReturn();
+
+                // Document
+                actions.andDo(document("mainIngredient-bulk-update-example",
+                    requestFields(
+                        DOC_FIELD_PATCH_BULK_MAIN_INGREDIENTS
+                    )));
+            }
+
+            @Test
+            void 존재하지_않는_MainIngredient이_일부있는_MainIngredient들을_수정() throws Exception {
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipe = entityHelper.generateRecipe();
+                    MainIngredient mainIngredientA = entityHelper.generateMainIngredient(it -> it
+                        .withName("바뀌기 전MainIngredientA")
+                        .withRecipe(recipe));
+                    MainIngredient mainIngredientB = entityHelper.generateMainIngredient(it -> it
+                        .withName("바뀌기 전MainIngredientB")
+                        .withRecipe(recipe));
+                    MainIngredient mainIngredientC = entityHelper.generateMainIngredient(it -> it
+                        .withName("바뀌기 전MainIngredientC")
+                        .withRecipe(recipe));
+
+                    String token = ingredientAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("token", token)
+                        .withValue("mainIngredientAId", mainIngredientA.getId())
+                        .withValue("mainIngredientBId", mainIngredientB.getId())
+                        .withValue("mainIngredientCId", mainIngredientC.getId());
+                });
+                String token = given.valueOf("token");
+                Long mainIngredientAId = given.valueOf("mainIngredientAId");
+                Long mainIngredientBId = given.valueOf("mainIngredientBId");
+                Long mainIngredientCId = given.valueOf("mainIngredientCId");
+
+                // When
+                Bulk.Update dto = Bulk.Update.builder()
+                    .mainIngredient(mainIngredientBId,
+                        Update.builder().name("바뀐 MainIngredientB").build())
+                    .mainIngredient(2222L,
+                        Update.builder().name("존재하지 않는 MainIngredient").build())
+                    .mainIngredient(mainIngredientCId,
+                        Update.builder().name("바뀐 MainIngredientC").build())
+                    .build();
+                String body = jsonHelper.toJson(dto);
+
+                ResultActions actions = mockMvc.perform(patch("/post/recipe/bulk-mainIngredient")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(body));
+
+                // Then
+                actions
+                    .andExpect(status().isNotFound());
+
+                assertThat(repository.findById(mainIngredientAId).get().getName()).isEqualTo(
+                    "바뀌기 전MainIngredientA");
+                assertThat(repository.findById(mainIngredientBId).get().getName()).isEqualTo(
+                    "바뀌기 전MainIngredientB");
+                assertThat(repository.findById(mainIngredientCId).get().getName()).isEqualTo(
+                    "바뀌기 전MainIngredientC");
+            }
+        }
+
+        @Nested
+        class BulkDeleteMainIngredient {
+
+            @Test
+            void bulkDeleteMainIngredient() throws Exception {
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+
+                    Recipe recipe = entityHelper.generateRecipe();
+                    MainIngredient mainIngredientA = entityHelper.generateMainIngredient(
+                        it -> it.withRecipe(recipe));
+                    MainIngredient mainIngredientB = entityHelper.generateMainIngredient(
+                        it -> it.withRecipe(recipe));
+                    MainIngredient mainIngredientC = entityHelper.generateMainIngredient(
+                        it -> it.withRecipe(recipe));
+
+                    String token = ingredientAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("token", token)
+                        .withValue("mainIngredientAId", mainIngredientA.getId())
+                        .withValue("mainIngredientBId", mainIngredientB.getId())
+                        .withValue("mainIngredientCId", mainIngredientC.getId());
+                });
+                String token = given.valueOf("token");
+                Long mainIngredientAId = given.valueOf("mainIngredientAId");
+                Long mainIngredientBId = given.valueOf("mainIngredientBId");
+                Long mainIngredientCId = given.valueOf("mainIngredientCId");
+
+                // When
+                String ids =
+                    "" + mainIngredientAId + "," + mainIngredientBId + "," + mainIngredientCId;
+                ResultActions actions = mockMvc.perform(
+                    delete("/post/recipe/bulk-mainIngredient/{ids}", ids)
+                        .header("Authorization", "Bearer " + token));
+
+                // Then
+                actions
+                    .andExpect(status().isNoContent())
+                    .andExpect(content().string(emptyString()));
+
+                assertThat(repository.existsById(mainIngredientAId)).isFalse();
+                assertThat(repository.existsById(mainIngredientBId)).isFalse();
+                assertThat(repository.existsById(mainIngredientCId)).isFalse();
+
+                // Document
+                actions.andDo(document("mainIngredient-bulk-delete-example"));
+            }
+
+            @Test
+            void 존재하지_않는_MainIngredient이_일부있는_MainIngredient들을_삭제() throws Exception {
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipe = entityHelper.generateRecipe();
+                    MainIngredient mainIngredientA = entityHelper.generateMainIngredient(
+                        it -> it.withRecipe(recipe));
+                    MainIngredient mainIngredientB = entityHelper.generateMainIngredient(
+                        it -> it.withRecipe(recipe));
+                    MainIngredient mainIngredientC = entityHelper.generateMainIngredient(
+                        it -> it.withRecipe(recipe));
+
+                    String token = ingredientAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("token", token)
+                        .withValue("mainIngredientAId", mainIngredientA.getId())
+                        .withValue("mainIngredientBId", mainIngredientB.getId())
+                        .withValue("mainIngredientCId", mainIngredientC.getId());
+                });
+                String token = given.valueOf("token");
+                Long mainIngredientAId = given.valueOf("mainIngredientAId");
+                Long mainIngredientBId = given.valueOf("mainIngredientBId");
+                Long mainIngredientCId = given.valueOf("mainIngredientCId");
+
+                // When
+                String ids = "" + mainIngredientAId + "," + 2000L + "," + mainIngredientCId;
+                ResultActions actions = mockMvc.perform(
+                    delete("/post/recipe/bulk-mainIngredient/{ids}", ids)
+                        .header("Authorization", "Bearer " + token));
+
+                // Then
+                actions
+                    .andExpect(status().isNotFound());
+
+                assertThat(repository.existsById(mainIngredientAId)).isTrue();
+                assertThat(repository.existsById(mainIngredientBId)).isTrue();
+                assertThat(repository.existsById(mainIngredientCId)).isTrue();
+            }
         }
     }
 }
