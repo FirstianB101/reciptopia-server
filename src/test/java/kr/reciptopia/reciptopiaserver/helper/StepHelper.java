@@ -69,7 +69,7 @@ public class StepHelper {
 
     public interface Bulk {
 
-        static StepDto.Bulk.Create aStepCreateDto(
+        static StepDto.Bulk.Create tripleStepsBulkCreateDto(
             Function<? super Create, ? extends Create> initialize) {
             return StepDto.Bulk.Create.builder()
                 .step(StepHelper.aStepCreateDto(initialize))
@@ -78,11 +78,11 @@ public class StepHelper {
                 .build();
         }
 
-        static StepDto.Bulk.Create aStepCreateDto() {
-            return aStepCreateDto(noInit());
+        static StepDto.Bulk.Create tripleStepsBulkCreateDto() {
+            return tripleStepsBulkCreateDto(noInit());
         }
 
-        static StepDto.Bulk.Update aStepUpdateDto() {
+        static StepDto.Bulk.Update tripleStepsBulkUpdateDto() {
             return StepDto.Bulk.Update.builder()
                 .step(ARBITRARY_BULK_ID_0, StepHelper.aStepUpdateDto())
                 .step(ARBITRARY_BULK_ID_1, StepHelper.aStepUpdateDto())
@@ -90,7 +90,7 @@ public class StepHelper {
                 .build();
         }
 
-        static StepDto.Bulk.Result aStepResultDto() {
+        static StepDto.Bulk.Result tripleStepsBulkResultDto() {
             return StepDto.Bulk.Result.builder()
                 .step(ARBITRARY_BULK_ID_0, StepHelper.aStepResultDto())
                 .step(ARBITRARY_BULK_ID_1, StepHelper.aStepResultDto())
