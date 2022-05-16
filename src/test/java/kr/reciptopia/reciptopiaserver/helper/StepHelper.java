@@ -5,6 +5,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
 
+import java.util.function.Function;
 import kr.reciptopia.reciptopiaserver.domain.dto.StepDto;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
 
@@ -30,12 +31,20 @@ public class StepHelper {
             .withId(ARBITRARY_RECIPE_ID);
     }
 
-    public static Create aStepCreateDto() {
+    public static Create aStepCreateDto(Function<? super Create, ? extends Create> initialize) {
+        Create createDto = Create.builder()
+            .build();
+
+        createDto = initialize.apply(createDto);
         return Create.builder()
-            .recipeId(ARBITRARY_RECIPE_ID)
+            .recipeId(createDto.recipeId() == null ? ARBITRARY_RECIPE_ID : createDto.recipeId())
             .description(ARBITRARY_DESCRIPTION)
             .pictureUrl(ARBITRARY_URL)
             .build();
+    }
+
+    public static Create aStepCreateDto() {
+        return aStepCreateDto(noInit());
     }
 
     public static Update aStepUpdateDto() {
@@ -54,14 +63,23 @@ public class StepHelper {
             .build();
     }
 
+    private static <T> Function<? super T, ? extends T> noInit() {
+        return (arg) -> arg;
+    }
+
     public interface Bulk {
 
-        static StepDto.Bulk.Create aStepCreateDto() {
+        static StepDto.Bulk.Create aStepCreateDto(
+            Function<? super Create, ? extends Create> initialize) {
             return StepDto.Bulk.Create.builder()
-                .step(StepHelper.aStepCreateDto())
-                .step(StepHelper.aStepCreateDto())
-                .step(StepHelper.aStepCreateDto())
+                .step(StepHelper.aStepCreateDto(initialize))
+                .step(StepHelper.aStepCreateDto(initialize))
+                .step(StepHelper.aStepCreateDto(initialize))
                 .build();
+        }
+
+        static StepDto.Bulk.Create aStepCreateDto() {
+            return aStepCreateDto(noInit());
         }
 
         static StepDto.Bulk.Update aStepUpdateDto() {

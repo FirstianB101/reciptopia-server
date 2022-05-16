@@ -120,6 +120,14 @@ public interface StepDto {
             return asEntity(noInit());
         }
 
+        public Create withRecipeId(Long recipeId) {
+            return this.recipeId != null && this.recipeId.equals(recipeId) ? this : Create.builder()
+                .recipeId(recipeId)
+                .description(description)
+                .pictureUrl(pictureUrl)
+                .build();
+        }
+
         private <T> Function<? super T, ? extends T> noInit() {
             return (arg) -> arg;
         }
