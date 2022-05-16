@@ -1,9 +1,14 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Bulk;
+import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create;
+import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Result;
+import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
+
+import java.util.Set;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.StepService;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.StepSearchCondition;
-import kr.reciptopia.reciptopiaserver.domain.dto.StepDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -33,6 +38,13 @@ public class StepController {
         return service.create(dto, authentication);
     }
 
+    @PostMapping("/post/recipe/bulk-step")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Bulk.Result bulkCreate(@Valid @RequestBody Bulk.Create bulkDto,
+        Authentication authentication) {
+        return service.bulkCreate(bulkDto, authentication);
+    }
+
     @GetMapping("/post/recipe/steps/{id}")
     public StepDto.Result get(@PathVariable Long id) {
         return service.read(id);
@@ -55,9 +67,21 @@ public class StepController {
         return service.update(id, dto, authentication);
     }
 
+    @PatchMapping("/post/recipe/bulk-step")
+    public Bulk.Result bulkPatch(@Valid @RequestBody Bulk.Update bulkDto,
+        Authentication authentication) {
+        return service.bulkUpdate(bulkDto, authentication);
+    }
+
     @DeleteMapping("/post/recipe/steps/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id, Authentication authentication) {
         service.delete(id, authentication);
+    }
+
+    @DeleteMapping("/post/recipe/bulk-step/{ids}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void bulkDelete(@PathVariable Set<Long> ids, Authentication authentication) {
+        service.bulkDelete(ids, authentication);
     }
 }

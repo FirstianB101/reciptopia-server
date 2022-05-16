@@ -5,6 +5,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.StepAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
@@ -77,5 +78,19 @@ public class StepService {
                 .map(id -> update(id, bulkDto.steps().get(id), authentication))
                 .collect(Collectors.toMap(Result::id, result -> result)))
             .build();
+    }
+
+    @Transactional
+    public Bulk.Result bulkCreate(Bulk.Create bulkDto, Authentication authentication) {
+        return Bulk.Result.builder()
+            .steps(bulkDto.steps().stream()
+                .map(dto -> create(dto, authentication))
+                .collect(Collectors.toMap(Result::id, result -> result)))
+            .build();
+    }
+
+    @Transactional
+    public void bulkDelete(Set<Long> ids, Authentication authentication) {
+        ids.forEach(id -> delete(id, authentication));
     }
 }
