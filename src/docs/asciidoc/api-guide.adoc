@@ -13,11 +13,13 @@ WARNING: 이 API는 아직 구현 중에 있으며 추후에 변경될 수 있�
 NOTE: v0.13.6-alpha
 
 ****
-v0.13.6-alpha 변경사항
+v0.13.7-alpha 변경사항
 
 '''
 
-* Step 검색 리소스 추가
+* Step Bulk 리소스 추가
+* 오탈자 수정
+* 개행 추가
 
 ****
 
@@ -132,7 +134,7 @@ include::{snippets}/account-create-example/curl-request.adoc[]
 | HTTP 요청에 적용할 헤더를 명시합니다. `Content-Type` 은 요청에 담을 데이터의 형식을 명시하는 헤더입니다.
 
 | -d
-| HTTP 요청에 담을 데이터를 명시합니다.
+| HTTP 요청에 담을 데이터를 명시합니다. +
 요청 Body를 말합니다.
 
 |===
@@ -171,7 +173,7 @@ curl에 관한 보다 자세한 내용은 link:https://curl.se/docs/manpage.html
 [[overview_paging_and_sorting_paging]]
 === Paging (페이징)
 
-Paging은 방대한 양의 리소스를 조회할 때 한 번에 불러올 리소스 수를 제한하는 기능이며, API URL에 요청 패러미터를 명시함으로써 사용할 수 있습니다.
+Paging은 방대한 양의 리소스를 조회할 때 한 번에 불러올 리소스 수를 제한하는 기능이며, API URL에 요청 패러미터를 명시함으로써 사용할 수 있습니다. +
 요청 패러미터를 직접 명시하지 않으면 데이터베이스 부하를 막기 위해서 기본 값이 적용됩니다.
 
 .Paging 기능에 사용되는 요청 패러미터
@@ -247,7 +249,7 @@ operation::auth-generate-token-example[snippets='request-fields,response-fields,
 [[resources_auth_me]]
 === 사용자 신원 조회
 
-`GET /auth/me` 요청으로 토큰을 소유한 사용자의 신원 정보를 조회합니다.
+`GET /auth/me` 요청으로 토큰을 소유한 사용자의 신원 정보를 조회합니다. +
 요청의 `Authorization` 헤더로 엑세스 토큰이 제공되어야 합니다.
 
 operation::auth-me-example[snippets='response-fields,curl-request,http-response']
@@ -258,7 +260,7 @@ operation::auth-me-example[snippets='response-fields,curl-request,http-response'
 [[resources_account_retrieve]]
 === Account 조회
 
-`GET /accounts/{id}` 요청으로 하나의 Account를 조회합니다.
+`GET /accounts/{id}` 요청으로 하나의 Account를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::account-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -282,6 +284,7 @@ operation::account-list-example[snippets='request-parameters,curl-request,http-r
 === Account 생성
 
 `POST /accounts` 요청으로 Account를 생성합니다.
+
 성공 시 생성한 Account를 응답 Body로 전달합니다.
 
 operation::account-create-example[snippets='request-fields,curl-request,http-response']
@@ -293,11 +296,12 @@ operation::account-create-example[snippets='request-fields,curl-request,http-res
 
 operation::account-check-duplicate-email-example[snippets='curl-request,http-response']
 
-[[resources_account_upate]]
+[[resources_account_update]]
 === Account 수정
 
-`PATCH /accounts/{id}` 요청으로 Account를 수정합니다.
+`PATCH /accounts/{id}` 요청으로 Account를 수정합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `Account` 의 엑세스 토큰이 제공되어야 합니다.
+
 성공 시 갱신된 Account를 응답 Body로 전달합니다.
 
 operation::account-update-example[snippets='request-fields,curl-request,http-response']
@@ -305,7 +309,7 @@ operation::account-update-example[snippets='request-fields,curl-request,http-res
 [[resources_account_delete]]
 === Account 삭제
 
-`DELETE /accounts/{id}` 요청으로 Account를 삭제합니다.
+`DELETE /accounts/{id}` 요청으로 Account를 삭제합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `Account` 의 엑세스 토큰이 제공되어야 합니다.
 
 operation::account-delete-example[snippets='curl-request,http-response']
@@ -316,7 +320,7 @@ operation::account-delete-example[snippets='curl-request,http-response']
 [[resources_post_retrieve]]
 === Post 조회
 
-`GET /posts/{id}` 요청으로 하나의 Post를 조회합니다.
+`GET /posts/{id}` 요청으로 하나의 Post를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::post-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -340,22 +344,24 @@ operation::post-search-example[snippets='request-parameters,curl-request,http-re
 === Post 생성
 
 `POST /posts` 요청으로 Post를 생성합니다.
+
 성공 시 생성한 Post를 응답 Body로 전달합니다.
 
 operation::post-create-example[snippets='request-fields,curl-request,http-response']
 
-[[resources_post_upate]]
+[[resources_post_update]]
 === Post 수정
 
-`PATCH /posts/{id}` 요청으로 Post를 수정합니다.
+`PATCH /posts/{id}` 요청으로 Post를 수정합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 글쓴이 `Account` 의 엑세스 토큰이 제공되어야 합니다.
+
 성공 시 갱신된 Post를 응답 Body로 전달합니다.
 
 operation::post-update-example[snippets='request-fields,curl-request,http-response']
 
 === Post 삭제
 
-`DELETE /posts/{id}` 요청으로 Post를 삭제합니다.
+`DELETE /posts/{id}` 요청으로 Post를 삭제합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 글쓴이 `Account` 의 엑세스 토큰이 제공되어야 합니다.
 
 operation::post-delete-example[snippets='curl-request,http-response']
@@ -366,7 +372,7 @@ operation::post-delete-example[snippets='curl-request,http-response']
 [[resources_comment_retrieve]]
 === Comment 조회
 
-`GET /post/comments/{id}` 요청으로 하나의 Comment를 조회합니다.
+`GET /post/comments/{id}` 요청으로 하나의 Comment를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::comment-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -390,22 +396,24 @@ operation::comment-search-example[snippets='request-parameters,curl-request,http
 === Comment 생성
 
 `POST /post/comments` 요청으로 Comment를 생성합니다.
+
 성공 시 생성한 Comment를 응답 Body로 전달합니다.
 
 operation::comment-create-example[snippets='request-fields,curl-request,http-response']
 
-[[resources_comment_upate]]
+[[resources_comment_update]]
 === Comment 수정
 
-`PATCH /post/comments/{id}` 요청으로 Comment를 수정합니다.
+`PATCH /post/comments/{id}` 요청으로 Comment를 수정합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 댓글 작성자 `Account` 의 엑세스 토큰이 제공되어야 합니다.
+
 성공 시 갱신된 Comment를 응답 Body로 전달합니다.
 
 operation::comment-update-example[snippets='request-fields,curl-request,http-response']
 
 === Comment 삭제
 
-`DELETE /post/comments/{id}` 요청으로 Comment를 삭제합니다.
+`DELETE /post/comments/{id}` 요청으로 Comment를 삭제합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 댓글 작성자 `Account` 의 엑세스 토큰이 제공되어야 합니다.
 
 operation::comment-delete-example[snippets='curl-request,http-response']
@@ -416,7 +424,7 @@ operation::comment-delete-example[snippets='curl-request,http-response']
 [[resources_reply_retrieve]]
 === Reply 조회
 
-`GET /post/comment/replies/{id}` 요청으로 하나의 Reply를 조회합니다.
+`GET /post/comment/replies/{id}` 요청으로 하나의 Reply를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::reply-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -440,22 +448,24 @@ operation::reply-search-example[snippets='request-parameters,curl-request,http-r
 === Reply 생성
 
 `POST /post/comment/replies` 요청으로 Reply를 생성합니다.
+
 성공 시 생성한 Reply를 응답 Body로 전달합니다.
 
 operation::reply-create-example[snippets='request-fields,curl-request,http-response']
 
-[[resources_reply_upate]]
+[[resources_reply_update]]
 === Reply 수정
 
-`PATCH /post/comment/replies/{id}` 요청으로 Reply를 수정합니다.
+`PATCH /post/comment/replies/{id}` 요청으로 Reply를 수정합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 답글 작성자 `Account` 의 엑세스 토큰이 제공되어야 합니다.
+
 성공 시 갱신된 Reply를 응답 Body로 전달합니다.
 
 operation::reply-update-example[snippets='request-fields,curl-request,http-response']
 
 === Reply 삭제
 
-`DELETE /post/comment/replies/{id}` 요청으로 Reply를 삭제합니다.
+`DELETE /post/comment/replies/{id}` 요청으로 Reply를 삭제합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 답글 작성자 `Account` 의 엑세스 토큰이 제공되어야 합니다.
 
 operation::reply-delete-example[snippets='curl-request,http-response']
@@ -466,7 +476,7 @@ operation::reply-delete-example[snippets='curl-request,http-response']
 [[resources_step_retrieve]]
 === Step 조회
 
-`GET /post/recipeId/steps/{id}` 요청으로 하나의 Step를 조회합니다.
+`GET /post/recipeId/steps/{id}` 요청으로 하나의 Step를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::step-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -489,16 +499,19 @@ operation::step-search-example[snippets='request-parameters,curl-request,http-re
 [[resources_step_create]]
 === Step 생성
 
-`POST /post/recipeId/steps` 요청으로 Step를 생성합니다.
+`POST /post/recipeId/steps` 요청으로 Step를 생성합니다. +
+요청의 `Authorization` 헤더로 요청을 보낸 `Step` 이 속한 `Recipe` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
+
 성공 시 생성한 Step를 응답 Body로 전달합니다.
 
 operation::step-create-example[snippets='request-fields,curl-request,http-response']
 
-[[resources_step_upate]]
+[[resources_step_update]]
 === Step 수정
 
-`PATCH /post/recipeId/steps/{id}` 요청으로 Step를 수정합니다.
+`PATCH /post/recipeId/steps/{id}` 요청으로 Step를 수정합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `Step` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
+
 성공 시 갱신된 Step를 응답 Body로 전달합니다.
 
 operation::step-update-example[snippets='request-fields,curl-request,http-response']
@@ -506,7 +519,7 @@ operation::step-update-example[snippets='request-fields,curl-request,http-respon
 [[resources_step_delete]]
 === Step 삭제
 
-`DELETE /post/recipeId/steps/{id}` 요청으로 Step를 삭제합니다.
+`DELETE /post/recipeId/steps/{id}` 요청으로 Step를 삭제합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `Step` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
 
 operation::step-delete-example[snippets='curl-request,http-response']
@@ -549,7 +562,7 @@ operation::step-bulk-delete-example[snippets='curl-request,http-response']
 [[resources_mainIngredient_retrieve]]
 === MainIngredient 조회
 
-`GET /post/recipe/mainIngredients/{id}` 요청으로 하나의 MainIngredient를 조회합니다.
+`GET /post/recipe/mainIngredients/{id}` 요청으로 하나의 MainIngredient를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::main-ingredient-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -573,15 +586,17 @@ operation::main-ingredient-retrieve-example[snippets='response-fields,curl-reque
 === MainIngredient 생성
 
 `POST /post/recipe/mainIngredients` 요청으로 MainIngredient를 생성합니다.
+
 성공 시 생성한 MainIngredient를 응답 Body로 전달합니다.
 
 operation::main-ingredient-create-example[snippets='request-fields,curl-request,http-response']
 
-[[resources_mainIngredient_upate]]
+[[resources_mainIngredient_update]]
 === MainIngredient 수정
 
-`PATCH /post/recipe/mainIngredients/{id}` 요청으로 MainIngredient를 수정합니다.
+`PATCH /post/recipe/mainIngredients/{id}` 요청으로 MainIngredient를 수정합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `MainIngredient` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
+
 성공 시 갱신된 MainIngredient를 응답 Body로 전달합니다.
 
 operation::main-ingredient-update-example[snippets='request-fields,curl-request,http-response']
@@ -589,7 +604,7 @@ operation::main-ingredient-update-example[snippets='request-fields,curl-request,
 [[resources_mainIngredient_delete]]
 === MainIngredient 삭제
 
-`DELETE /post/recipe/mainIngredients/{id}` 요청으로 MainIngredient를 삭제합니다.
+`DELETE /post/recipe/mainIngredients/{id}` 요청으로 MainIngredient를 삭제합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `MainIngredient` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
 
 operation::main-ingredient-delete-example[snippets='curl-request,http-response']
@@ -600,7 +615,7 @@ operation::main-ingredient-delete-example[snippets='curl-request,http-response']
 [[resources_subIngredient_retrieve]]
 === SubIngredient 조회
 
-`GET /post/recipe/subIngredients/{id}` 요청으로 하나의 SubIngredient를 조회합니다.
+`GET /post/recipe/subIngredients/{id}` 요청으로 하나의 SubIngredient를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::sub-ingredient-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -624,15 +639,17 @@ operation::sub-ingredient-retrieve-example[snippets='response-fields,curl-reques
 === SubIngredient 생성
 
 `POST /post/recipe/subIngredients` 요청으로 SubIngredient를 생성합니다.
+
 성공 시 생성한 SubIngredient를 응답 Body로 전달합니다.
 
 operation::sub-ingredient-create-example[snippets='request-fields,curl-request,http-response']
 
-[[resources_subIngredient_upate]]
+[[resources_subIngredient_update]]
 === SubIngredient 수정
 
-`PATCH /post/recipe/subIngredients/{id}` 요청으로 SubIngredient를 수정합니다.
+`PATCH /post/recipe/subIngredients/{id}` 요청으로 SubIngredient를 수정합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `SubIngredient` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
+
 성공 시 갱신된 SubIngredient를 응답 Body로 전달합니다.
 
 operation::sub-ingredient-update-example[snippets='request-fields,curl-request,http-response']
@@ -640,7 +657,7 @@ operation::sub-ingredient-update-example[snippets='request-fields,curl-request,h
 [[resources_subIngredient_delete]]
 === SubIngredient 삭제
 
-`DELETE /post/recipe/subIngredients/{id}` 요청으로 SubIngredient를 삭제합니다.
+`DELETE /post/recipe/subIngredients/{id}` 요청으로 SubIngredient를 삭제합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `SubIngredient` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
 
 operation::sub-ingredient-delete-example[snippets='curl-request,http-response']
@@ -651,7 +668,7 @@ operation::sub-ingredient-delete-example[snippets='curl-request,http-response']
 [[resources_recipe_retrieve]]
 === Recipe 조회
 
-`GET /post/recipes/{id}` 요청으로 하나의 Recipe를 조회합니다.
+`GET /post/recipes/{id}` 요청으로 하나의 Recipe를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::recipe-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -680,15 +697,17 @@ operation::recipe-search-example[snippets='request-parameters,curl-request,http-
 === Recipe 생성
 
 `POST /post/recipes` 요청으로 Recipe를 생성합니다.
+
 성공 시 생성한 Recipe를 응답 Body로 전달합니다.
 
 operation::recipe-create-example[snippets='request-fields,curl-request,http-response']
 
-[[resources_recipe_upate]]
+[[resources_recipe_update]]
 === Recipe 수정
 
-`PATCH /post/recipes/{id}` 요청으로 Recipe를 수정합니다.
+`PATCH /post/recipes/{id}` 요청으로 Recipe를 수정합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `Recipe` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
+
 성공 시 갱신된 Recipe를 응답 Body로 전달합니다.
 
 operation::recipe-update-example[snippets='request-fields,curl-request,http-response']
@@ -696,7 +715,7 @@ operation::recipe-update-example[snippets='request-fields,curl-request,http-resp
 [[resources_recipe_delete]]
 === Recipe 삭제
 
-`DELETE /post/recipes/{id}` 요청으로 Recipe를 삭제합니다.
+`DELETE /post/recipes/{id}` 요청으로 Recipe를 삭제합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `Recipe` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
 
 operation::recipe-delete-example[snippets='curl-request,http-response']
@@ -707,7 +726,7 @@ operation::recipe-delete-example[snippets='curl-request,http-response']
 [[resources_postLikeTag_retrieve]]
 === PostLikeTag 조회
 
-`GET /post/likeTags/{id}` 요청으로 하나의 PostLikeTag를 조회합니다.
+`GET /post/likeTags/{id}` 요청으로 하나의 PostLikeTag를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::postLikeTag-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -731,6 +750,7 @@ operation::postLikeTag-list-example[snippets='request-parameters,curl-request,ht
 === PostLikeTag 생성
 
 `POST /post/likeTags` 요청으로 PostLikeTag를 생성합니다.
+
 성공 시 생성한 PostLikeTag를 응답 Body로 전달합니다.
 
 operation::postLikeTag-create-example[snippets='request-fields,curl-request,http-response']
@@ -738,7 +758,7 @@ operation::postLikeTag-create-example[snippets='request-fields,curl-request,http
 [[resources_postLikeTag_delete]]
 === PostLikeTag 삭제
 
-`DELETE /post/likeTags/{id}` 요청으로 PostLikeTag를 삭제합니다.
+`DELETE /post/likeTags/{id}` 요청으로 PostLikeTag를 삭제합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `PostLikeTag` 의 소유자(게시물 좋아요를 누른) `Account` 엑세스 토큰이 제공되어야 합니다.
 
 operation::postLikeTag-delete-example[snippets='curl-request,http-response']
@@ -749,7 +769,7 @@ operation::postLikeTag-delete-example[snippets='curl-request,http-response']
 [[resources_commentLikeTag_retrieve]]
 === CommentLikeTag 조회
 
-`GET /post/comment/likeTags/{id}` 요청으로 하나의 CommentLikeTag를 조회합니다.
+`GET /post/comment/likeTags/{id}` 요청으로 하나의 CommentLikeTag를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::commentLikeTag-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -773,6 +793,7 @@ operation::commentLikeTag-list-example[snippets='request-parameters,curl-request
 === CommentLikeTag 생성
 
 `POST /post/comment/likeTags` 요청으로 CommentLikeTag를 생성합니다.
+
 성공 시 생성한 CommentLikeTag를 응답 Body로 전달합니다.
 
 operation::commentLikeTag-create-example[snippets='request-fields,curl-request,http-response']
@@ -780,7 +801,7 @@ operation::commentLikeTag-create-example[snippets='request-fields,curl-request,h
 [[resources_commentLikeTag_delete]]
 === CommentLikeTag 삭제
 
-`DELETE /post/comment/likeTags/{id}` 요청으로 CommentLikeTag를 삭제합니다.
+`DELETE /post/comment/likeTags/{id}` 요청으로 CommentLikeTag를 삭제합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `CommentLikeTag` 의 소유자(댓글 좋아요를 누른) `Account` 엑세스 토큰이 제공되어야 합니다.
 
 operation::commentLikeTag-delete-example[snippets='curl-request,http-response']
@@ -791,7 +812,7 @@ operation::commentLikeTag-delete-example[snippets='curl-request,http-response']
 [[resources_replyLikeTag_retrieve]]
 === ReplyLikeTag 조회
 
-`GET /post/comment/reply/likeTags/{id}` 요청으로 하나의 ReplyLikeTag를 조회합니다.
+`GET /post/comment/reply/likeTags/{id}` 요청으로 하나의 ReplyLikeTag를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::replyLikeTag-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -815,6 +836,7 @@ operation::replyLikeTag-list-example[snippets='request-parameters,curl-request,h
 === ReplyLikeTag 생성
 
 `POST /post/comment/reply/likeTags` 요청으로 ReplyLikeTag를 생성합니다.
+
 성공 시 생성한 ReplyLikeTag를 응답 Body로 전달합니다.
 
 operation::replyLikeTag-create-example[snippets='request-fields,curl-request,http-response']
@@ -822,7 +844,7 @@ operation::replyLikeTag-create-example[snippets='request-fields,curl-request,htt
 [[resources_replyLikeTag_delete]]
 === ReplyLikeTag 삭제
 
-`DELETE /post/comment/reply/likeTags/{id}` 요청으로 ReplyLikeTag를 삭제합니다.
+`DELETE /post/comment/reply/likeTags/{id}` 요청으로 ReplyLikeTag를 삭제합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `ReplyLikeTag` 의 소유자(답글 좋아요를 누른) `Account` 엑세스 토큰이 제공되어야 합니다.
 
 operation::replyLikeTag-delete-example[snippets='curl-request,http-response']
@@ -833,7 +855,7 @@ operation::replyLikeTag-delete-example[snippets='curl-request,http-response']
 [[resources_searchHistory_retrieve]]
 === SearchHistory 조회
 
-`GET /account/searchHistories/{id}` 요청으로 하나의 SearchHistory를 조회합니다.
+`GET /account/searchHistories/{id}` 요청으로 하나의 SearchHistory를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 요청의 `Authorization` 헤더로 요청을 보낸 `SearchHistories` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
@@ -857,6 +879,7 @@ operation::search-history-list-example[snippets='request-parameters,curl-request
 === SearchHistory 생성
 
 `POST /account/searchHistories` 요청으로 SearchHistory를 생성합니다.
+
 성공 시 생성한 SearchHistory를 응답 Body로 전달합니다.
 
 요청의 `Authorization` 헤더로 요청을 보낸 `SearchHistory` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
@@ -878,7 +901,7 @@ operation::search-history-delete-example[snippets='curl-request,http-response']
 [[resources_favorite_retrieve]]
 === Favorite 조회
 
-`GET /account/favorites/{id}` 요청으로 하나의 Favorite를 조회합니다.
+`GET /account/favorites/{id}` 요청으로 하나의 Favorite를 조회합니다. +
 유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
 
 operation::favorite-retrieve-example[snippets='response-fields,curl-request,http-response']
@@ -895,6 +918,7 @@ operation::favorite-list-example[snippets='request-parameters,curl-request,http-
 === Favorite 생성
 
 `POST /account/favorites` 요청으로 Favorite를 생성합니다.
+
 성공 시 생성한 Favorite를 응답 Body로 전달합니다.
 
 operation::favorite-create-example[snippets='request-fields,curl-request,http-response']
@@ -902,7 +926,7 @@ operation::favorite-create-example[snippets='request-fields,curl-request,http-re
 [[resources_favorite_delete]]
 === Favorite 삭제
 
-`DELETE /account/favorites/{id}` 요청으로 Favorite를 삭제합니다.
+`DELETE /account/favorites/{id}` 요청으로 Favorite를 삭제합니다. +
 요청의 `Authorization` 헤더로 요청을 보낸 `Favorite` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
 
 operation::favorite-delete-example[snippets='curl-request,http-response']
