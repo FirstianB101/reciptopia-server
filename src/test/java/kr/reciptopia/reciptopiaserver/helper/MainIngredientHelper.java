@@ -67,7 +67,7 @@ public class MainIngredientHelper {
 
     public interface Bulk {
 
-        static MainIngredientDto.Bulk.Create aMainIngredientCreateDto(
+        static MainIngredientDto.Bulk.Create tripleMainIngredientsBulkCreateDto(
             Function<? super Create, ? extends Create> initialize) {
             return MainIngredientDto.Bulk.Create.builder()
                 .mainIngredient(MainIngredientHelper.aMainIngredientCreateDto(initialize))
@@ -76,11 +76,11 @@ public class MainIngredientHelper {
                 .build();
         }
 
-        static MainIngredientDto.Bulk.Create aMainIngredientCreateDto() {
-            return aMainIngredientCreateDto(noInit());
+        static MainIngredientDto.Bulk.Create tripleMainIngredientsBulkCreateDto() {
+            return tripleMainIngredientsBulkCreateDto(noInit());
         }
 
-        static MainIngredientDto.Bulk.Update aMainIngredientUpdateDto() {
+        static MainIngredientDto.Bulk.Update tripleMainIngredientsBulkUpdateDto() {
             return MainIngredientDto.Bulk.Update.builder()
                 .mainIngredient(ARBITRARY_BULK_ID_0,
                     MainIngredientHelper.aMainIngredientUpdateDto())
@@ -91,7 +91,7 @@ public class MainIngredientHelper {
                 .build();
         }
 
-        static MainIngredientDto.Bulk.Result aMainIngredientResultDto() {
+        static MainIngredientDto.Bulk.Result tripleMainIngredientsBulkResultDto() {
             return MainIngredientDto.Bulk.Result.builder()
                 .mainIngredient(ARBITRARY_BULK_ID_0,
                     MainIngredientHelper.aMainIngredientResultDto())
