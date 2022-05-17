@@ -1,15 +1,14 @@
 spring:
-  h2:
-    console:
-      enabled: true
-  profiles:
-    active: local
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:userdb;DB_CLOSE_DELAY=-1
-    username: sa
-    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: "jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul"
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -21,4 +20,4 @@ auth:
   jwt:
     key:
       secret-string: ${JWT_SECRET}
-    expiration-interval: 604800   # a week 1
+    expiration-interval: 604800   # a week
