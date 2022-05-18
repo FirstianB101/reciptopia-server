@@ -26,7 +26,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -302,6 +301,49 @@ public class SubIngredientIntegrationTest {
 
             // Document
             actions.andDo(document("sub-ingredient-list-with-paging-example"));
+        }
+
+        @Test
+        void searchSubIngredientsByRecipeId() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipe = entityHelper.generateRecipe();
+
+                SubIngredient subIngredientA = entityHelper.generateSubIngredient();
+                SubIngredient subIngredientB = entityHelper.generateSubIngredient(it -> it
+                    .withRecipe(recipe));
+                SubIngredient subIngredientC = entityHelper.generateSubIngredient(it -> it
+                    .withRecipe(recipe));
+                SubIngredient subIngredientD = entityHelper.generateSubIngredient();
+                SubIngredient subIngredientE = entityHelper.generateSubIngredient();
+
+                return new Struct()
+                    .withValue("recipeId", recipe.getId())
+                    .withValue("subIngredientBId", subIngredientB.getId())
+                    .withValue("subIngredientCId", subIngredientC.getId());
+            });
+            Long recipeId = given.valueOf("recipeId");
+            Long subIngredientBId = given.valueOf("subIngredientBId");
+            Long subIngredientCId = given.valueOf("subIngredientCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/recipe/subIngredients")
+                .param("recipeId", recipeId.toString()));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.subIngredients").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.subIngredients.[*].id").value(containsInAnyOrder(
+                    subIngredientBId.intValue(),
+                    subIngredientCId.intValue()
+                )));
+
+            // Document
+            actions.andDo(document("sub-ingredient-search-example",
+                requestParameters(
+                    DOC_PARAMETER_RECIPE_ID
+                )));
         }
 
     }
