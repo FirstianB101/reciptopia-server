@@ -6,7 +6,10 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Update;
 
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.SubIngredientService;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.SubIngredientSearchCondition;
+import kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Bulk;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,6 +40,18 @@ public class SubIngredientController {
     @GetMapping("/post/recipe/subIngredients/{id}")
     public Result get(@PathVariable Long id) {
         return service.read(id);
+    }
+
+    @GetMapping("/post/recipe/subIngredients")
+    public Bulk.Result search(
+        @RequestParam(required = false) Long recipeId,
+        Pageable pageable) {
+        SubIngredientSearchCondition subIngredientSearchCondition = SubIngredientSearchCondition
+            .builder()
+            .recipeId(recipeId)
+            .build();
+
+        return service.search(subIngredientSearchCondition, pageable);
     }
 
     @PatchMapping("/post/recipe/subIngredients/{id}")
