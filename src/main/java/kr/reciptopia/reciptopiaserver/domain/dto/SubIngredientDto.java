@@ -119,6 +119,15 @@ public interface SubIngredientDto {
         private <T> Function<? super T, ? extends T> noInit() {
             return (arg) -> arg;
         }
+
+        public Create withRecipeId(Long recipeId) {
+            return this.recipeId != null && this.recipeId.equals(recipeId) ? this : Create.builder()
+                .recipeId(recipeId)
+                .name(name)
+                .detail(detail)
+                .build();
+        }
+
     }
 
     @With
@@ -169,7 +178,7 @@ public interface SubIngredientDto {
                 .map(Result::of)
                 .collect(Collectors.toList());
         }
-    }
 
+    }
 
 }

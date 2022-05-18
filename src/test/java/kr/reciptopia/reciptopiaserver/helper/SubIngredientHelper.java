@@ -4,7 +4,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
-
+import java.util.function.Function;
 import kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto;
 import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
 
@@ -27,12 +27,21 @@ public class SubIngredientHelper {
             .withId(ARBITRARY_ID);
     }
 
-    public static Create aSubIngredientCreateDto() {
+    public static Create aSubIngredientCreateDto(
+        Function<? super Create, ? extends Create> initialize) {
+        Create createDto = Create.builder()
+            .build();
+
+        createDto = initialize.apply(createDto);
         return Create.builder()
-            .recipeId(ARBITRARY_RECIPE_ID)
+            .recipeId(createDto.recipeId() == null ? ARBITRARY_RECIPE_ID : createDto.recipeId())
             .name(ARBITRARY_NAME)
             .detail(ARBITRARY_DETAIL)
             .build();
+    }
+
+    public static Create aSubIngredientCreateDto() {
+        return aSubIngredientCreateDto(noInit());
     }
 
     public static Update aSubIngredientUpdateDto() {
@@ -51,17 +60,26 @@ public class SubIngredientHelper {
             .build();
     }
 
+    private static <T> Function<? super T, ? extends T> noInit() {
+        return (arg) -> arg;
+    }
+
     public interface Bulk {
 
-        static SubIngredientDto.Bulk.Create aSubIngredientCreateDto() {
+        static SubIngredientDto.Bulk.Create tripleSubIngredientsBulkCreateDto(
+            Function<? super Create, ? extends Create> initialize) {
             return SubIngredientDto.Bulk.Create.builder()
-                .subIngredient(SubIngredientHelper.aSubIngredientCreateDto())
-                .subIngredient(SubIngredientHelper.aSubIngredientCreateDto())
-                .subIngredient(SubIngredientHelper.aSubIngredientCreateDto())
+                .subIngredient(SubIngredientHelper.aSubIngredientCreateDto(initialize))
+                .subIngredient(SubIngredientHelper.aSubIngredientCreateDto(initialize))
+                .subIngredient(SubIngredientHelper.aSubIngredientCreateDto(initialize))
                 .build();
         }
 
-        static SubIngredientDto.Bulk.Update aSubIngredientUpdateDto() {
+        static SubIngredientDto.Bulk.Create tripleSubIngredientsBulkCreateDto() {
+            return tripleSubIngredientsBulkCreateDto(noInit());
+        }
+
+        static SubIngredientDto.Bulk.Update tripleSubIngredientsBulkUpdateDto() {
             return SubIngredientDto.Bulk.Update.builder()
                 .subIngredient(ARBITRARY_BULK_ID_0,
                     SubIngredientHelper.aSubIngredientUpdateDto())
@@ -72,7 +90,7 @@ public class SubIngredientHelper {
                 .build();
         }
 
-        static SubIngredientDto.Bulk.Result aSubIngredientResultDto() {
+        static SubIngredientDto.Bulk.Result tripleSubIngredientsBulkResultDto() {
             return SubIngredientDto.Bulk.Result.builder()
                 .subIngredient(ARBITRARY_BULK_ID_0,
                     SubIngredientHelper.aSubIngredientResultDto())
@@ -82,5 +100,6 @@ public class SubIngredientHelper {
                     SubIngredientHelper.aSubIngredientResultDto())
                 .build();
         }
+
     }
 }
