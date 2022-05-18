@@ -50,8 +50,7 @@ public class SubIngredientService {
     @Transactional
     public Result update(Long id, Update dto, Authentication authentication) {
         SubIngredient subIngredient = repoHelper.findSubIngredientOrThrow(id);
-        Account owner = subIngredient.getRecipe().getPost().getOwner();
-        ingredientAuthorizer.requireByOneself(authentication, owner);
+        ingredientAuthorizer.requireIngredientOwner(authentication, subIngredient);
 
         if (dto.name() != null) {
             subIngredient.setName(dto.name());
