@@ -3,17 +3,20 @@ package kr.reciptopia.reciptopiaserver;
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Update;
+import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.Bulk.tripleSubIngredientsBulkCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredientCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredientUpdateDto;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -47,6 +50,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -66,6 +70,19 @@ public class SubIngredientIntegrationTest {
         fieldWithPath("name").description("부 재료 이름");
     private static final FieldDescriptor DOC_FIELD_DETAIL =
         fieldWithPath("detail").description("부 재료 세부사항");
+
+    private static final ParameterDescriptor DOC_PARAMETER_RECIPE_ID =
+        parameterWithName("recipeId").description("레시피 ID").optional();
+
+    private static final FieldDescriptor DOC_FIELD_POST_BULK_SUB_INGREDIENTS =
+        fieldWithPath("subIngredients").type("SubIngredient[]").description("부 재료 생성 필요필드 배열");
+    private static final FieldDescriptor DOC_FIELD_POST_BULK_SUB_INGREDIENT =
+        subsectionWithPath("subIngredients.[]").type("SubIngredient")
+            .description("부 재료 생성 필요필드와 동일");
+
+    private static final FieldDescriptor DOC_FIELD_PATCH_BULK_SUB_INGREDIENTS =
+        subsectionWithPath("subIngredients").type("Map<id, subIngredient>")
+            .description("부 재료 수정 필요필드 배열");
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -226,8 +243,8 @@ public class SubIngredientIntegrationTest {
                 SubIngredient subIngredientB = entityHelper.generateSubIngredient();
 
                 return new Struct()
-                    .withValue("SubIngredientAId", subIngredientA.getId())
-                    .withValue("SubIngredientBId", subIngredientB.getId());
+                    .withValue("subIngredientAId", subIngredientA.getId())
+                    .withValue("subIngredientBId", subIngredientB.getId());
             });
             Long subIngredientAId = given.valueOf("subIngredientAId");
             Long subIngredientBId = given.valueOf("subIngredientBId");
@@ -238,8 +255,8 @@ public class SubIngredientIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.subIngredients").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.subIngredients.[*].id").value(containsInAnyOrder(
                     subIngredientAId.intValue(),
                     subIngredientBId.intValue()
                 )));
@@ -277,8 +294,8 @@ public class SubIngredientIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(contains(
+                .andExpect(jsonPath("$.subIngredients").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.subIngredients.[*].id").value(contains(
                     subIngredientBId.intValue(),
                     subIngredientAId.intValue()
                 )));
