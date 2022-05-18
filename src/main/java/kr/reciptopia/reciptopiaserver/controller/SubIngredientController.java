@@ -3,7 +3,7 @@ package kr.reciptopia.reciptopiaserver.controller;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Update;
-
+import java.util.Set;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.SubIngredientService;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.SubIngredientSearchCondition;
@@ -65,4 +65,24 @@ public class SubIngredientController {
     public void delete(@PathVariable Long id, Authentication authentication) {
         service.delete(id, authentication);
     }
+
+    @PostMapping("/post/recipe/bulk-subIngredient")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Bulk.Result bulkCreate(@Valid @RequestBody Bulk.Create bulkDto,
+        Authentication authentication) {
+        return service.bulkCreate(bulkDto, authentication);
+    }
+
+    @PatchMapping("/post/recipe/bulk-subIngredient")
+    public Bulk.Result bulkPatch(@Valid @RequestBody Bulk.Update bulkDto,
+        Authentication authentication) {
+        return service.bulkUpdate(bulkDto, authentication);
+    }
+
+    @DeleteMapping("/post/recipe/bulk-subIngredient/{ids}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void bulkDelete(@PathVariable Set<Long> ids, Authentication authentication) {
+        service.bulkDelete(ids, authentication);
+    }
+
 }
