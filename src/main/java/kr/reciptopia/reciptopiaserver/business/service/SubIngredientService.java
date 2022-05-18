@@ -8,14 +8,13 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Update;
 import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.IngredientAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
-import kr.reciptopia.reciptopiaserver.domain.model.Account;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.SubIngredientSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
 import kr.reciptopia.reciptopiaserver.persistence.repository.SubIngredientRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.SubIngredientRepositoryImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SubIngredientService {
 
     private final SubIngredientRepository subIngredientRepository;
+    private final SubIngredientRepositoryImpl subIngredientRepositoryImpl;
     private final RepositoryHelper repoHelper;
     private final IngredientAuthorizer ingredientAuthorizer;
 
@@ -43,9 +43,8 @@ public class SubIngredientService {
         return Result.of(repoHelper.findSubIngredientOrThrow(id));
     }
 
-    public List<Result> search(Specification<SubIngredient> spec, Pageable pageable) {
-        Page<SubIngredient> subIngredients = subIngredientRepository.findAll(spec, pageable);
-        return Result.of(subIngredients);
+    public Bulk.Result search(SubIngredientSearchCondition condition, Pageable pageable) {
+        return Bulk.Result.of(subIngredientRepositoryImpl.search(condition, pageable));
     }
 
     @Transactional
