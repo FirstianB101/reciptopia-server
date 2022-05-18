@@ -12,12 +12,12 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -27,7 +27,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -51,6 +50,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -70,6 +70,9 @@ public class MainIngredientIntegrationTest {
         fieldWithPath("name").description("주 재료 이름");
     private static final FieldDescriptor DOC_FIELD_DETAIL =
         fieldWithPath("detail").description("주 재료 세부사항");
+
+    private static final ParameterDescriptor DOC_PARAMETER_RECIPE_ID =
+        parameterWithName("recipeId").description("레시피 ID").optional();
 
     private static final FieldDescriptor DOC_FIELD_POST_BULK_MAIN_INGREDIENTS =
         fieldWithPath("mainIngredients").type("MainIngredient[]").description("주 재료 생성 필요필드 배열");
@@ -234,8 +237,8 @@ public class MainIngredientIntegrationTest {
                 MainIngredient mainIngredientB = entityHelper.generateMainIngredient();
 
                 return new Struct()
-                    .withValue("MainIngredientAId", mainIngredientA.getId())
-                    .withValue("MainIngredientBId", mainIngredientB.getId());
+                    .withValue("mainIngredientAId", mainIngredientA.getId())
+                    .withValue("mainIngredientBId", mainIngredientB.getId());
             });
             Long mainIngredientAId = given.valueOf("mainIngredientAId");
             Long mainIngredientBId = given.valueOf("mainIngredientBId");
@@ -246,8 +249,8 @@ public class MainIngredientIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.mainIngredients").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.mainIngredients.[*].id").value(containsInAnyOrder(
                     mainIngredientAId.intValue(),
                     mainIngredientBId.intValue()
                 )));
@@ -285,14 +288,57 @@ public class MainIngredientIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(contains(
+                .andExpect(jsonPath("$.mainIngredients").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.mainIngredients.[*].id").value(contains(
                     mainIngredientBId.intValue(),
                     mainIngredientAId.intValue()
                 )));
 
             // Document
             actions.andDo(document("main-ingredient-list-with-paging-example"));
+        }
+
+        @Test
+        void searchMainIngredientsByRecipeId() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipe = entityHelper.generateRecipe();
+
+                MainIngredient mainIngredientA = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientB = entityHelper.generateMainIngredient(it -> it
+                    .withRecipe(recipe));
+                MainIngredient mainIngredientC = entityHelper.generateMainIngredient(it -> it
+                    .withRecipe(recipe));
+                MainIngredient mainIngredientD = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientE = entityHelper.generateMainIngredient();
+
+                return new Struct()
+                    .withValue("recipeId", recipe.getId())
+                    .withValue("mainIngredientBId", mainIngredientB.getId())
+                    .withValue("mainIngredientCId", mainIngredientC.getId());
+            });
+            Long recipeId = given.valueOf("recipeId");
+            Long mainIngredientBId = given.valueOf("mainIngredientBId");
+            Long mainIngredientCId = given.valueOf("mainIngredientCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/recipe/mainIngredients")
+                .param("recipeId", recipeId.toString()));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mainIngredients").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.mainIngredients.[*].id").value(containsInAnyOrder(
+                    mainIngredientBId.intValue(),
+                    mainIngredientCId.intValue()
+                )));
+
+            // Document
+            actions.andDo(document("main-ingredient-search-example",
+                requestParameters(
+                    DOC_PARAMETER_RECIPE_ID
+                )));
         }
 
     }
