@@ -1,22 +1,22 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.FavoriteDto.*;
-
+import static kr.reciptopia.reciptopiaserver.domain.dto.FavoriteDto.Bulk;
+import static kr.reciptopia.reciptopiaserver.domain.dto.FavoriteDto.Create;
+import static kr.reciptopia.reciptopiaserver.domain.dto.FavoriteDto.Result;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.FavoriteAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
-import kr.reciptopia.reciptopiaserver.domain.dto.FavoriteDto;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.FavoriteSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.persistence.repository.FavoriteRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.FavoriteRepositoryImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Pageable;
-import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.Authentication;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 public class FavoriteService {
 
     private final FavoriteRepository favoriteRepository;
+    private final FavoriteRepositoryImpl favoriteRepositoryImpl;
     private final RepositoryHelper repoHelper;
     private final FavoriteAuthorizer favoriteAuthorizer;
 
@@ -45,9 +46,11 @@ public class FavoriteService {
         return Result.of(repoHelper.findFavoriteOrThrow(id));
     }
 
-    public List<Result> search(Pageable pageable) {
-        Page<Favorite> favorites = favoriteRepository.findAll(pageable);
-        return Result.of(favorites);
+    public Bulk.Result search(FavoriteSearchCondition favoriteSearchCondition,
+        Pageable pageable) {
+        PageImpl<Favorite> pageImpl = favoriteRepositoryImpl.search(favoriteSearchCondition,
+            pageable);
+        return Bulk.Result.of(pageImpl);
     }
 
     @Transactional

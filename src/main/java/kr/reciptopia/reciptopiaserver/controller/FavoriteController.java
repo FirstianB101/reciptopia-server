@@ -1,22 +1,18 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.FavoriteDto.*;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
-
-import java.util.List;
+import static kr.reciptopia.reciptopiaserver.domain.dto.FavoriteDto.Bulk;
+import static kr.reciptopia.reciptopiaserver.domain.dto.FavoriteDto.Create;
+import static kr.reciptopia.reciptopiaserver.domain.dto.FavoriteDto.Result;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.FavoriteService;
-import kr.reciptopia.reciptopiaserver.domain.dto.FavoriteDto;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.FavoriteSearchCondition;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,8 +40,14 @@ public class FavoriteController {
     }
 
     @GetMapping("/account/favorites")
-    public List<Result> search(Pageable pageable) {
-        return service.search(pageable);
+    public Bulk.Result search(
+        @RequestParam(required = false) Long ownerId,
+        Pageable pageable) {
+        FavoriteSearchCondition favoriteSearchCondition = FavoriteSearchCondition.builder()
+            .ownerId(ownerId)
+            .build();
+
+        return service.search(favoriteSearchCondition, pageable);
     }
 
     @DeleteMapping("/account/favorites/{id}")
