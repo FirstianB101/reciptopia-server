@@ -4,10 +4,10 @@ import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocument
 import static kr.reciptopia.reciptopiaserver.domain.dto.FavoriteDto.Create;
 import static kr.reciptopia.reciptopiaserver.util.H2DbCleaner.clean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -16,7 +16,6 @@ import static org.springframework.restdocs.request.RequestDocumentation.requestP
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -276,8 +275,8 @@ public class FavoriteIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.favorites").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.favorites.[*].id").value(containsInAnyOrder(
                     favoriteAId.intValue(),
                     favoriteBId.intValue()
                 )));
@@ -315,10 +314,10 @@ public class FavoriteIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(contains(
-                    favoriteBId.intValue(),
-                    favoriteAId.intValue()
+                .andExpect(jsonPath("$.favorites").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.favorites.[*].id").value(contains(
+                    favoriteCId.intValue(),
+                    favoriteBId.intValue()
                 )));
 
             // Document
