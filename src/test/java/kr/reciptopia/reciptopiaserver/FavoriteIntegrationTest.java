@@ -294,21 +294,23 @@ public class FavoriteIntegrationTest {
         void listFavoritesWithPaging() throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
-                entityHelper.generateFavorite();
                 Favorite favoriteA = entityHelper.generateFavorite();
                 Favorite favoriteB = entityHelper.generateFavorite();
+                Favorite favoriteC = entityHelper.generateFavorite();
+                Favorite favoriteD = entityHelper.generateFavorite();
+                Favorite favoriteE = entityHelper.generateFavorite();
 
                 return new Struct()
-                    .withValue("favoriteAId", favoriteA.getId())
-                    .withValue("favoriteBId", favoriteB.getId());
+                    .withValue("favoriteBId", favoriteB.getId())
+                    .withValue("favoriteCId", favoriteC.getId());
             });
-            Long favoriteAId = given.valueOf("favoriteAId");
             Long favoriteBId = given.valueOf("favoriteBId");
+            Long favoriteCId = given.valueOf("favoriteCId");
 
             // When
             ResultActions actions = mockMvc.perform(get("/account/favorites")
                 .param("size", "2")
-                .param("page", "0")
+                .param("page", "1")
                 .param("sort", "id,desc"));
 
             // Then
