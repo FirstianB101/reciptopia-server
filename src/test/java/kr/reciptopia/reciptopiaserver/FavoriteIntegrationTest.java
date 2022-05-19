@@ -12,6 +12,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -20,7 +21,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -43,6 +43,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -60,6 +61,9 @@ public class FavoriteIntegrationTest {
         fieldWithPath("ownerId").description("즐겨찾기 소유자 ID");
     private static final FieldDescriptor DOC_FIELD_POST_ID =
         fieldWithPath("postId").description("즐겨찾기에 추가된 게시글 ID");
+
+    private static final ParameterDescriptor DOC_PARAMETER_OWNER_ID =
+        parameterWithName("ownerId").description("즐겨찾기 소유자 ID").optional();
 
     private MockMvc mockMvc;
 
@@ -324,6 +328,47 @@ public class FavoriteIntegrationTest {
 
             // Document
             actions.andDo(document("favorite-list-with-paging-example"));
+        }
+
+        @Test
+        void searchFavoritesByOwnerId() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                Favorite favoriteA = entityHelper.generateFavorite();
+                Favorite favoriteB = entityHelper.generateFavorite(it -> it.withOwner(owner));
+                Favorite favoriteC = entityHelper.generateFavorite(it -> it.withOwner(owner));
+                Favorite favoriteD = entityHelper.generateFavorite();
+                Favorite favoriteE = entityHelper.generateFavorite();
+
+                return new Struct()
+                    .withValue("ownerId", owner.getId())
+                    .withValue("favoriteBId", favoriteB.getId())
+                    .withValue("favoriteCId", favoriteC.getId());
+            });
+            Long ownerId = given.valueOf("ownerId");
+            Long favoriteBId = given.valueOf("favoriteBId");
+            Long favoriteCId = given.valueOf("favoriteCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/account/favorites")
+                .param("ownerId", ownerId.toString()));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.favorites").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.favorites.[*].id").value(containsInAnyOrder(
+                    favoriteCId.intValue(),
+                    favoriteBId.intValue()
+                )));
+
+            // Document
+            actions.andDo(document("favorite-search-example",
+                requestParameters(
+                    DOC_PARAMETER_OWNER_ID
+                )));
         }
 
     }
