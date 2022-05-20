@@ -42,9 +42,9 @@ public class ApiDocumentation {
         RestDocumentationContextProvider restDocumentation) {
         var baseUriOperationPreprocessor = new BaseUriOperationPreprocessor()
             .scheme("https")
-            .host("api.reciptopia.kr")
+            .host("reciptopia.firstian.kr")
             .removePort()
-            .basePath("/alpha");
+            .basePath("/api/alpha");
         return documentationConfiguration(restDocumentation)
             .operationPreprocessors()
             .withRequestDefaults(baseUriOperationPreprocessor)
