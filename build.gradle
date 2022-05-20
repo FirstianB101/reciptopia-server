@@ -64,6 +64,7 @@ test {
 }
 
 asciidoctor {
+    attributes 'snippets': snippetsDir
     inputs.dir snippetsDir
     dependsOn test
 }
@@ -73,6 +74,17 @@ bootJar {
     from("${asciidoctor.outputDir}/html5") {
         into 'static/docs'
     }
+}
+
+task copyDocument(type: Copy) {
+    dependsOn bootJar
+
+    from file("build/asciidoc/html5/")
+    into file("src/main/resources/static/docs")
+}
+
+build {
+    dependsOn copyDocument
 }
 
 def querydslDir = "$buildDir/generated/querydsl"
