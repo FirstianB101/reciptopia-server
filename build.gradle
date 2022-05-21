@@ -65,6 +65,11 @@ test {
     useJUnitPlatform()
 }
 
+asciidoctor.doFirst {
+    delete file('build/docs/asciidoc')
+    delete file('src/main/resources/static/docs')
+}
+
 asciidoctor {
     configurations 'asciidoctorExt'
     inProcess = JAVA_EXEC
