@@ -762,16 +762,6 @@ operation::recipe-search-example[snippets='request-parameters,curl-request,http-
 
 operation::recipe-create-example[snippets='request-fields,curl-request,http-response']
 
-[[resources_recipe_update]]
-=== Recipe 수정
-
-`PATCH /post/recipes/{id}` 요청으로 Recipe를 수정합니다. +
-요청의 `Authorization` 헤더로 요청을 보낸 `Recipe` 의 소유자 `Account` 엑세스 토큰이 제공되어야 합니다.
-
-성공 시 갱신된 Recipe를 응답 Body로 전달합니다.
-
-operation::recipe-update-example[snippets='request-fields,curl-request,http-response']
-
 [[resources_recipe_delete]]
 === Recipe 삭제
 
