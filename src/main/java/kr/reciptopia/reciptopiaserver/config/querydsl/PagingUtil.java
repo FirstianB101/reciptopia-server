@@ -17,8 +17,8 @@ public class PagingUtil {
 
     private final EntityManager em;
 
-    private Querydsl getQuerydsl(Class clazz) {
-        PathBuilder builder = new PathBuilderFactory().create(clazz);
+    private Querydsl getQuerydsl(Class<?> clazz) {
+        PathBuilder<?> builder = new PathBuilderFactory().create(clazz);
         return new Querydsl(em, builder);
     }
 
