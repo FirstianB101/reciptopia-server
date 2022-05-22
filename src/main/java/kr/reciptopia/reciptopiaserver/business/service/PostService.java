@@ -1,12 +1,18 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
+import static kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostSearchCondition.getRecipeSearchCondition;
+import static kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostSearchCondition.updateConditionWithRecipeCondition;
+
+import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.PostAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostSearchCondition;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.RecipeSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Bulk;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Result;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
+import kr.reciptopia.reciptopiaserver.domain.dto.RecipeDto;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
@@ -31,6 +37,7 @@ public class PostService {
     private final PostRepositoryImpl postRepositoryImpl;
     private final RepositoryHelper repoHelper;
     private final PostAuthorizer postAuthorizer;
+    private final RecipeService recipeService;
 
     @Transactional
     public Result create(Create dto, Authentication authentication) {
@@ -49,9 +56,24 @@ public class PostService {
 
     public Bulk.ResultWithCommentAndLikeTagCount search(PostSearchCondition condition,
         Pageable pageable) {
-        PageImpl<Post> posts = postRepositoryImpl.search(condition, pageable);
-        return Bulk.ResultWithCommentAndLikeTagCount.of(posts, commentRepository::countByPostId,
+        RecipeSearchCondition recipeSearchCondition = getRecipeSearchCondition(condition);
+        List<Long> postIds = getPostIdsFromRecipeCondition(pageable, recipeSearchCondition);
+        PageImpl<Post> posts = postRepositoryImpl.search(
+            updateConditionWithRecipeCondition(condition, recipeSearchCondition, postIds),
+            pageable);
+
+        return Bulk.ResultWithCommentAndLikeTagCount.of(
+            posts,
+            commentRepository::countByPostId,
             postLikeTagRepository::countByPostId);
+    }
+
+    private List<Long> getPostIdsFromRecipeCondition(Pageable pageable,
+        RecipeSearchCondition recipeSearchCondition) {
+        RecipeDto.Bulk.Result search = recipeService.search(recipeSearchCondition, pageable);
+        return search
+            .recipes().values()
+            .stream().map(RecipeDto.Result::postId).toList();
     }
 
     @Transactional
