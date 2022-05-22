@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -482,6 +483,190 @@ public class PostIntegrationTest {
                     )));
         }
 
+        @Test
+        void searchPostsByIds() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Post postA = entityHelper.generatePost();
+                Post postB = entityHelper.generatePost();
+                Post postC = entityHelper.generatePost();
+                Post postD = entityHelper.generatePost();
+                Post postE = entityHelper.generatePost();
+
+                return new Struct()
+                    .withValue("postBId", postB.getId())
+                    .withValue("postCId", postC.getId())
+                    .withValue("postEId", postE.getId());
+            });
+            Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
+            Long postEId = given.valueOf("postEId");
+
+            // When
+            String idsParam = postBId + ", " + postCId + ", " + postEId;
+            ResultActions actions = mockMvc.perform(get("/posts")
+                .param("ids", idsParam));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts").value(aMapWithSize(3)))
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts.[*].post.id").value(
+                    containsInAnyOrder(
+                        postCId.intValue(),
+                        postBId.intValue(),
+                        postEId.intValue()
+                    )));
+        }
+
+        @Test
+        void mainIngredients로_post검색() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipeA = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeA));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeA));
+
+                Recipe recipeB = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeB));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeB));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeB));
+
+                Recipe recipeC = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("양파")
+                        .withRecipe(recipeC));
+
+                Recipe recipeD = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeD));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeD));
+
+                Recipe recipeE = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeE));
+                return new Struct()
+                    .withValue("postBId", recipeB.getPost().getId())
+                    .withValue("postCId", recipeC.getPost().getId());
+            });
+            Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/posts")
+                .param("mainIngredientNames", "닭다리, 감자, 고추장")
+            );
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts.[*].post.id").value(contains(
+                    postBId.intValue(),
+                    postCId.intValue()
+                )));
+        }
+
+        @Test
+        void id들과_mainIngredients로_post검색() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipeA = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeA));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeA));
+
+                Recipe recipeB = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeB));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeB));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeB));
+
+                Recipe recipeC = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("양파")
+                        .withRecipe(recipeC));
+
+                Recipe recipeD = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeD));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeD));
+
+                Recipe recipeE = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeE));
+                return new Struct()
+                    .withValue("postAId", recipeA.getPost().getId())
+                    .withValue("postBId", recipeB.getPost().getId())
+                    .withValue("postCId", recipeC.getPost().getId())
+                    .withValue("postDId", recipeD.getPost().getId());
+            });
+            Long postAId = given.valueOf("postAId");
+            Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
+            Long postDId = given.valueOf("postDId");
+
+            String idsParam = postAId + ", " + postBId + ", " + postCId + ", " + postDId;
+            // When
+            ResultActions actions = mockMvc.perform(get("/posts")
+                .param("mainIngredientNames", "닭다리, 감자, 고추장")
+                .param("ids", idsParam)
+            );
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts").value(aMapWithSize(2)))
+                .andExpect(jsonPath("$.postWithCommentAndLikeTagCounts.[*].post.id").value(contains(
+                    postBId.intValue(),
+                    postCId.intValue()
+                )));
+        }
     }
 
     @Nested
