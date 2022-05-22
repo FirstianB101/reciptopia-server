@@ -1,5 +1,8 @@
 package kr.reciptopia.reciptopiaserver.config.querydsl;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.core.types.dsl.PathBuilderFactory;
 import com.querydsl.jpa.JPQLQuery;
@@ -29,9 +32,11 @@ public class PagingUtil {
     }
 
     public static <T> List<T> getPage(List<T> entity, Pageable pageable) {
-        return entity.subList(
-            (int) pageable.getOffset(),
-            (int) Math.min((pageable.getOffset() + pageable.getPageSize()),
-                entity.size() - pageable.getOffset()));
+        int maxStartIndex = entity.size() - (int) pageable.getOffset();
+        int startIndex = (int) min(pageable.getOffset(), entity.size());
+        int lastIndex = (int) pageable.getOffset() + pageable.getPageSize();
+        int maxLastIndex = max(startIndex, maxStartIndex);
+        lastIndex = min(lastIndex, maxLastIndex);
+        return entity.subList(startIndex, lastIndex);
     }
 }
