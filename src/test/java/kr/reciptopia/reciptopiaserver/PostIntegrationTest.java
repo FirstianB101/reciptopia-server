@@ -85,6 +85,13 @@ public class PostIntegrationTest {
         parameterWithName("ownerId").description("글쓴이 ID").optional();
     private static final ParameterDescriptor DOC_PARAMETER_TITLE_LIKE =
         parameterWithName("titleLike").description("유사한 게시물 제목").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_IDS =
+        parameterWithName("ids").description("게시물 ID 배열").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_MAIN_INGREDIENT_NAMES =
+        parameterWithName("mainIngredientNames").description("주 재료 이름").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_SUB_INGREDIENT_NAMES =
+        parameterWithName("subIngredientNames").description("부 재료 이름").optional();
+
 
     private MockMvc mockMvc;
 
@@ -382,7 +389,10 @@ public class PostIntegrationTest {
             actions.andDo(document("post-search-example",
                 requestParameters(
                     DOC_PARAMETER_OWNER_ID,
-                    DOC_PARAMETER_TITLE_LIKE
+                    DOC_PARAMETER_TITLE_LIKE,
+                    DOC_PARAMETER_IDS,
+                    DOC_PARAMETER_MAIN_INGREDIENT_NAMES,
+                    DOC_PARAMETER_SUB_INGREDIENT_NAMES
                 )));
         }
 
