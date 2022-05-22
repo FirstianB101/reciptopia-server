@@ -14,4 +14,8 @@ public record RecipeSearchCondition(
             mainIngredientNames == null ? new HashSet<>() : mainIngredientNames;
         this.subIngredientNames = subIngredientNames == null ? new HashSet<>() : subIngredientNames;
     }
+
+    public boolean isEmpty() {
+        return this.mainIngredientNames.isEmpty() && this.subIngredientNames.isEmpty();
+    }
 }
