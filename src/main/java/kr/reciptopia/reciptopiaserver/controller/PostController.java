@@ -1,5 +1,7 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
+import java.util.List;
+import java.util.Set;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.PostService;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostSearchCondition;
@@ -44,11 +46,17 @@ public class PostController {
     public Bulk.ResultWithCommentAndLikeTagCount search(
         @RequestParam(required = false) Long ownerId,
         @RequestParam(required = false) String titleLike,
+        @RequestParam(required = false) Set<String> mainIngredientNames,
+        @RequestParam(required = false) Set<String> subIngredientNames,
+        @RequestParam(required = false) List<Long> ids,
         Pageable pageable
     ) {
         PostSearchCondition postSearchCondition = PostSearchCondition.builder()
             .ownerId(ownerId)
             .titleLike(titleLike)
+            .mainIngredientNames(mainIngredientNames)
+            .subIngredientNames(subIngredientNames)
+            .ids(ids)
             .build();
         return service.search(postSearchCondition, pageable);
     }

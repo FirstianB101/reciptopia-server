@@ -5,6 +5,7 @@ import static kr.reciptopia.reciptopiaserver.domain.model.QPost.post;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostSearchCondition;
 import kr.reciptopia.reciptopiaserver.config.querydsl.PagingUtil;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
@@ -24,11 +25,16 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 		JPAQuery<Post> query = queryFactory
 			.selectFrom(post)
 			.where(
+				inIds(postSearchCondition.ids()),
 				eqOwnerId(postSearchCondition.ownerId()),
 				likeTitle(postSearchCondition.titleLike())
 			);
 
 		return pagingUtil.getPageImpl(pageable, query, Post.class);
+	}
+
+	private BooleanExpression inIds(List<Long> ids) {
+		return ids.isEmpty() ? null : post.id.in(ids);
 	}
 
 	private BooleanExpression eqOwnerId(Long ownerId) {
