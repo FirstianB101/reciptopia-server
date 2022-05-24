@@ -5,6 +5,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.RecipeDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.RecipeDto.Result;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
+import java.util.List;
 import java.util.Set;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.RecipeService;
@@ -46,11 +47,15 @@ public class RecipeController {
     public Bulk.Result search(
         @RequestParam(required = false) Set<String> mainIngredientNames,
         @RequestParam(required = false) Set<String> subIngredientNames,
+        @RequestParam(required = false) List<Long> ids,
+        @RequestParam(required = false) List<Long> postIds,
         Pageable pageable
     ) {
         RecipeSearchCondition condition = RecipeSearchCondition.builder()
             .mainIngredientNames(mainIngredientNames)
             .subIngredientNames(subIngredientNames)
+            .ids(ids)
+            .postIds(postIds)
             .build();
         return service.search(condition, pageable);
     }
