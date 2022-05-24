@@ -25,7 +25,7 @@ public class PagingUtil {
         return new Querydsl(em, builder);
     }
 
-    public <T> PageImpl<T> getPageImpl(Pageable pageable, JPQLQuery<T> query, Class clazz) {
+    public <T> PageImpl<T> getPageImpl(Pageable pageable, JPQLQuery<T> query, Class<?> clazz) {
         long totalCount = query.fetch().size();
         List<T> results = getQuerydsl(clazz).applyPagination(pageable, query).fetch();
         return new PageImpl<>(results, pageable, totalCount);
