@@ -73,6 +73,10 @@ public class RecipeIntegrationTest {
         parameterWithName("mainIngredientNames").description("주 재료 이름").optional();
     private static final ParameterDescriptor DOC_PARAMETER_SUB_INGREDIENT_NAMES =
         parameterWithName("subIngredientNames").description("부 재료 이름").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_IDS =
+        parameterWithName("ids").description("레시피 ID 배열").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_POST_IDS =
+        parameterWithName("postIds").description("게시물 ID 배열").optional();
     @Autowired
     PasswordEncoder passwordEncoder;
     private MockMvc mockMvc;
@@ -348,7 +352,9 @@ public class RecipeIntegrationTest {
             actions.andDo(document("recipe-search-example",
                 requestParameters(
                     DOC_PARAMETER_MAIN_INGREDIENT_NAMES,
-                    DOC_PARAMETER_SUB_INGREDIENT_NAMES
+                    DOC_PARAMETER_SUB_INGREDIENT_NAMES,
+                    DOC_PARAMETER_IDS,
+                    DOC_PARAMETER_POST_IDS
                 )));
         }
 
@@ -505,6 +511,86 @@ public class RecipeIntegrationTest {
                     recipeEId.intValue(), //2
                     recipeDId.intValue()  //0
                 )));
+        }
+
+        @Test
+        void searchRecipesByIds() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Recipe recipeA = entityHelper.generateRecipe();
+                Recipe recipeB = entityHelper.generateRecipe();
+                Recipe recipeC = entityHelper.generateRecipe();
+                Recipe recipeD = entityHelper.generateRecipe();
+                Recipe recipeE = entityHelper.generateRecipe();
+
+                return new Struct()
+                    .withValue("recipeBId", recipeB.getId())
+                    .withValue("recipeCId", recipeC.getId())
+                    .withValue("recipeEId", recipeE.getId());
+            });
+            Long recipeBId = given.valueOf("recipeBId");
+            Long recipeCId = given.valueOf("recipeCId");
+            Long recipeEId = given.valueOf("recipeEId");
+
+            // When
+            String idsParam = recipeBId + ", " + recipeCId + ", " + recipeEId;
+            ResultActions actions = mockMvc.perform(get("/post/recipes")
+                .param("ids", idsParam));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.recipes").value(aMapWithSize(3)))
+                .andExpect(jsonPath("$.recipes.[*].id").value(
+                    containsInAnyOrder(
+                        recipeCId.intValue(),
+                        recipeBId.intValue(),
+                        recipeEId.intValue()
+                    )));
+        }
+
+        @Test
+        void searchRecipesByPostIds() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Recipe recipeA = entityHelper.generateRecipe();
+                Recipe recipeB = entityHelper.generateRecipe();
+                Recipe recipeC = entityHelper.generateRecipe();
+                Recipe recipeD = entityHelper.generateRecipe();
+                Recipe recipeE = entityHelper.generateRecipe();
+
+                return new Struct()
+                    .withValue("recipeBId", recipeB.getId())
+                    .withValue("recipeCId", recipeC.getId())
+                    .withValue("recipeEId", recipeE.getId())
+                    .withValue("postBId", recipeB.getPost().getId())
+                    .withValue("postCId", recipeC.getPost().getId())
+                    .withValue("postEId", recipeE.getPost().getId());
+            });
+            Long recipeBId = given.valueOf("recipeBId");
+            Long recipeCId = given.valueOf("recipeCId");
+            Long recipeEId = given.valueOf("recipeEId");
+            Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
+            Long postEId = given.valueOf("postEId");
+
+            // When
+            String postIdsParam = postBId + ", " + postCId + ", " + postEId;
+            ResultActions actions = mockMvc.perform(get("/post/recipes")
+                .param("postIds", postIdsParam));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.recipes").value(aMapWithSize(3)))
+                .andExpect(jsonPath("$.recipes.[*].id").value(
+                    containsInAnyOrder(
+                        recipeCId.intValue(),
+                        recipeBId.intValue(),
+                        recipeEId.intValue()
+                    )));
         }
     }
 
