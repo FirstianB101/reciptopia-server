@@ -15,6 +15,7 @@ import kr.reciptopia.reciptopiaserver.business.service.searchcondition.RecipeSea
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.persistence.repository.RecipeRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.RecipeRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecipeService {
 
     private final RecipeRepository recipeRepository;
+    private final RecipeRepositoryImpl recipeRepositoryImpl;
     private final RepositoryHelper repoHelper;
     private final RecipeAuthorizer recipeAuthorizer;
 
@@ -45,7 +47,8 @@ public class RecipeService {
     }
 
     public Bulk.Result search(RecipeSearchCondition condition, Pageable pageable) {
-        List<Recipe> recipes = recipeRepository.findAll().stream()
+        List<Recipe> recipes = recipeRepositoryImpl.search(condition)
+            .stream()
             .filter(filterByHasAllMainIngredients(condition.mainIngredientNames()))
             .distinct()
             .sorted(sortBySubIngredientCounts(condition.subIngredientNames()))
