@@ -1,6 +1,7 @@
 package kr.reciptopia.reciptopiaserver.helper;
 
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create.Single;
+import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create.WithRecipe;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
@@ -32,11 +33,11 @@ public class StepHelper {
     }
 
     public static Single aStepCreateDto(Function<? super Single, ? extends Single> initialize) {
-        Single singleDto = StepDto.Create.Single.builder()
+        Single singleDto = Single.builder()
             .build();
 
         singleDto = initialize.apply(singleDto);
-        return StepDto.Create.Single.builder()
+        return Single.builder()
             .recipeId(singleDto.recipeId() == null ? ARBITRARY_RECIPE_ID : singleDto.recipeId())
             .description(ARBITRARY_DESCRIPTION)
             .pictureUrl(ARBITRARY_URL)
@@ -45,6 +46,13 @@ public class StepHelper {
 
     public static Single aStepCreateDto() {
         return aStepCreateDto(noInit());
+    }
+
+    public static WithRecipe aStepCreateWithRecipeDto() {
+        return WithRecipe.builder()
+            .description(ARBITRARY_DESCRIPTION)
+            .pictureUrl(ARBITRARY_URL)
+            .build();
     }
 
     public static Update aStepUpdateDto() {
@@ -80,6 +88,14 @@ public class StepHelper {
 
         static StepDto.Bulk.Create.Single tripleStepsBulkCreateDto() {
             return tripleStepsBulkCreateDto(noInit());
+        }
+
+        static StepDto.Bulk.Create.WithRecipe tripleStepsBulkCreateWithRecipeDto() {
+            return StepDto.Bulk.Create.WithRecipe.builder()
+                .step(StepHelper.aStepCreateWithRecipeDto())
+                .step(StepHelper.aStepCreateWithRecipeDto())
+                .step(StepHelper.aStepCreateWithRecipeDto())
+                .build();
         }
 
         static StepDto.Bulk.Update tripleStepsBulkUpdateDto() {
