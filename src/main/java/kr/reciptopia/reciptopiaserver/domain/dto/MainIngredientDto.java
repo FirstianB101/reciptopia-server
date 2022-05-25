@@ -1,8 +1,11 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import com.querydsl.core.Tuple;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -55,31 +58,70 @@ public interface MainIngredientDto {
             }
         }
 
-        @With
-        record Result(
-            Map<Long, MainIngredientDto.Result> mainIngredients
-        ) {
+        interface ResultGroupBy {
 
-            @Builder
-            public Result(
-                @NotEmpty
-                @Singular
-                    Map<Long, MainIngredientDto.Result> mainIngredients
+            @With
+            record PostId(
+                Map<Long, List<MainIngredientDto.Result>> mainIngredients
             ) {
-                this.mainIngredients = mainIngredients;
+
+                @Builder
+                public PostId(
+                    @NotEmpty
+                    @Singular
+                        Map<Long, List<MainIngredientDto.Result>> mainIngredients
+                ) {
+                    this.mainIngredients = mainIngredients;
+                }
+
+                public static PostId of(Page<Tuple> mainIngredients) {
+                    return PostId.builder()
+                        .mainIngredients(
+                            (Map<? extends Long, ? extends List<MainIngredientDto.Result>>) mainIngredients.stream()
+                                .collect(
+                                    Collectors.toMap(tuple -> tuple.get(0, Long.class),
+                                        result -> {
+                                            var results = new ArrayList<MainIngredientDto.Result>();
+                                            results.add(MainIngredientDto.Result.of(
+                                                Objects.requireNonNull(
+                                                    result.get(1, MainIngredient.class))));
+                                            return results;
+                                        },
+                                        (x, y) -> {
+                                            x.addAll(y);
+                                            return x;
+                                        },
+                                        LinkedHashMap::new)))
+                        .build();
+                }
             }
 
-            public static Result of(Page<MainIngredient> mainIngredients) {
-                return Result.builder()
-                    .mainIngredients(
-                        (Map<? extends Long, ? extends MainIngredientDto.Result>) mainIngredients.stream()
-                            .map(MainIngredientDto.Result::of)
-                            .collect(
-                                Collectors.toMap(MainIngredientDto.Result::id,
-                                    result -> result,
-                                    (x, y) -> y,
-                                    LinkedHashMap::new)))
-                    .build();
+            @With
+            record Id(
+                Map<Long, MainIngredientDto.Result> mainIngredients
+            ) {
+
+                @Builder
+                public Id(
+                    @NotEmpty
+                    @Singular
+                        Map<Long, MainIngredientDto.Result> mainIngredients
+                ) {
+                    this.mainIngredients = mainIngredients;
+                }
+
+                public static Id of(Page<MainIngredient> mainIngredients) {
+                    return Id.builder()
+                        .mainIngredients(
+                            (Map<? extends Long, ? extends MainIngredientDto.Result>) mainIngredients.stream()
+                                .map(MainIngredientDto.Result::of)
+                                .collect(
+                                    Collectors.toMap(MainIngredientDto.Result::id,
+                                        result -> result,
+                                        (x, y) -> y,
+                                        LinkedHashMap::new)))
+                        .build();
+                }
             }
         }
     }

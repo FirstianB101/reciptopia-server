@@ -91,8 +91,8 @@ public class MainIngredientHelper {
                 .build();
         }
 
-        static MainIngredientDto.Bulk.Result tripleMainIngredientsBulkResultDto() {
-            return MainIngredientDto.Bulk.Result.builder()
+        static MainIngredientDto.Bulk.ResultGroupBy.Id tripleMainIngredientsBulkResultDto() {
+            return MainIngredientDto.Bulk.ResultGroupBy.Id.builder()
                 .mainIngredient(ARBITRARY_BULK_ID_0,
                     MainIngredientHelper.aMainIngredientResultDto())
                 .mainIngredient(ARBITRARY_BULK_ID_1,
