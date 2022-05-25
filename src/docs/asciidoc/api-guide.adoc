@@ -11,14 +11,14 @@
 
 WARNING: 이 API는 아직 구현 중에 있으며 추후에 변경될 수 있습니다.
 
-NOTE: v0.13.13-alpha
+NOTE: v0.14.0-alpha
 
 ****
-v0.13.13-alpha 변경사항
+v0.14.0-alpha 변경사항
 
 '''
 
-* MainIngredient 검색 파라미터 추가
+* RecipePost 리소스 추가
 
 ****
 
@@ -369,6 +369,17 @@ operation::post-update-example[snippets='request-fields,curl-request,http-respon
 요청의 `Authorization` 헤더로 요청을 보낸 글쓴이 `Account` 의 엑세스 토큰이 제공되어야 합니다.
 
 operation::post-delete-example[snippets='curl-request,http-response']
+
+[[resources_recipe_post]]
+== RecipePost 리소스
+
+[[resources_recipe_post_create]]
+=== RecipePost 생성
+
+`POST /recipePosts` 요청으로 RecipePost를 생성합니다.
+성공 시 생성한 RecipePost를 응답 Body로 전달합니다.
+
+operation::recipe-post-create-example[snippets='request-fields,curl-request,response-fields,http-response']
 
 [[resources_comment]]
 == Comment 리소스
