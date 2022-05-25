@@ -21,6 +21,30 @@ public interface StepDto {
 
         interface Create {
 
+            record WithRecipe(
+                List<StepDto.Create.WithRecipe> steps
+            ) {
+
+                @Builder
+                public WithRecipe(
+                    @NotEmpty
+                    @Singular
+                        List<StepDto.Create.WithRecipe> steps
+                ) {
+                    this.steps = steps;
+                }
+
+                public StepDto.Bulk.Create.Single asSingleDto(
+                    Function<? super StepDto.Create.Single, ? extends StepDto.Create.Single> initialize) {
+                    List<StepDto.Create.Single> singleDtos = this.steps.stream()
+                        .map(m -> m.asSingleDto(initialize))
+                        .collect(Collectors.toList());
+                    return StepDto.Bulk.Create.Single.builder()
+                        .steps(singleDtos)
+                        .build();
+                }
+            }
+
             @With
             record Single(
                 List<StepDto.Create.Single> steps
@@ -93,6 +117,30 @@ public interface StepDto {
     }
 
     interface Create {
+
+        record WithRecipe(
+            String description, String pictureUrl
+        ) {
+
+            @Builder
+            public WithRecipe(
+
+                @NotEmpty
+                    String description,
+
+                String pictureUrl) {
+                this.description = description;
+                this.pictureUrl = pictureUrl;
+            }
+
+            public StepDto.Create.Single asSingleDto(
+                Function<? super StepDto.Create.Single, ? extends StepDto.Create.Single> initialize) {
+                return initialize.apply(StepDto.Create.Single.builder()
+                    .description(description)
+                    .pictureUrl(pictureUrl)
+                    .build());
+            }
+        }
 
         @With
         record Single(
