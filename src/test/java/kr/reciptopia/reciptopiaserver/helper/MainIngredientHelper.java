@@ -45,6 +45,13 @@ public class MainIngredientHelper {
         return aMainIngredientCreateDto(noInit());
     }
 
+    public static MainIngredientDto.Create.WithRecipe aMainIngredientCreateWithRecipeDto() {
+        return MainIngredientDto.Create.WithRecipe.builder()
+            .name(ARBITRARY_NAME)
+            .detail(ARBITRARY_DETAIL)
+            .build();
+    }
+
     public static Update aMainIngredientUpdateDto() {
         return Update.builder()
             .name(ARBITRARY_NAME)
@@ -78,6 +85,14 @@ public class MainIngredientHelper {
 
         static MainIngredientDto.Bulk.Create.Single tripleMainIngredientsBulkCreateDto() {
             return tripleMainIngredientsBulkCreateDto(noInit());
+        }
+
+        static MainIngredientDto.Bulk.Create.WithRecipe tripleMainIngredientsBulkCreateWithRecipeDto() {
+            return MainIngredientDto.Bulk.Create.WithRecipe.builder()
+                .mainIngredient(MainIngredientHelper.aMainIngredientCreateWithRecipeDto())
+                .mainIngredient(MainIngredientHelper.aMainIngredientCreateWithRecipeDto())
+                .mainIngredient(MainIngredientHelper.aMainIngredientCreateWithRecipeDto())
+                .build();
         }
 
         static MainIngredientDto.Bulk.Update tripleMainIngredientsBulkUpdateDto() {
