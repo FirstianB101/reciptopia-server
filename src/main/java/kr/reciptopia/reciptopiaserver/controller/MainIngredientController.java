@@ -5,6 +5,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Update;
 
+import java.util.List;
 import java.util.Set;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.MainIngredientService;
@@ -46,9 +47,17 @@ public class MainIngredientController {
     @GetMapping("/post/recipe/mainIngredients")
     public Bulk.Result search(
         @RequestParam(required = false) Long recipeId,
+        @RequestParam(required = false) Long postId,
+        @RequestParam(required = false) List<Long> ids,
+        @RequestParam(required = false) List<Long> recipeIds,
+        @RequestParam(required = false) List<Long> postIds,
         Pageable pageable) {
         MainIngredientSearchCondition mainIngredientSearchCondition = MainIngredientSearchCondition.builder()
+            .ids(ids)
+            .recipeIds(recipeIds)
+            .postIds(postIds)
             .recipeId(recipeId)
+            .postId(postId)
             .build();
 
         return service.search(mainIngredientSearchCondition, pageable);
