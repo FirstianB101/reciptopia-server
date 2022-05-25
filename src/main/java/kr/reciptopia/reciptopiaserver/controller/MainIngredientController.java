@@ -45,7 +45,7 @@ public class MainIngredientController {
     }
 
     @GetMapping("/post/recipe/mainIngredients")
-    public Bulk.Result search(
+    public Bulk.ResultGroupBy.PostId search(
         @RequestParam(required = false) Long recipeId,
         @RequestParam(required = false) Long postId,
         @RequestParam(required = false) List<Long> ids,
@@ -78,13 +78,13 @@ public class MainIngredientController {
 
     @PostMapping("/post/recipe/bulk-mainIngredient")
     @ResponseStatus(HttpStatus.CREATED)
-    public Bulk.Result bulkCreate(@Valid @RequestBody Bulk.Create bulkDto,
+    public Bulk.ResultGroupBy.Id bulkCreate(@Valid @RequestBody Bulk.Create bulkDto,
         Authentication authentication) {
         return service.bulkCreate(bulkDto, authentication);
     }
 
     @PatchMapping("/post/recipe/bulk-mainIngredient")
-    public Bulk.Result bulkPatch(@Valid @RequestBody Bulk.Update bulkDto,
+    public Bulk.ResultGroupBy.Id bulkPatch(@Valid @RequestBody Bulk.Update bulkDto,
         Authentication authentication) {
         return service.bulkUpdate(bulkDto, authentication);
     }

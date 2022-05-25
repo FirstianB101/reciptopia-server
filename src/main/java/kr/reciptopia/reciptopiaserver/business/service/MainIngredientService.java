@@ -44,8 +44,10 @@ public class MainIngredientService {
         return Result.of(repoHelper.findMainIngredientOrThrow(id));
     }
 
-    public Bulk.Result search(MainIngredientSearchCondition condition, Pageable pageable) {
-        return Bulk.Result.of(mainIngredientRepositoryImpl.search(condition, pageable));
+    public Bulk.ResultGroupBy.PostId search(MainIngredientSearchCondition condition,
+        Pageable pageable) {
+        return Bulk.ResultGroupBy.PostId.of(
+            mainIngredientRepositoryImpl.search(condition, pageable));
     }
 
     @Transactional
@@ -72,8 +74,8 @@ public class MainIngredientService {
     }
 
     @Transactional
-    public Bulk.Result bulkUpdate(Bulk.Update bulkDto, Authentication authentication) {
-        return Bulk.Result.builder()
+    public Bulk.ResultGroupBy.Id bulkUpdate(Bulk.Update bulkDto, Authentication authentication) {
+        return Bulk.ResultGroupBy.Id.builder()
             .mainIngredients(bulkDto.mainIngredients().keySet().stream()
                 .map(id -> update(id, bulkDto.mainIngredients().get(id), authentication))
                 .collect(Collectors.toMap(Result::id, result -> result)))
@@ -81,8 +83,8 @@ public class MainIngredientService {
     }
 
     @Transactional
-    public Bulk.Result bulkCreate(Bulk.Create bulkDto, Authentication authentication) {
-        return Bulk.Result.builder()
+    public Bulk.ResultGroupBy.Id bulkCreate(Bulk.Create bulkDto, Authentication authentication) {
+        return Bulk.ResultGroupBy.Id.builder()
             .mainIngredients(bulkDto.mainIngredients().stream()
                 .map(dto -> create(dto, authentication))
                 .collect(Collectors.toMap(Result::id, result -> result)))
