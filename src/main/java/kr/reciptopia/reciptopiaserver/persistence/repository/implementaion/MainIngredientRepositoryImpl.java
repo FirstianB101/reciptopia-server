@@ -20,7 +20,7 @@ public class MainIngredientRepositoryImpl implements MainIngredientRepositoryCus
 	private final PagingUtil pagingUtil;
 
 	@Override
-	public PageImpl<MainIngredient> search(
+	public PageImpl<Tuple> search(
 		MainIngredientSearchCondition mainIngredientSearchCondition,
 		Pageable pageable) {
 		JPAQuery<MainIngredient> query = queryFactory
