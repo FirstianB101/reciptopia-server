@@ -1,6 +1,6 @@
 package kr.reciptopia.reciptopiaserver.helper;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create;
+import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
@@ -28,20 +28,20 @@ public class MainIngredientHelper {
             .withId(ARBITRARY_ID);
     }
 
-    public static Create aMainIngredientCreateDto(
-        Function<? super Create, ? extends Create> initialize) {
-        Create createDto = Create.builder()
+    public static Single aMainIngredientCreateDto(
+        Function<? super Single, ? extends Single> initialize) {
+        Single singleDto = MainIngredientDto.Create.Single.builder()
             .build();
 
-        createDto = initialize.apply(createDto);
-        return Create.builder()
-            .recipeId(createDto.recipeId() == null ? ARBITRARY_RECIPE_ID : createDto.recipeId())
+        singleDto = initialize.apply(singleDto);
+        return MainIngredientDto.Create.Single.builder()
+            .recipeId(singleDto.recipeId() == null ? ARBITRARY_RECIPE_ID : singleDto.recipeId())
             .name(ARBITRARY_NAME)
             .detail(ARBITRARY_DETAIL)
             .build();
     }
 
-    public static Create aMainIngredientCreateDto() {
+    public static Single aMainIngredientCreateDto() {
         return aMainIngredientCreateDto(noInit());
     }
 
@@ -67,16 +67,16 @@ public class MainIngredientHelper {
 
     public interface Bulk {
 
-        static MainIngredientDto.Bulk.Create tripleMainIngredientsBulkCreateDto(
-            Function<? super Create, ? extends Create> initialize) {
-            return MainIngredientDto.Bulk.Create.builder()
+        static MainIngredientDto.Bulk.Create.Single tripleMainIngredientsBulkCreateDto(
+            Function<? super Single, ? extends Single> initialize) {
+            return MainIngredientDto.Bulk.Create.Single.builder()
                 .mainIngredient(MainIngredientHelper.aMainIngredientCreateDto(initialize))
                 .mainIngredient(MainIngredientHelper.aMainIngredientCreateDto(initialize))
                 .mainIngredient(MainIngredientHelper.aMainIngredientCreateDto(initialize))
                 .build();
         }
 
-        static MainIngredientDto.Bulk.Create tripleMainIngredientsBulkCreateDto() {
+        static MainIngredientDto.Bulk.Create.Single tripleMainIngredientsBulkCreateDto() {
             return tripleMainIngredientsBulkCreateDto(noInit());
         }
 

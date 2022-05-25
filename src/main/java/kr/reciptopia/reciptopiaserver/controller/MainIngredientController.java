@@ -1,7 +1,7 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Bulk;
-import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create;
+import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Update;
 
@@ -34,7 +34,7 @@ public class MainIngredientController {
 
     @PostMapping("/post/recipe/mainIngredients")
     @ResponseStatus(HttpStatus.CREATED)
-    public Result post(@Valid @RequestBody Create dto,
+    public Result post(@Valid @RequestBody Single dto,
         Authentication authentication) {
         return service.create(dto, authentication);
     }
@@ -78,7 +78,7 @@ public class MainIngredientController {
 
     @PostMapping("/post/recipe/bulk-mainIngredient")
     @ResponseStatus(HttpStatus.CREATED)
-    public Bulk.ResultGroupBy.Id bulkCreate(@Valid @RequestBody Bulk.Create bulkDto,
+    public Bulk.ResultGroupBy.Id bulkCreate(@Valid @RequestBody Bulk.Create.Single bulkDto,
         Authentication authentication) {
         return service.bulkCreate(bulkDto, authentication);
     }

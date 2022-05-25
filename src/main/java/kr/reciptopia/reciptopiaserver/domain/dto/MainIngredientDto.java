@@ -22,24 +22,27 @@ public interface MainIngredientDto {
 
     interface Bulk {
 
-        @With
-        record Create(
-            List<MainIngredientDto.Create> mainIngredients
-        ) {
+        interface Create {
 
-            @Builder
-            public Create(
-                @NotEmpty
-                @Singular
-                    List<MainIngredientDto.Create> mainIngredients
+            @With
+            record Single(
+                List<MainIngredientDto.Create.Single> mainIngredients
             ) {
-                this.mainIngredients = mainIngredients;
-            }
 
-            public Set<MainIngredient> asEntity() {
-                return this.mainIngredients.stream()
-                    .map(MainIngredientDto.Create::asEntity)
-                    .collect(Collectors.toSet());
+                @Builder
+                public Single(
+                    @NotEmpty
+                    @Singular
+                        List<MainIngredientDto.Create.Single> mainIngredients
+                ) {
+                    this.mainIngredients = mainIngredients;
+                }
+
+                public Set<MainIngredient> asEntity() {
+                    return this.mainIngredients.stream()
+                        .map(MainIngredientDto.Create.Single::asEntity)
+                        .collect(Collectors.toSet());
+                }
             }
         }
 
@@ -126,48 +129,52 @@ public interface MainIngredientDto {
         }
     }
 
-    @With
-    record Create(
-        Long recipeId, String name, String detail
-    ) {
+    interface Create {
 
-        @Builder
-        public Create(
-            @NotNull
-                Long recipeId,
+        @With
+        record Single(
+            Long recipeId, String name, String detail
+        ) {
 
-            @NotEmpty
-                String name,
+            @Builder
+            public Single(
+                @NotNull
+                    Long recipeId,
 
-            @NotEmpty
-                String detail) {
-            this.recipeId = recipeId;
-            this.name = name;
-            this.detail = detail;
-        }
+                @NotEmpty
+                    String name,
 
-        public MainIngredient asEntity(
-            Function<? super MainIngredient, ? extends MainIngredient> initialize) {
-            return initialize.apply(MainIngredient.builder()
-                .name(name)
-                .detail(detail)
-                .build());
-        }
+                @NotEmpty
+                    String detail) {
+                this.recipeId = recipeId;
+                this.name = name;
+                this.detail = detail;
+            }
 
-        public MainIngredient asEntity() {
-            return asEntity(noInit());
-        }
+            public MainIngredient asEntity(
+                Function<? super MainIngredient, ? extends MainIngredient> initialize) {
+                return initialize.apply(MainIngredient.builder()
+                    .name(name)
+                    .detail(detail)
+                    .build());
+            }
 
-        private <T> Function<? super T, ? extends T> noInit() {
-            return (arg) -> arg;
-        }
+            public MainIngredient asEntity() {
+                return asEntity(noInit());
+            }
 
-        public Create withRecipeId(Long recipeId) {
-            return this.recipeId != null && this.recipeId.equals(recipeId) ? this : Create.builder()
-                .recipeId(recipeId)
-                .name(name)
-                .detail(detail)
-                .build();
+            private <T> Function<? super T, ? extends T> noInit() {
+                return (arg) -> arg;
+            }
+
+            public Single withRecipeId(Long recipeId) {
+                return this.recipeId != null && this.recipeId.equals(recipeId) ? this
+                    : Single.builder()
+                        .recipeId(recipeId)
+                        .name(name)
+                        .detail(detail)
+                        .build();
+            }
         }
     }
 
