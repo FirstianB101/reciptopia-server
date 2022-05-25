@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -248,8 +249,8 @@ public class MainIngredientIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mainIngredients").value(aMapWithSize(2)))
-                .andExpect(jsonPath("$.mainIngredients.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.mainIngredients.[*].[*]").value(hasSize(2)))
+                .andExpect(jsonPath("$.mainIngredients.[*].[*].id").value(containsInAnyOrder(
                     mainIngredientAId.intValue(),
                     mainIngredientBId.intValue()
                 )));
@@ -287,8 +288,8 @@ public class MainIngredientIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mainIngredients").value(aMapWithSize(2)))
-                .andExpect(jsonPath("$.mainIngredients.[*].id").value(contains(
+                .andExpect(jsonPath("$.mainIngredients.[*].[*]").value(hasSize(2)))
+                .andExpect(jsonPath("$.mainIngredients.[*].[*].id").value(contains(
                     mainIngredientBId.intValue(),
                     mainIngredientAId.intValue()
                 )));
@@ -327,8 +328,8 @@ public class MainIngredientIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mainIngredients").value(aMapWithSize(2)))
-                .andExpect(jsonPath("$.mainIngredients.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.mainIngredients.[*].[*]").value(hasSize(2)))
+                .andExpect(jsonPath("$.mainIngredients.[*].[*].id").value(containsInAnyOrder(
                     mainIngredientBId.intValue(),
                     mainIngredientCId.intValue()
                 )));
