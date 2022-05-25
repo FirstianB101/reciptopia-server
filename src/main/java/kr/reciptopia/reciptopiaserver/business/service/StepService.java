@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.StepAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.StepSearchCondition;
+import kr.reciptopia.reciptopiaserver.domain.dto.RecipeDto;
+import kr.reciptopia.reciptopiaserver.domain.dto.RecipePostDto;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
 import kr.reciptopia.reciptopiaserver.persistence.repository.StepRepository;
@@ -87,6 +89,16 @@ public class StepService {
                 .map(dto -> create(dto, authentication))
                 .collect(Collectors.toMap(Result::id, result -> result)))
             .build();
+    }
+
+    @Transactional
+    public Bulk.Result bulkCreate(RecipePostDto.Create dto, Authentication authentication,
+        RecipeDto.Result recipeResult) {
+        Bulk.Create.WithRecipe stepBulkDto = dto.steps();
+        Bulk.Create.Single stepBulkSingle = stepBulkDto.asSingleDto(
+            it -> it.withRecipeId(recipeResult.id()));
+        return bulkCreate(
+            stepBulkSingle, authentication);
     }
 
     @Transactional
