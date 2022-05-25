@@ -97,12 +97,30 @@ public interface PostDto {
             this.pictureUrls = pictureUrls;
         }
 
+        public Post asEntity(
+            Function<? super Post, ? extends Post> initialize) {
+            return initialize.apply(Post.builder()
+                .title(title)
+                .content(content)
+                .pictureUrls(pictureUrls)
+                .build());
+        }
+
         public Post asEntity() {
-            return Post.builder()
+            return asEntity(noInit());
+        }
+
+        public Create withOwnerId(Long ownerId) {
+            return this.ownerId != null && this.ownerId.equals(ownerId) ? this : Create.builder()
+                .ownerId(ownerId)
                 .title(title)
                 .content(content)
                 .pictureUrls(pictureUrls)
                 .build();
+        }
+
+        private <T> Function<? super T, ? extends T> noInit() {
+            return (arg) -> arg;
         }
     }
 
