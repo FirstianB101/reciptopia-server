@@ -74,6 +74,12 @@ public class MainIngredientIntegrationTest {
 
     private static final ParameterDescriptor DOC_PARAMETER_RECIPE_ID =
         parameterWithName("recipeId").description("레시피 ID").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_RECIPE_IDS =
+        parameterWithName("recipeIds").description("레시피 ID 배열").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_POST_ID =
+        parameterWithName("postId").description("게시물 ID").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_POST_IDS =
+        parameterWithName("postIds").description("게시물 ID 배열").optional();
 
     private static final FieldDescriptor DOC_FIELD_POST_BULK_MAIN_INGREDIENTS =
         fieldWithPath("mainIngredients").type("MainIngredient[]").description("주 재료 생성 필요필드 배열");
@@ -84,6 +90,9 @@ public class MainIngredientIntegrationTest {
     private static final FieldDescriptor DOC_FIELD_PATCH_BULK_MAIN_INGREDIENTS =
         subsectionWithPath("mainIngredients").type("Map<id, mainIngredient>")
             .description("주 재료 수정 필요필드 배열");
+    private static final FieldDescriptor DOC_FIELD_BULK_MAIN_INGREDIENTS_GRUOP_BY_POST =
+        subsectionWithPath("mainIngredients").type("Map<postId, List<mainIngredient>>")
+            .description("주 재료가 속한 Post의 Id를 Key 로 하고 주 재료 List를 Value 갖는 Map");
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -337,7 +346,13 @@ public class MainIngredientIntegrationTest {
             // Document
             actions.andDo(document("main-ingredient-search-example",
                 requestParameters(
-                    DOC_PARAMETER_RECIPE_ID
+                    DOC_PARAMETER_RECIPE_ID,
+                    DOC_PARAMETER_RECIPE_IDS,
+                    DOC_PARAMETER_POST_ID,
+                    DOC_PARAMETER_POST_IDS
+                ))).andDo(document("main-ingredient-search-response-example",
+                responseFields(
+                    DOC_FIELD_BULK_MAIN_INGREDIENTS_GRUOP_BY_POST
                 )));
         }
 
