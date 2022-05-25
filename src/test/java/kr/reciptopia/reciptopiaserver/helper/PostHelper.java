@@ -1,12 +1,16 @@
 package kr.reciptopia.reciptopiaserver.helper;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Create;
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
 
+import java.util.function.Function;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 
 public class PostHelper {
 
+    private static final Long ARBITRARY_ID = 0L;
+    private static final Long ARBITRARY_OWNER_ID = 4L;
     private static final String ARBITRARY_TITLE = "가문어 오징어 튀김 만들기";
     private static final String ARBITRARY_CONTENT = "가문어 오징어 다리를 잘라서 튀긴다.";
     private static final String ARBITRARY_PICTURE_URL_1 = "C:\\Users\\eunsung\\Desktop\\temp\\picture";
@@ -21,7 +25,21 @@ public class PostHelper {
             .pictureUrl(ARBITRARY_PICTURE_URL_1)
             .pictureUrl(ARBITRARY_PICTURE_URL_2)
             .build()
-            .withId(0L);
+            .withId(ARBITRARY_ID);
+    }
+
+    public static Create aPostCreateDto(Function<? super Create, ? extends Create> initialize) {
+        Create createDto = Create.builder()
+            .build();
+
+        createDto = initialize.apply(createDto);
+        return Create.builder()
+            .ownerId(createDto.ownerId() == null ? ARBITRARY_OWNER_ID : createDto.ownerId())
+            .title(ARBITRARY_TITLE)
+            .content(ARBITRARY_CONTENT)
+            .pictureUrl(ARBITRARY_PICTURE_URL_1)
+            .pictureUrl(ARBITRARY_PICTURE_URL_2)
+            .build();
     }
 
     public static Update aPostUpdateDto() {
