@@ -341,6 +341,166 @@ public class MainIngredientIntegrationTest {
                 )));
         }
 
+        @Test
+        void searchMainIngredientsByPostId() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipe = entityHelper.generateRecipe();
+
+                MainIngredient mainIngredientA = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientB = entityHelper.generateMainIngredient(it -> it
+                    .withRecipe(recipe));
+                MainIngredient mainIngredientC = entityHelper.generateMainIngredient(it -> it
+                    .withRecipe(recipe));
+                MainIngredient mainIngredientD = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientE = entityHelper.generateMainIngredient();
+
+                return new Struct()
+                    .withValue("postId", recipe.getPost().getId())
+                    .withValue("mainIngredientBId", mainIngredientB.getId())
+                    .withValue("mainIngredientCId", mainIngredientC.getId());
+            });
+            Long postId = given.valueOf("postId");
+            Long mainIngredientBId = given.valueOf("mainIngredientBId");
+            Long mainIngredientCId = given.valueOf("mainIngredientCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/recipe/mainIngredients")
+                .param("postId", postId.toString()));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mainIngredients.[*].[*]").value(hasSize(2)))
+                .andExpect(jsonPath("$.mainIngredients.[*].[*].id").value(containsInAnyOrder(
+                    mainIngredientBId.intValue(),
+                    mainIngredientCId.intValue()
+                )));
+        }
+
+        @Test
+        void searchMainIngredientsByIds() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                MainIngredient mainIngredientA = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientB = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientC = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientD = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientE = entityHelper.generateMainIngredient();
+
+                return new Struct()
+                    .withValue("mainIngredientBId", mainIngredientB.getId())
+                    .withValue("mainIngredientCId", mainIngredientC.getId())
+                    .withValue("mainIngredientEId", mainIngredientE.getId());
+            });
+            Long mainIngredientBId = given.valueOf("mainIngredientBId");
+            Long mainIngredientCId = given.valueOf("mainIngredientCId");
+            Long mainIngredientEId = given.valueOf("mainIngredientEId");
+
+            // When
+            String idsParam =
+                mainIngredientBId + ", " + mainIngredientCId + ", " + mainIngredientEId;
+            ResultActions actions = mockMvc.perform(get("/post/recipe/mainIngredients")
+                .param("ids", idsParam));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mainIngredients.[*].[*]").value(hasSize(3)))
+                .andExpect(jsonPath("$.mainIngredients.[*].[*].id").value(
+                    containsInAnyOrder(
+                        mainIngredientCId.intValue(),
+                        mainIngredientBId.intValue(),
+                        mainIngredientEId.intValue()
+                    )));
+        }
+
+        @Test
+        void searchMainIngredientsByRecipeIds() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                MainIngredient mainIngredientA = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientB = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientC = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientD = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientE = entityHelper.generateMainIngredient();
+
+                return new Struct()
+                    .withValue("mainIngredientBId", mainIngredientB.getId())
+                    .withValue("mainIngredientCId", mainIngredientC.getId())
+                    .withValue("mainIngredientEId", mainIngredientE.getId())
+                    .withValue("recipeBId", mainIngredientB.getRecipe().getId())
+                    .withValue("recipeCId", mainIngredientC.getRecipe().getId())
+                    .withValue("recipeEId", mainIngredientE.getRecipe().getId());
+            });
+            Long mainIngredientBId = given.valueOf("mainIngredientBId");
+            Long mainIngredientCId = given.valueOf("mainIngredientCId");
+            Long mainIngredientEId = given.valueOf("mainIngredientEId");
+            Long recipeBId = given.valueOf("recipeBId");
+            Long recipeCId = given.valueOf("recipeCId");
+            Long recipeEId = given.valueOf("recipeEId");
+
+            // When
+            String recipeIdsParam = recipeBId + ", " + recipeCId + ", " + recipeEId;
+            ResultActions actions = mockMvc.perform(get("/post/recipe/mainIngredients")
+                .param("recipeIds", recipeIdsParam));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mainIngredients").value(aMapWithSize(3)))
+                .andExpect(jsonPath("$.mainIngredients.[*].[*].id").value(
+                    containsInAnyOrder(
+                        mainIngredientCId.intValue(),
+                        mainIngredientBId.intValue(),
+                        mainIngredientEId.intValue()
+                    )));
+        }
+
+        @Test
+        void searchMainIngredientsByPostIds() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                MainIngredient mainIngredientA = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientB = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientC = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientD = entityHelper.generateMainIngredient();
+                MainIngredient mainIngredientE = entityHelper.generateMainIngredient();
+
+                return new Struct()
+                    .withValue("mainIngredientBId", mainIngredientB.getId())
+                    .withValue("mainIngredientCId", mainIngredientC.getId())
+                    .withValue("mainIngredientEId", mainIngredientE.getId())
+                    .withValue("postBId", mainIngredientB.getRecipe().getPost().getId())
+                    .withValue("postCId", mainIngredientC.getRecipe().getPost().getId())
+                    .withValue("postEId", mainIngredientE.getRecipe().getPost().getId());
+            });
+            Long mainIngredientBId = given.valueOf("mainIngredientBId");
+            Long mainIngredientCId = given.valueOf("mainIngredientCId");
+            Long mainIngredientEId = given.valueOf("mainIngredientEId");
+            Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
+            Long postEId = given.valueOf("postEId");
+
+            // When
+            String postIdsParam = postBId + ", " + postCId + ", " + postEId;
+            ResultActions actions = mockMvc.perform(get("/post/recipe/mainIngredients")
+                .param("postIds", postIdsParam));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mainIngredients").value(aMapWithSize(3)))
+                .andExpect(jsonPath("$.mainIngredients.[*].[*].id").value(
+                    containsInAnyOrder(
+                        mainIngredientCId.intValue(),
+                        mainIngredientBId.intValue(),
+                        mainIngredientEId.intValue()
+                    )));
+        }
     }
 
     @Nested
