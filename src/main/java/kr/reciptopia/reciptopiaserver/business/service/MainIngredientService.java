@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.IngredientAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.MainIngredientSearchCondition;
+import kr.reciptopia.reciptopiaserver.domain.dto.RecipeDto;
+import kr.reciptopia.reciptopiaserver.domain.dto.RecipePostDto;
 import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.persistence.repository.MainIngredientRepository;
@@ -90,6 +92,15 @@ public class MainIngredientService {
                 .map(dto -> create(dto, authentication))
                 .collect(Collectors.toMap(Result::id, result -> result)))
             .build();
+    }
+
+    @Transactional
+    public Bulk.ResultGroupBy.Id bulkCreate(RecipePostDto.Create dto, Authentication authentication,
+        RecipeDto.Result recipeResult) {
+        Bulk.Create.WithRecipe mainIngredientBulkDto = dto.mainIngredients();
+        Bulk.Create.Single mainIngredientBulkSingle = mainIngredientBulkDto.asSingleDto(
+            it -> it.withRecipeId(recipeResult.id()));
+        return bulkCreate(mainIngredientBulkSingle, authentication);
     }
 
     @Transactional
