@@ -21,6 +21,30 @@ public interface SubIngredientDto {
 
         interface Create {
 
+            record WithRecipe(
+                List<SubIngredientDto.Create.WithRecipe> subIngredients
+            ) {
+
+                @Builder
+                public WithRecipe(
+                    @NotEmpty
+                    @Singular
+                        List<SubIngredientDto.Create.WithRecipe> subIngredients
+                ) {
+                    this.subIngredients = subIngredients;
+                }
+
+                public SubIngredientDto.Bulk.Create.Single asSingleDto(
+                    Function<? super SubIngredientDto.Create.Single, ? extends SubIngredientDto.Create.Single> initialize) {
+                    List<SubIngredientDto.Create.Single> singleDtos = this.subIngredients.stream()
+                        .map(m -> m.asSingleDto(initialize))
+                        .collect(Collectors.toList());
+                    return SubIngredientDto.Bulk.Create.Single.builder()
+                        .subIngredients(singleDtos)
+                        .build();
+                }
+            }
+
             @With
             record Single(
                 List<SubIngredientDto.Create.Single> subIngredients
@@ -88,6 +112,31 @@ public interface SubIngredientDto {
     }
 
     interface Create {
+
+        record WithRecipe(
+            String name, String detail
+        ) {
+
+            @Builder
+            public WithRecipe(
+
+                @NotEmpty
+                    String name,
+
+                @NotEmpty
+                    String detail) {
+                this.name = name;
+                this.detail = detail;
+            }
+
+            public SubIngredientDto.Create.Single asSingleDto(
+                Function<? super SubIngredientDto.Create.Single, ? extends SubIngredientDto.Create.Single> initialize) {
+                return initialize.apply(SubIngredientDto.Create.Single.builder()
+                    .name(name)
+                    .detail(detail)
+                    .build());
+            }
+        }
 
         @With
         record Single(
