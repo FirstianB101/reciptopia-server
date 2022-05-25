@@ -1,7 +1,7 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Bulk;
-import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create;
+import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Update;
 
@@ -31,7 +31,7 @@ public class MainIngredientService {
     private final IngredientAuthorizer ingredientAuthorizer;
 
     @Transactional
-    public Result create(Create dto, Authentication authentication) {
+    public Result create(Single dto, Authentication authentication) {
         Recipe recipe = repoHelper.findRecipeOrThrow(dto.recipeId());
         ingredientAuthorizer.requireRecipeOwner(authentication, recipe);
 
@@ -83,7 +83,8 @@ public class MainIngredientService {
     }
 
     @Transactional
-    public Bulk.ResultGroupBy.Id bulkCreate(Bulk.Create bulkDto, Authentication authentication) {
+    public Bulk.ResultGroupBy.Id bulkCreate(Bulk.Create.Single bulkDto,
+        Authentication authentication) {
         return Bulk.ResultGroupBy.Id.builder()
             .mainIngredients(bulkDto.mainIngredients().stream()
                 .map(dto -> create(dto, authentication))

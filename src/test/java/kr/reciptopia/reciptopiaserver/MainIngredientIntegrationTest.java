@@ -2,7 +2,7 @@ package kr.reciptopia.reciptopiaserver;
 
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Bulk;
-import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create;
+import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.Bulk.tripleMainIngredientsBulkCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.aMainIngredientCreateDto;
@@ -138,7 +138,7 @@ public class MainIngredientIntegrationTest {
             String token = given.valueOf("token");
 
             // When
-            Create dto = Create.builder()
+            Single dto = Single.builder()
                 .recipeId(recipeId)
                 .name("청경채")
                 .detail("500g")
@@ -646,7 +646,7 @@ public class MainIngredientIntegrationTest {
                 String token = given.valueOf("token");
 
                 // When
-                Bulk.Create dto = tripleMainIngredientsBulkCreateDto(
+                Bulk.Create.Single dto = tripleMainIngredientsBulkCreateDto(
                     it -> it.withRecipeId(recipeId));
                 int dtoNumber = dto.mainIngredients().size();
                 String body = jsonHelper.toJson(dto);
@@ -699,7 +699,7 @@ public class MainIngredientIntegrationTest {
                 String token = given.valueOf("token");
 
                 // When
-                Bulk.Create dto = tripleMainIngredientsBulkCreateDto(
+                Bulk.Create.Single dto = tripleMainIngredientsBulkCreateDto(
                     it -> it.withRecipeId(recipeId));
                 int dtoNumber = dto.mainIngredients().size();
                 String body = jsonHelper.toJson(dto);
