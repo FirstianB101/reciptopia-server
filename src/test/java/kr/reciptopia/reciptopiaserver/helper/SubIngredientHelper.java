@@ -45,6 +45,13 @@ public class SubIngredientHelper {
         return aSubIngredientCreateDto(noInit());
     }
 
+    public static SubIngredientDto.Create.WithRecipe aSubIngredientCreateWithRecipeDto() {
+        return SubIngredientDto.Create.WithRecipe.builder()
+            .name(ARBITRARY_NAME)
+            .detail(ARBITRARY_DETAIL)
+            .build();
+    }
+
     public static Update aSubIngredientUpdateDto() {
         return Update.builder()
             .name(ARBITRARY_NAME)
@@ -78,6 +85,14 @@ public class SubIngredientHelper {
 
         static SubIngredientDto.Bulk.Create.Single tripleSubIngredientsBulkCreateDto() {
             return tripleSubIngredientsBulkCreateDto(noInit());
+        }
+
+        static SubIngredientDto.Bulk.Create.WithRecipe tripleSubIngredientsBulkCreateWithRecipeDto() {
+            return SubIngredientDto.Bulk.Create.WithRecipe.builder()
+                .subIngredient(SubIngredientHelper.aSubIngredientCreateWithRecipeDto())
+                .subIngredient(SubIngredientHelper.aSubIngredientCreateWithRecipeDto())
+                .subIngredient(SubIngredientHelper.aSubIngredientCreateWithRecipeDto())
+                .build();
         }
 
         static SubIngredientDto.Bulk.Update tripleSubIngredientsBulkUpdateDto() {
