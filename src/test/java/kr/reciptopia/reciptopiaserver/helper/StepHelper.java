@@ -1,6 +1,6 @@
 package kr.reciptopia.reciptopiaserver.helper;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create;
+import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
@@ -31,19 +31,19 @@ public class StepHelper {
             .withId(ARBITRARY_RECIPE_ID);
     }
 
-    public static Create aStepCreateDto(Function<? super Create, ? extends Create> initialize) {
-        Create createDto = Create.builder()
+    public static Single aStepCreateDto(Function<? super Single, ? extends Single> initialize) {
+        Single singleDto = StepDto.Create.Single.builder()
             .build();
 
-        createDto = initialize.apply(createDto);
-        return Create.builder()
-            .recipeId(createDto.recipeId() == null ? ARBITRARY_RECIPE_ID : createDto.recipeId())
+        singleDto = initialize.apply(singleDto);
+        return StepDto.Create.Single.builder()
+            .recipeId(singleDto.recipeId() == null ? ARBITRARY_RECIPE_ID : singleDto.recipeId())
             .description(ARBITRARY_DESCRIPTION)
             .pictureUrl(ARBITRARY_URL)
             .build();
     }
 
-    public static Create aStepCreateDto() {
+    public static Single aStepCreateDto() {
         return aStepCreateDto(noInit());
     }
 
@@ -69,16 +69,16 @@ public class StepHelper {
 
     public interface Bulk {
 
-        static StepDto.Bulk.Create tripleStepsBulkCreateDto(
-            Function<? super Create, ? extends Create> initialize) {
-            return StepDto.Bulk.Create.builder()
+        static StepDto.Bulk.Create.Single tripleStepsBulkCreateDto(
+            Function<? super Single, ? extends Single> initialize) {
+            return StepDto.Bulk.Create.Single.builder()
                 .step(StepHelper.aStepCreateDto(initialize))
                 .step(StepHelper.aStepCreateDto(initialize))
                 .step(StepHelper.aStepCreateDto(initialize))
                 .build();
         }
 
-        static StepDto.Bulk.Create tripleStepsBulkCreateDto() {
+        static StepDto.Bulk.Create.Single tripleStepsBulkCreateDto() {
             return tripleStepsBulkCreateDto(noInit());
         }
 

@@ -2,7 +2,7 @@ package kr.reciptopia.reciptopiaserver;
 
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Bulk;
-import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create;
+import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.Bulk.tripleStepsBulkCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStepCreateDto;
@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
+import kr.reciptopia.reciptopiaserver.domain.dto.StepDto;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
@@ -125,7 +126,7 @@ public class StepIntegrationTest {
             String token = given.valueOf("token");
 
             // When
-            Create dto = Create.builder()
+            Single dto = StepDto.Create.Single.builder()
                 .recipeId(recipeId)
                 .description("고춧가루 2수저 가득, 청정원 고추장 1수저 가득, "
                     + "청정원 양조간장 3수저, 맛술 1수저, 설탕 2수저, "
@@ -474,7 +475,7 @@ public class StepIntegrationTest {
                 String token = given.valueOf("token");
 
                 // When
-                Bulk.Create dto = tripleStepsBulkCreateDto(it -> it.withRecipeId(recipeId));
+                Bulk.Create.Single dto = tripleStepsBulkCreateDto(it -> it.withRecipeId(recipeId));
                 int dtoNumber = dto.steps().size();
                 String body = jsonHelper.toJson(dto);
 
@@ -528,7 +529,7 @@ public class StepIntegrationTest {
                 String token = given.valueOf("token");
 
                 // When
-                Bulk.Create dto = tripleStepsBulkCreateDto(it -> it.withRecipeId(recipeId));
+                Bulk.Create.Single dto = tripleStepsBulkCreateDto(it -> it.withRecipeId(recipeId));
                 int dtoNumber = dto.steps().size();
                 String body = jsonHelper.toJson(dto);
 
