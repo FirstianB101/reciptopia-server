@@ -24,6 +24,30 @@ public interface MainIngredientDto {
 
         interface Create {
 
+            record WithRecipe(
+                List<MainIngredientDto.Create.WithRecipe> mainIngredients
+            ) {
+
+                @Builder
+                public WithRecipe(
+                    @NotEmpty
+                    @Singular
+                        List<MainIngredientDto.Create.WithRecipe> mainIngredients
+                ) {
+                    this.mainIngredients = mainIngredients;
+                }
+
+                public Single asSingleDto(
+                    Function<? super MainIngredientDto.Create.Single, ? extends MainIngredientDto.Create.Single> initialize) {
+                    List<MainIngredientDto.Create.Single> singleDtos = this.mainIngredients.stream()
+                        .map(m -> m.asSingleDto(initialize))
+                        .collect(Collectors.toList());
+                    return Single.builder()
+                        .mainIngredients(singleDtos)
+                        .build();
+                }
+            }
+
             @With
             record Single(
                 List<MainIngredientDto.Create.Single> mainIngredients
@@ -130,6 +154,31 @@ public interface MainIngredientDto {
     }
 
     interface Create {
+
+        record WithRecipe(
+            String name, String detail
+        ) {
+
+            @Builder
+            public WithRecipe(
+
+                @NotEmpty
+                    String name,
+
+                @NotEmpty
+                    String detail) {
+                this.name = name;
+                this.detail = detail;
+            }
+
+            public Single asSingleDto(
+                Function<? super Single, ? extends Single> initialize) {
+                return initialize.apply(Single.builder()
+                    .name(name)
+                    .detail(detail)
+                    .build());
+            }
+        }
 
         @With
         record Single(
