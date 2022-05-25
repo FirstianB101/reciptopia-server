@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.RecipeAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.RecipeSearchCondition;
+import kr.reciptopia.reciptopiaserver.domain.dto.PostDto;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.persistence.repository.RecipeRepository;
@@ -40,6 +41,14 @@ public class RecipeService {
         Recipe recipe = dto.asEntity().withPost(post);
 
         return Result.of(recipeRepository.save(recipe));
+    }
+
+    @Transactional
+    public Result create(Authentication authentication, PostDto.Result postResult) {
+        Create recipeDto = Create.builder()
+            .postId(postResult.id())
+            .build();
+        return create(recipeDto, authentication);
     }
 
     public Result read(Long id) {
