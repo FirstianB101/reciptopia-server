@@ -1,7 +1,7 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Bulk;
-import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create;
+import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
 
@@ -31,7 +31,7 @@ public class StepService {
     private final StepAuthorizer stepAuthorizer;
 
     @Transactional
-    public Result create(Create dto, Authentication authentication) {
+    public Result create(Single dto, Authentication authentication) {
         Recipe recipe = repoHelper.findRecipeOrThrow(dto.recipeId());
         stepAuthorizer.requireRecipeOwner(authentication, recipe);
 
@@ -81,7 +81,7 @@ public class StepService {
     }
 
     @Transactional
-    public Bulk.Result bulkCreate(Bulk.Create bulkDto, Authentication authentication) {
+    public Bulk.Result bulkCreate(Bulk.Create.Single bulkDto, Authentication authentication) {
         return Bulk.Result.builder()
             .steps(bulkDto.steps().stream()
                 .map(dto -> create(dto, authentication))

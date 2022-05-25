@@ -19,24 +19,27 @@ public interface StepDto {
 
     interface Bulk {
 
-        @With
-        record Create(
-            List<StepDto.Create> steps
-        ) {
+        interface Create {
 
-            @Builder
-            public Create(
-                @NotEmpty
-                @Singular
-                    List<StepDto.Create> steps
+            @With
+            record Single(
+                List<StepDto.Create.Single> steps
             ) {
-                this.steps = steps;
-            }
 
-            public List<Step> asEntity() {
-                return this.steps.stream()
-                    .map(StepDto.Create::asEntity)
-                    .collect(Collectors.toList());
+                @Builder
+                public Single(
+                    @NotEmpty
+                    @Singular
+                        List<StepDto.Create.Single> steps
+                ) {
+                    this.steps = steps;
+                }
+
+                public List<Step> asEntity() {
+                    return this.steps.stream()
+                        .map(StepDto.Create.Single::asEntity)
+                        .collect(Collectors.toList());
+                }
             }
         }
 
@@ -89,47 +92,51 @@ public interface StepDto {
         }
     }
 
-    @With
-    record Create(
-        Long recipeId, String description, String pictureUrl
-    ) {
+    interface Create {
 
-        @Builder
-        public Create(
-            @NotNull
-                Long recipeId,
+        @With
+        record Single(
+            Long recipeId, String description, String pictureUrl
+        ) {
 
-            @NotEmpty
-                String description,
+            @Builder
+            public Single(
+                @NotNull
+                    Long recipeId,
 
-            String pictureUrl) {
-            this.recipeId = recipeId;
-            this.description = description;
-            this.pictureUrl = pictureUrl;
-        }
+                @NotEmpty
+                    String description,
 
-        public Step asEntity(
-            Function<? super Step, ? extends Step> initialize) {
-            return initialize.apply(Step.builder()
-                .description(description)
-                .pictureUrl(pictureUrl)
-                .build());
-        }
+                String pictureUrl) {
+                this.recipeId = recipeId;
+                this.description = description;
+                this.pictureUrl = pictureUrl;
+            }
 
-        public Step asEntity() {
-            return asEntity(noInit());
-        }
+            public Step asEntity(
+                Function<? super Step, ? extends Step> initialize) {
+                return initialize.apply(Step.builder()
+                    .description(description)
+                    .pictureUrl(pictureUrl)
+                    .build());
+            }
 
-        public Create withRecipeId(Long recipeId) {
-            return this.recipeId != null && this.recipeId.equals(recipeId) ? this : Create.builder()
-                .recipeId(recipeId)
-                .description(description)
-                .pictureUrl(pictureUrl)
-                .build();
-        }
+            public Step asEntity() {
+                return asEntity(noInit());
+            }
 
-        private <T> Function<? super T, ? extends T> noInit() {
-            return (arg) -> arg;
+            public Single withRecipeId(Long recipeId) {
+                return this.recipeId != null && this.recipeId.equals(recipeId) ? this
+                    : Single.builder()
+                        .recipeId(recipeId)
+                        .description(description)
+                        .pictureUrl(pictureUrl)
+                        .build();
+            }
+
+            private <T> Function<? super T, ? extends T> noInit() {
+                return (arg) -> arg;
+            }
         }
     }
 

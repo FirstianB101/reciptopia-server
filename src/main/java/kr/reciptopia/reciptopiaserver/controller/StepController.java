@@ -1,7 +1,6 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Bulk;
-import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
 
@@ -9,6 +8,7 @@ import java.util.Set;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.StepService;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.StepSearchCondition;
+import kr.reciptopia.reciptopiaserver.domain.dto.StepDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -33,14 +33,14 @@ public class StepController {
 
     @PostMapping("/post/recipe/steps")
     @ResponseStatus(HttpStatus.CREATED)
-    public Result post(@Valid @RequestBody Create dto,
+    public Result post(@Valid @RequestBody StepDto.Create.Single dto,
         Authentication authentication) {
         return service.create(dto, authentication);
     }
 
     @PostMapping("/post/recipe/bulk-step")
     @ResponseStatus(HttpStatus.CREATED)
-    public Bulk.Result bulkCreate(@Valid @RequestBody Bulk.Create bulkDto,
+    public Bulk.Result bulkCreate(@Valid @RequestBody StepDto.Bulk.Create.Single bulkDto,
         Authentication authentication) {
         return service.bulkCreate(bulkDto, authentication);
     }
