@@ -19,24 +19,27 @@ public interface SubIngredientDto {
 
     interface Bulk {
 
-        @With
-        record Create(
-            List<SubIngredientDto.Create> subIngredients
-        ) {
+        interface Create {
 
-            @Builder
-            public Create(
-                @NotEmpty
-                @Singular
-                    List<SubIngredientDto.Create> subIngredients
+            @With
+            record Single(
+                List<SubIngredientDto.Create.Single> subIngredients
             ) {
-                this.subIngredients = subIngredients;
-            }
 
-            public Set<SubIngredient> asEntity() {
-                return this.subIngredients.stream()
-                    .map(SubIngredientDto.Create::asEntity)
-                    .collect(Collectors.toSet());
+                @Builder
+                public Single(
+                    @NotEmpty
+                    @Singular
+                        List<SubIngredientDto.Create.Single> subIngredients
+                ) {
+                    this.subIngredients = subIngredients;
+                }
+
+                public Set<SubIngredient> asEntity() {
+                    return this.subIngredients.stream()
+                        .map(SubIngredientDto.Create.Single::asEntity)
+                        .collect(Collectors.toSet());
+                }
             }
         }
 
@@ -84,50 +87,54 @@ public interface SubIngredientDto {
         }
     }
 
-    @With
-    record Create(
-        Long recipeId, String name, String detail
-    ) {
+    interface Create {
 
-        @Builder
-        public Create(
-            @NotNull
-                Long recipeId,
+        @With
+        record Single(
+            Long recipeId, String name, String detail
+        ) {
 
-            @NotEmpty
-                String name,
+            @Builder
+            public Single(
+                @NotNull
+                    Long recipeId,
 
-            @NotEmpty
-                String detail) {
-            this.recipeId = recipeId;
-            this.name = name;
-            this.detail = detail;
+                @NotEmpty
+                    String name,
+
+                @NotEmpty
+                    String detail) {
+                this.recipeId = recipeId;
+                this.name = name;
+                this.detail = detail;
+            }
+
+            public SubIngredient asEntity(
+                Function<? super SubIngredient, ? extends SubIngredient> initialize) {
+                return initialize.apply(SubIngredient.builder()
+                    .name(name)
+                    .detail(detail)
+                    .build());
+            }
+
+            public SubIngredient asEntity() {
+                return asEntity(noInit());
+            }
+
+            private <T> Function<? super T, ? extends T> noInit() {
+                return (arg) -> arg;
+            }
+
+            public Single withRecipeId(Long recipeId) {
+                return this.recipeId != null && this.recipeId.equals(recipeId) ? this
+                    : Single.builder()
+                        .recipeId(recipeId)
+                        .name(name)
+                        .detail(detail)
+                        .build();
+            }
+
         }
-
-        public SubIngredient asEntity(
-            Function<? super SubIngredient, ? extends SubIngredient> initialize) {
-            return initialize.apply(SubIngredient.builder()
-                .name(name)
-                .detail(detail)
-                .build());
-        }
-
-        public SubIngredient asEntity() {
-            return asEntity(noInit());
-        }
-
-        private <T> Function<? super T, ? extends T> noInit() {
-            return (arg) -> arg;
-        }
-
-        public Create withRecipeId(Long recipeId) {
-            return this.recipeId != null && this.recipeId.equals(recipeId) ? this : Create.builder()
-                .recipeId(recipeId)
-                .name(name)
-                .detail(detail)
-                .build();
-        }
-
     }
 
     @With

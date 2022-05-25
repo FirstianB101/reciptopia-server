@@ -1,12 +1,13 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Update;
+
 import java.util.Set;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.SubIngredientService;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.SubIngredientSearchCondition;
+import kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto;
 import kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Bulk;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +33,7 @@ public class SubIngredientController {
 
     @PostMapping("/post/recipe/subIngredients")
     @ResponseStatus(HttpStatus.CREATED)
-    public Result post(@Valid @RequestBody Create dto,
+    public Result post(@Valid @RequestBody SubIngredientDto.Create.Single dto,
         Authentication authentication) {
         return service.create(dto, authentication);
     }
@@ -68,7 +69,7 @@ public class SubIngredientController {
 
     @PostMapping("/post/recipe/bulk-subIngredient")
     @ResponseStatus(HttpStatus.CREATED)
-    public Bulk.Result bulkCreate(@Valid @RequestBody Bulk.Create bulkDto,
+    public Bulk.Result bulkCreate(@Valid @RequestBody SubIngredientDto.Bulk.Create.Single bulkDto,
         Authentication authentication) {
         return service.bulkCreate(bulkDto, authentication);
     }

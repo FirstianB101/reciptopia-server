@@ -1,9 +1,10 @@
 package kr.reciptopia.reciptopiaserver.helper;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Create;
+import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
+
 import java.util.function.Function;
 import kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto;
 import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
@@ -27,20 +28,20 @@ public class SubIngredientHelper {
             .withId(ARBITRARY_ID);
     }
 
-    public static Create aSubIngredientCreateDto(
-        Function<? super Create, ? extends Create> initialize) {
-        Create createDto = Create.builder()
+    public static Single aSubIngredientCreateDto(
+        Function<? super Single, ? extends Single> initialize) {
+        Single singleDto = SubIngredientDto.Create.Single.builder()
             .build();
 
-        createDto = initialize.apply(createDto);
-        return Create.builder()
-            .recipeId(createDto.recipeId() == null ? ARBITRARY_RECIPE_ID : createDto.recipeId())
+        singleDto = initialize.apply(singleDto);
+        return SubIngredientDto.Create.Single.builder()
+            .recipeId(singleDto.recipeId() == null ? ARBITRARY_RECIPE_ID : singleDto.recipeId())
             .name(ARBITRARY_NAME)
             .detail(ARBITRARY_DETAIL)
             .build();
     }
 
-    public static Create aSubIngredientCreateDto() {
+    public static Single aSubIngredientCreateDto() {
         return aSubIngredientCreateDto(noInit());
     }
 
@@ -66,16 +67,16 @@ public class SubIngredientHelper {
 
     public interface Bulk {
 
-        static SubIngredientDto.Bulk.Create tripleSubIngredientsBulkCreateDto(
-            Function<? super Create, ? extends Create> initialize) {
-            return SubIngredientDto.Bulk.Create.builder()
+        static SubIngredientDto.Bulk.Create.Single tripleSubIngredientsBulkCreateDto(
+            Function<? super Single, ? extends Single> initialize) {
+            return SubIngredientDto.Bulk.Create.Single.builder()
                 .subIngredient(SubIngredientHelper.aSubIngredientCreateDto(initialize))
                 .subIngredient(SubIngredientHelper.aSubIngredientCreateDto(initialize))
                 .subIngredient(SubIngredientHelper.aSubIngredientCreateDto(initialize))
                 .build();
         }
 
-        static SubIngredientDto.Bulk.Create tripleSubIngredientsBulkCreateDto() {
+        static SubIngredientDto.Bulk.Create.Single tripleSubIngredientsBulkCreateDto() {
             return tripleSubIngredientsBulkCreateDto(noInit());
         }
 
