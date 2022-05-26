@@ -55,8 +55,6 @@ public class RecipePostIntegrationTest {
             .description("부 재료 다중 생성 필드와 동일");
     private static final FieldDescriptor DOC_FIELD_STEP =
         subsectionWithPath("steps").type("Step[]").description("조리 단계 다중 생성 필드와 동일");
-    private static final FieldDescriptor DOC_FIELD_BULK_STEPS =
-        subsectionWithPath("bulkStep.steps").type("Map<id, step>").description("조리 단계 수정 필요필드 배열");
     private static final FieldDescriptor DOC_FIELD_POST_RESPONSE =
         subsectionWithPath("post").type("Post").description("게시글 조회 결과 필드와 동일");
     private static final FieldDescriptor DOC_FIELD_RECIPE_RESPONSE =
@@ -66,10 +64,10 @@ public class RecipePostIntegrationTest {
             .description("주 재료의 Id를 Key 로 하고 주 재료 List를 Value 갖는 Map");
     private static final FieldDescriptor DOC_FIELD_BULK_SUB_INGREDIENTS_RESPONSE =
         subsectionWithPath("bulkSubIngredient.subIngredients").type("Map<id, subIngredient>")
-            .description("부 재료의 Id를 Key 로 하고 부 재료를 Value 갖는 Map");
+            .description("부 재료의 Id를 Key 로 하고 부 재료를 Value로 갖는 Map");
     private static final FieldDescriptor DOC_FIELD_BULK_STEPS_RESPONSE =
         subsectionWithPath("bulkStep.steps").type("Map<id, step>")
-            .description("조리 단계의 Id를 Key 로 하고 조리 단계를 Value 갖는 Map");
+            .description("조리 단계의 Id를 Key 로 하고 조리 단계를 Value로 갖는 Map");
     @Autowired
     PasswordEncoder passwordEncoder;
     private MockMvc mockMvc;
