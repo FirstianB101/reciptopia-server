@@ -1,15 +1,19 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import com.querydsl.core.Tuple;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import kr.reciptopia.reciptopiaserver.domain.error.exception.InvalidTupleTypeException;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.UserRole;
 import lombok.Builder;
@@ -27,26 +31,58 @@ public interface AccountDto {
             Map<Long, AccountDto.Result> accounts
         ) {
 
+            private static int POST_ID_TUPLE_INDEX = 0, ACCOUNT_TUPLE_INDEX = 1;
+
             @Builder
             public Result(
                 @NotEmpty
                 @Singular
-                Map<Long, AccountDto.Result> accounts
+                    Map<Long, AccountDto.Result> accounts
             ) {
                 this.accounts = accounts;
             }
 
-            public static Result of(Page<Account> accounts) {
+            public static Result of(Page<?> tuples) {
                 return Result.builder()
-                    .accounts((Map<? extends Long, ? extends AccountDto.Result>) accounts.stream()
-                        .map(AccountDto.Result::of)
-                        .collect(
-                            Collectors.toMap(
-                                AccountDto.Result::id,
-                                result -> result,
-                                (x, y) -> y,
-                                LinkedHashMap::new)))
+                    .accounts(getAccounts(tuples))
                     .build();
+            }
+
+            private static LinkedHashMap<Long, AccountDto.Result> getAccounts(Page<?> tuples) {
+                return tuples.stream()
+                    .collect(collectToLinkedHashMap());
+            }
+
+            private static Collector<Object, ?, LinkedHashMap<Long, AccountDto.Result>> collectToLinkedHashMap() {
+                return Collectors.toMap(
+                    setKey(),
+                    setValue(),
+                    (x, y) -> y,
+                    LinkedHashMap::new);
+            }
+
+            private static Function<Object, AccountDto.Result> setValue() {
+                return tuple -> {
+                    if (tuple instanceof Tuple)
+                        return AccountDto.Result.of(
+                            Objects.requireNonNull(
+                                ((Tuple) tuple).get(ACCOUNT_TUPLE_INDEX, Account.class)));
+                    else if (tuple instanceof Account)
+                        return AccountDto.Result.of((Account) tuple);
+                    else
+                        throw new InvalidTupleTypeException();
+                };
+            }
+
+            private static Function<Object, Long> setKey() {
+                return tuple -> {
+                    if (tuple instanceof Tuple)
+                        return ((Tuple) tuple).get(POST_ID_TUPLE_INDEX, Long.class);
+                    else if (tuple instanceof Account)
+                        return ((Account) tuple).getId();
+                    else
+                        throw new InvalidTupleTypeException();
+                };
             }
         }
     }
