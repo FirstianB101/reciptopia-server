@@ -13,6 +13,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
 logging:
   level:
     org.hibernate.type.descriptor.sql.BasicBinder: trace
@@ -21,3 +24,6 @@ auth:
     key:
       secret-string: ${JWT_SECRET}
     expiration-interval: 604800   # a week
+file:
+  upload:
+    location: ${PATH}
