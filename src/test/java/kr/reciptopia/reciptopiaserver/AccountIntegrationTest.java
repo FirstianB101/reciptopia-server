@@ -14,6 +14,8 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -68,6 +70,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -93,6 +96,14 @@ public class AccountIntegrationTest {
         fieldWithPath("profilePictureUrl").description("프로필 사진 URL");
     private static final FieldDescriptor DOC_FIELD_EMAIL_DUPLICATION =
         fieldWithPath("exists").description("사용자 email 중복 여부");
+    private static final ParameterDescriptor DOC_PARAMETER_POST_IDS =
+        parameterWithName("postIds").description("게시물 ID 배열").optional();
+    private static final FieldDescriptor DOC_FIELD_BULK_MAP_BY_ID =
+        subsectionWithPath("accounts").type("Map<id, step>")
+            .description("계정의 Id를 Key 로 하고 계정을 Value로 갖는 Map");
+    private static final FieldDescriptor DOC_FIELD_BULK_MAP_BY_POST_ID =
+        subsectionWithPath("accounts").type("Map<postId, step>")
+            .description("해당 게시글의 Id를 Key 로 하고 해당 게시글을 소유자의 계정을 Value로 갖는 Map");
 
     private MockMvc mockMvc;
 
@@ -261,6 +272,9 @@ public class AccountIntegrationTest {
                     ApiDocumentation.DOC_PARAMETER_PAGE,
                     ApiDocumentation.DOC_PARAMETER_SIZE,
                     ApiDocumentation.DOC_PARAMETER_SORT
+                ),
+                responseFields(
+                    DOC_FIELD_BULK_MAP_BY_ID
                 )));
         }
 
@@ -301,6 +315,57 @@ public class AccountIntegrationTest {
             actions.andDo(document("account-list-with-paging-example"));
         }
 
+        @Test
+        void searchAccountsByPostIds() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Post postA = entityHelper.generatePost();
+                Post postB = entityHelper.generatePost();
+                Post postC = entityHelper.generatePost();
+                Post postD = entityHelper.generatePost();
+                Post postE = entityHelper.generatePost();
+
+                return new Struct()
+                    .withValue("ownerBId", postB.getOwner().getId())
+                    .withValue("ownerCId", postC.getOwner().getId())
+                    .withValue("ownerEId", postE.getOwner().getId())
+                    .withValue("postBId", postB.getId())
+                    .withValue("postCId", postC.getId())
+                    .withValue("postEId", postE.getId());
+            });
+            Long ownerBId = given.valueOf("ownerBId");
+            Long ownerCId = given.valueOf("ownerCId");
+            Long ownerEId = given.valueOf("ownerEId");
+            Long postBId = given.valueOf("postBId");
+            Long postCId = given.valueOf("postCId");
+            Long postEId = given.valueOf("postEId");
+
+            // When
+            String postIdsParam = postBId + ", " + postCId + ", " + postEId;
+            ResultActions actions = mockMvc.perform(get("/accounts")
+                .param("postIds", postIdsParam));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accounts").value(aMapWithSize(3)))
+                .andExpect(jsonPath("$.accounts.[*].id").value(
+                    containsInAnyOrder(
+                        ownerCId.intValue(),
+                        ownerBId.intValue(),
+                        ownerEId.intValue()
+                    )));
+
+            // Document
+            actions.andDo(document("account-search-example",
+                requestParameters(
+                    DOC_PARAMETER_POST_IDS
+                ),
+                responseFields(
+                    DOC_FIELD_BULK_MAP_BY_POST_ID
+                )));
+        }
     }
 
     @Nested
