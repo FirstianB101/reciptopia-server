@@ -6,8 +6,10 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Update;
 
+import java.util.List;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.AccountService;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.AccountSearchCondition;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,8 +44,14 @@ public class AccountController {
     }
 
     @GetMapping("/accounts")
-    public Bulk.Result search(Pageable pageable) {
-        return service.search(pageable);
+    public Bulk.Result search(
+        @RequestParam(required = false) List<Long> postIds,
+        Pageable pageable) {
+        AccountSearchCondition condition =
+            AccountSearchCondition.builder()
+                .postIds(postIds)
+                .build();
+        return service.search(condition, pageable);
     }
 
     @DeleteMapping("/accounts/{id}")
