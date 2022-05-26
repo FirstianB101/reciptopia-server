@@ -2,6 +2,7 @@ package kr.reciptopia.reciptopiaserver.business.service.helper;
 
 import javax.persistence.EntityManager;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
+import kr.reciptopia.reciptopiaserver.domain.model.AccountProfileImg;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
@@ -32,6 +33,10 @@ public record RepositoryHelper(EntityManager em,
 
     public Account findAccountOrThrow(Long id) throws ResponseStatusException {
         return findOrThrow(Account.class, id);
+    }
+
+    public AccountProfileImg findAccountProfileImgOrThrow(Long id) throws ResponseStatusException {
+        return findOrThrow(AccountProfileImg.class, id);
     }
 
     public Post findPostOrThrow(Long id) throws ResponseStatusException {
