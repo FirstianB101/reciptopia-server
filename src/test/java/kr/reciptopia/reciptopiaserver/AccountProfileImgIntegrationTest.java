@@ -124,23 +124,23 @@ public class AccountProfileImgIntegrationTest {
 	PasswordEncoder passwordEncoder;
 
 	private MockMvc mockMvc;
-	@Autowired
 
+	@Autowired
 	private JsonHelper jsonHelper;
-	@Autowired
 
+	@Autowired
 	private AccountProfileImgRepository repository;
-	@Autowired
 
+	@Autowired
 	private DataSource dataSource;
-	@Autowired
 
+	@Autowired
 	private TransactionHelper trxHelper;
-	@Autowired
 
+	@Autowired
 	private EntityHelper entityHelper;
-	@Autowired
 
+	@Autowired
 	private UploadFileAuthHelper uploadFileAuthHelper;
 
 	@BeforeEach
