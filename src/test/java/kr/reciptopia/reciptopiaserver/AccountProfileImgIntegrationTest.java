@@ -60,6 +60,12 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 public class AccountProfileImgIntegrationTest {
 
+	private static final String TEST_DIR_PATH = System.getProperty("user.dir")
+		+ "/src/test/resources/testfiles/";
+	private static final String UUID_REGEX =
+		"\\p{Alnum}{8}-\\p{Alnum}{4}-\\p{Alnum}{4}-\\p{Alnum}{4}-\\p{Alnum}{12}";
+	private static final int UUID_LENGTH = 36;
+
 	private static final String TEST_IMG_FILE_NAME = "testProfileImg.png";
 	private static final String TEST_IMG_FILE_PATH = System.getProperty("user.dir")
 		+ "/src/test/resources/testfiles/source/testProfileImg.png";
@@ -98,20 +104,28 @@ public class AccountProfileImgIntegrationTest {
 
 	private static final ParameterDescriptor DOC_PARAMETER_OWNER_ID =
 		parameterWithName("ownerId").description("사용자 ID").optional();
+
 	@Autowired
 	PasswordEncoder passwordEncoder;
+
 	private MockMvc mockMvc;
 	@Autowired
+
 	private JsonHelper jsonHelper;
 	@Autowired
+
 	private AccountProfileImgRepository repository;
 	@Autowired
+
 	private DataSource dataSource;
 	@Autowired
+
 	private TransactionHelper trxHelper;
 	@Autowired
+
 	private EntityHelper entityHelper;
 	@Autowired
+
 	private UploadFileAuthHelper uploadFileAuthHelper;
 
 	@BeforeEach
@@ -127,8 +141,7 @@ public class AccountProfileImgIntegrationTest {
 
 	@AfterEach
 	void deleteUploadImgFiles() {
-		File dir = new File(System.getProperty("user.dir")
-			+ "/src/test/resources/testfiles/");
+		File dir = new File(TEST_DIR_PATH);
 		File[] files = dir.listFiles();
 
 		if (files == null)
@@ -141,20 +154,21 @@ public class AccountProfileImgIntegrationTest {
 			String ext = fileName.substring(fileName.lastIndexOf(".") + 1)
 				.toLowerCase();
 
-			if (fileNameWithoutExt.length() != 37)
+			if (fileNameWithoutExt.length() != UUID_LENGTH + 1)
 				continue;
 
 			fileNameWithoutExt = fileNameWithoutExt.substring(0, fileNameWithoutExt.length() - 1);
 
-			Pattern patter = Pattern.compile(
-				"\\p{Alnum}{8}-\\p{Alnum}{4}-\\p{Alnum}{4}-\\p{Alnum}{4}-\\p{Alnum}{12}");
-			Matcher matcher = patter.matcher(fileNameWithoutExt);
-
-			if (matcher.matches() && ext.equals("png")) {
-				System.out.println(fileNameWithoutExt);
+			Matcher uuidMatcher = createUUIDMatcher(fileNameWithoutExt);
+			if (uuidMatcher.matches() && ext.equals("png")) {
 				file.delete();
 			}
 		}
+	}
+
+	private Matcher createUUIDMatcher(String validationStr) {
+		Pattern pattern = Pattern.compile(UUID_REGEX);
+		return pattern.matcher(validationStr);
 	}
 
 	@Nested
