@@ -25,11 +25,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
+import kr.reciptopia.reciptopiaserver.domain.model.AccountProfileImg;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
@@ -50,6 +50,8 @@ import kr.reciptopia.reciptopiaserver.helper.auth.LikeTagAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.PostAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.ReplyAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.SearchHistoryAuthHelper;
+import kr.reciptopia.reciptopiaserver.helper.auth.UploadFileAuthHelper;
+import kr.reciptopia.reciptopiaserver.persistence.repository.AccountProfileImgRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentLikeTagRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentRepository;
@@ -1147,6 +1149,38 @@ public class AccountIntegrationTest {
             assertThat(repository.existsById(ownerId)).isFalse();
             assertThat(replyLikeTagRepository.existsById(replyLikeTagAId)).isFalse();
             assertThat(replyLikeTagRepository.existsById(replyLikeTagBId)).isFalse();
+        }
+
+        @Test
+        void AccountProfileImg가_있는_Account_삭제(
+            @Autowired AccountProfileImgRepository accountProfileImgRepository,
+            @Autowired UploadFileAuthHelper uploadFileAuthHelper
+        ) throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                AccountProfileImg accountProfileImg = entityHelper.generateAccountProfileImg();
+                String token = uploadFileAuthHelper.generateToken(accountProfileImg);
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", accountProfileImg.getOwner().getId())
+                    .withValue("accountProfileImgId", accountProfileImg.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+            Long accountProfileImgId = given.valueOf("accountProfileImgId");
+
+            // When
+            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
+                .header("Authorization", "Bearer " + token));
+
+            // Then
+            actions
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(emptyString()));
+
+            assertThat(repository.existsById(ownerId)).isFalse();
+            assertThat(accountProfileImgRepository.existsById(accountProfileImgId)).isFalse();
         }
 
     }
