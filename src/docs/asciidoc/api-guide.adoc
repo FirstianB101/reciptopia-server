@@ -11,14 +11,14 @@
 
 WARNING: 이 API는 아직 구현 중에 있으며 추후에 변경될 수 있습니다.
 
-NOTE: v0.15.0-alpha
+NOTE: v0.15.1-alpha
 
 ****
-v0.15.0-alpha 변경사항
+v0.15.1-alpha 변경사항
 
 '''
 
-* AccountProfileImg 리소스 추가
+* AccountProfileImg 스니펫 추가
 
 ****
 
@@ -350,7 +350,7 @@ Account의 id (ownerId)에 해당하는 AccountProfileImg가 이미 존재하는
 
 성공 시 생성한 AccountProfileImg를 응답 Body로 전달합니다.
 
-operation::accountProfileImg-create-example[snippets='request-fields,curl-request,http-response']
+operation::accountProfileImg-create-example[snippets='request-parts,curl-request,response-fields,http-response']
 
 [[resources_accountProfileImg_delete]]
 === AccountProfileImg 삭제
