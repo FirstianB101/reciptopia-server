@@ -11,7 +11,9 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParts;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -19,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
@@ -50,6 +53,7 @@ import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.restdocs.request.ParameterDescriptor;
+import org.springframework.restdocs.request.RequestPartDescriptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -101,9 +105,20 @@ public class AccountProfileImgIntegrationTest {
 		fieldWithPath("resource.readable").description("이미지 리소스 읽기 가능 여부");
 	private static final FieldDescriptor DOC_FIELD_RESOURCE_OPEN =
 		fieldWithPath("resource.open").description("이미지 리소스 열기 가능 여부");
-
+	private static final FieldDescriptor DOC_FIELD_ID =
+		fieldWithPath("id").description("업로드한 이미지의 ID");
+	private static final FieldDescriptor DOC_FIELD_UPLOADED_FILE_NAME =
+		fieldWithPath("uploadFileName").description("업로드한 이미지 이름");
+	private static final FieldDescriptor DOC_FIELD_STORED_FILE_NAME =
+		fieldWithPath("storeFileName").description("업로드되어 서버에 저장된 이미지 이름");
+	private static final FieldDescriptor DOC_FIELD_OWNER_ID =
+		fieldWithPath("ownerId").description("이미지를 업로드한 계정의 ID");
 	private static final ParameterDescriptor DOC_PARAMETER_OWNER_ID =
 		parameterWithName("ownerId").description("사용자 ID").optional();
+	private static final RequestPartDescriptor DOC_PART_OWNER_ID =
+		partWithName("ownerId").description("이미지를 업로드할 계정의 ID");
+	private static final RequestPartDescriptor DOC_PART_IMAGE_FILE =
+		partWithName("imgFile").description("업로드할 이미지 파일");
 
 	@Autowired
 	PasswordEncoder passwordEncoder;
@@ -218,7 +233,17 @@ public class AccountProfileImgIntegrationTest {
 				)));
 
 			// Document
-			actions.andDo(document("accountProfileImg-create-example"));
+			actions.andDo(document("accountProfileImg-create-example",
+				requestParts(
+					DOC_PART_OWNER_ID,
+					DOC_PART_IMAGE_FILE
+				),
+				responseFields(
+					DOC_FIELD_ID,
+					DOC_FIELD_UPLOADED_FILE_NAME,
+					DOC_FIELD_STORED_FILE_NAME,
+					DOC_FIELD_OWNER_ID
+				)));
 		}
 
 		@Test
