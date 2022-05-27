@@ -2,6 +2,9 @@ server:
   error:
     include-message: always
 spring:
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
   h2:
     console:
       enabled: true
@@ -25,3 +28,6 @@ auth:
     key:
       secret-string: Z1VrWHAyczV2OHkvQj9FKEgrTWJRZVNoVm1ZcTN0Nnc=
     expiration-interval: 604800   # a week
+file:
+  upload:
+    location: ./src/test/resources/testfiles/

@@ -11,14 +11,14 @@
 
 WARNING: 이 API는 아직 구현 중에 있으며 추후에 변경될 수 있습니다.
 
-NOTE: v0.14.1-alpha
+NOTE: v0.15.0-alpha
 
 ****
-v0.14.1-alpha 변경사항
+v0.15.0-alpha 변경사항
 
 '''
 
-* Account 검색 파라미터 추가
+* AccountProfileImg 리소스 추가
 
 ****
 
@@ -312,6 +312,53 @@ operation::account-update-example[snippets='request-fields,curl-request,http-res
 요청의 `Authorization` 헤더로 요청을 보낸 `Account` 의 엑세스 토큰이 제공되어야 합니다.
 
 operation::account-delete-example[snippets='curl-request,http-response']
+
+[[resources_accountProfileImg]]
+== AccountProfileImg 리소스
+
+[[resources_accountProfileImg_retrieve]]
+=== AccountProfileImg 조회
+
+`GET /account/profileImgs/{id}` 요청으로 하나의 AccountProfileImg를 조회(리소스 다운로드)합니다. +
+유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
+
+operation::accountProfileImg-retrieve-example[snippets='response-fields,curl-request,http-response']
+
+[[resources_accountProfileImg_list]]
+=== AccountProfileImg 목록 조회
+
+`GET /account/profileImgs` 요청으로 다수의 AccountProfileImg들을 조회(엔티티 정보 조회)합니다.
+<<overview_paging_and_sorting, Paging 혹은 Sorting>> 요청 패러미터를 추가하면 원하는 방식으로 목록을 조회할 수 있습니다.
+
+operation::accountProfileImg-list-example[snippets='request-parameters,curl-request,http-response']
+
+[[resources_accountProfileImg_search]]
+=== AccountProfileImg 목록 검색
+
+<<resources_accountProfileImg_list, AccountProfileImg 목록 조회 API>>에 요청 패러미터를 추가하면 특정 조건을 기준으로 AccountProfileImg를 검색할 수 있습니다.
+
+operation::accountProfileImg-search-example[snippets='request-parameters,curl-request,http-response']
+
+[[resources_accountProfileImg_create]]
+=== AccountProfileImg 생성
+
+`POST /account/profileImgs` 요청으로 AccountProfileImg를 생성합니다. +
+Account의 id (ownerId)에 해당하는 AccountProfileImg가 이미 존재하는 경우, +
+기존 AccountProfileImg를 요청 AccountProfileImg로 덮어씁니다.
+
+이미지 파일을 제외한 유효하지 않은 파일이 입력되면 `400 Bad Request` 에러를 반환합니다.
+
+성공 시 생성한 AccountProfileImg를 응답 Body로 전달합니다.
+
+operation::accountProfileImg-create-example[snippets='request-fields,curl-request,http-response']
+
+[[resources_accountProfileImg_delete]]
+=== AccountProfileImg 삭제
+
+`DELETE /account/profileImgs/{id}` 요청으로 AccountProfileImg를 삭제합니다. +
+요청의 `Authorization` 헤더로 요청을 보낸 `AccountProfileImg` 의 엑세스 토큰이 제공되어야 합니다.
+
+operation::accountProfileImg-delete-example[snippets='curl-request,http-response']
 
 [[resources_post]]
 == Post 리소스

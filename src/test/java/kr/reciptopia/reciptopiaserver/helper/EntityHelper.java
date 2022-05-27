@@ -1,6 +1,7 @@
 package kr.reciptopia.reciptopiaserver.helper;
 
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
+import static kr.reciptopia.reciptopiaserver.helper.AccountProfileImgHelper.anAccountProfileImg;
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aComment;
 import static kr.reciptopia.reciptopiaserver.helper.CommentLikeTagHelper.aCommentLikeTag;
 import static kr.reciptopia.reciptopiaserver.helper.FavoriteHelper.aFavorite;
@@ -19,6 +20,7 @@ import java.util.Set;
 import java.util.function.Function;
 import javax.persistence.EntityManager;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
+import kr.reciptopia.reciptopiaserver.domain.model.AccountProfileImg;
 import kr.reciptopia.reciptopiaserver.domain.model.Comment;
 import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
@@ -47,6 +49,25 @@ public record EntityHelper(EntityManager em) {
         em.persist(account);
 
         return account;
+    }
+
+    public AccountProfileImg generateAccountProfileImg() {
+        return generateAccountProfileImg(noInit());
+    }
+
+    public AccountProfileImg generateAccountProfileImg(
+        Function<? super AccountProfileImg, ? extends AccountProfileImg> initialize) {
+        AccountProfileImg accountProfileImg = anAccountProfileImg()
+            .withId(null)
+            .withOwner(null);
+
+        accountProfileImg = initialize.apply(accountProfileImg);
+        if (accountProfileImg.getOwner() == null) {
+            accountProfileImg.setOwner(generateAccount());
+        }
+
+        em.persist(accountProfileImg);
+        return accountProfileImg;
     }
 
     public Post generatePost() {
