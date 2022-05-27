@@ -26,4 +26,4 @@ auth:
     expiration-interval: 604800   # a week
 file:
   upload:
-    location: ${PATH}
+    location: ${FILE_PATH}
