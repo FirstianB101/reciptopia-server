@@ -70,6 +70,10 @@ public class CommentIntegrationTest {
         fieldWithPath("postId").description("댓글 게시물 ID");
     private static final FieldDescriptor DOC_FIELD_CONTENT =
         fieldWithPath("content").description("댓글 내용");
+    private static final FieldDescriptor DOC_FIELD_CREATE_TIME =
+        fieldWithPath("createTime").description("댓글 생성 시간");
+    private static final FieldDescriptor DOC_FIELD_MODIFIIED_TIME =
+        fieldWithPath("modifiedTime").type("String").description("댓글 수정 시간").optional();
 
     private static final ParameterDescriptor DOC_PARAMETER_POST_ID =
         parameterWithName("postId").description("댓글이 달린 게시물 ID").optional();
@@ -210,7 +214,9 @@ public class CommentIntegrationTest {
                     DOC_FIELD_ID,
                     DOC_FIELD_OWNER_ID,
                     DOC_FIELD_POST_ID,
-                    DOC_FIELD_CONTENT
+                    DOC_FIELD_CONTENT,
+                    DOC_FIELD_CREATE_TIME,
+                    DOC_FIELD_MODIFIIED_TIME
                 )));
         }
 
