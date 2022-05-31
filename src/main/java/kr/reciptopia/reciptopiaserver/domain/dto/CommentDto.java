@@ -1,5 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +88,8 @@ public interface CommentDto {
 
     @With
     record Result(
-        Long id, Long ownerId, Long postId, String content) {
+        Long id, Long ownerId, Long postId, String content, LocalDateTime createTime,
+        LocalDateTime modifiedTime) {
 
         @Builder
         public Result(
@@ -102,11 +104,19 @@ public interface CommentDto {
 
             @NotBlank
             @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
-                String content) {
+                String content,
+
+            @NotNull
+                LocalDateTime createTime,
+
+            LocalDateTime modifiedTime
+        ) {
             this.id = id;
             this.ownerId = ownerId;
             this.postId = postId;
             this.content = content;
+            this.createTime = createTime;
+            this.modifiedTime = modifiedTime;
         }
 
         public static Result of(Comment entity) {
@@ -115,6 +125,8 @@ public interface CommentDto {
                 .ownerId(entity.getOwner().getId())
                 .postId(entity.getPost().getId())
                 .content(entity.getContent())
+                .createTime(entity.getCreatedDate())
+                .modifiedTime(entity.getModifiedDate())
                 .build();
         }
 
