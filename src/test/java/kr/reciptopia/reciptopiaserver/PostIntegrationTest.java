@@ -225,7 +225,7 @@ public class PostIntegrationTest {
                     "C:\\Users\\tellang\\Desktop\\temp\\picture"
                 )))
                 .andExpect(jsonPath("$.views").isNumber())
-                .andExpect(jsonPath("$.views").value(10))
+                .andExpect(jsonPath("$.views").value(11))
                 .andExpect(jsonPath("$.ownerId").value(ownerId))
                 .andReturn();
 
