@@ -79,4 +79,8 @@ public class Post extends TimeEntity {
             .withOwner(owner)
             .withViews(views);
     }
+
+    public void addViews() {
+        this.views++;
+    }
 }
