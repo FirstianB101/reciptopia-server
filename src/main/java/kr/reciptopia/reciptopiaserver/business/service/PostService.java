@@ -51,7 +51,9 @@ public class PostService {
     }
 
     public Result read(Long id) {
-        return Result.of(repoHelper.findPostOrThrow(id));
+        Post post = repoHelper.findPostOrThrow(id);
+        post.addViews();
+        return Result.of(post);
     }
 
     public Bulk.ResultWithCommentAndLikeTagCount search(PostSearchCondition condition,
