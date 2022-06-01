@@ -4,19 +4,23 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
 import kr.reciptopia.reciptopiaserver.domain.model.UploadFile;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+@RequiredArgsConstructor
 @Component
 public class FileStore {
+
+	private final ServiceErrorHelper errorHelper;
 
 	@Value("${file.upload.location}")
 	private String fileDir;
 
-	public List<UploadFile> storeFiles(List<MultipartFile> multipartFiles)
-		throws Exception {
+	public List<UploadFile> storeFiles(List<MultipartFile> multipartFiles) {
 		List<UploadFile> storeFileResult = new ArrayList<>();
 		for (MultipartFile multipartFile : multipartFiles) {
 			if (!multipartFile.isEmpty()) {
@@ -27,11 +31,16 @@ public class FileStore {
 		return storeFileResult;
 	}
 
-	public UploadFile storeFile(MultipartFile multipartFile) throws Exception {
+	public UploadFile storeFile(MultipartFile multipartFile) {
 		String originalFileName = multipartFile.getOriginalFilename();
 		String storeFileName = createStoreFileName(originalFileName);
 
-		multipartFile.transferTo(new File(getFullPath(storeFileName)));
+		try {
+			multipartFile.transferTo(new File(getFullPath(storeFileName)));
+		} catch (Exception ex) {
+			throw errorHelper.notFound("File Not Found from "
+				+ getFullPath(storeFileName));
+		}
 		return new UploadFile(originalFileName, storeFileName);
 	}
 
