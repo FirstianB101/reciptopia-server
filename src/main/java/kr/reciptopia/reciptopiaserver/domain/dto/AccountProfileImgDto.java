@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import kr.reciptopia.reciptopiaserver.business.service.filestore.FileStore;
 import kr.reciptopia.reciptopiaserver.domain.model.AccountProfileImg;
 import lombok.Builder;
 import lombok.Singular;
@@ -18,31 +19,34 @@ public interface AccountProfileImgDto {
 
 	interface Bulk {
 
-		@With
-		record Result(
-			Map<Long, AccountProfileImgDto.Result.Upload> accountProfileImgs) {
+		interface Result {
 
-			@Builder
-			public Result(
-				@NotEmpty
-				@Singular
-					Map<Long, AccountProfileImgDto.Result.Upload> accountProfileImgs) {
-				this.accountProfileImgs = accountProfileImgs;
-			}
+			@With
+			record Upload(
+				Map<Long, AccountProfileImgDto.Result.Upload> accountProfileImgs) {
 
-			public static Result of(Page<AccountProfileImg> accountProfileImgs) {
-				return Result.builder()
-					.accountProfileImgs(
-						(Map<? extends Long, ? extends AccountProfileImgDto.Result.Upload>)
-							accountProfileImgs.stream()
-								.map(AccountProfileImgDto.Result.Upload::of)
-								.collect(
-									Collectors.toMap(
-										AccountProfileImgDto.Result.Upload::id,
-										result -> result,
-										(x, y) -> y,
-										LinkedHashMap::new)))
-					.build();
+				@Builder
+				public Upload(
+					@NotEmpty
+					@Singular
+						Map<Long, AccountProfileImgDto.Result.Upload> accountProfileImgs) {
+					this.accountProfileImgs = accountProfileImgs;
+				}
+
+				public static Bulk.Result.Upload of(Page<AccountProfileImg> accountProfileImgs) {
+					return Bulk.Result.Upload.builder()
+						.accountProfileImgs(
+							(Map<? extends Long, ? extends AccountProfileImgDto.Result.Upload>)
+								accountProfileImgs.stream()
+									.map(AccountProfileImgDto.Result.Upload::of)
+									.collect(
+										Collectors.toMap(
+											AccountProfileImgDto.Result.Upload::id,
+											result -> result,
+											(x, y) -> y,
+											LinkedHashMap::new)))
+						.build();
+				}
 			}
 		}
 	}
@@ -89,10 +93,11 @@ public interface AccountProfileImgDto {
 			public Download {
 			}
 
-			public static Download of(AccountProfileImg entity) throws MalformedURLException {
+			public static Download of(AccountProfileImg entity, FileStore fileStore)
+				throws MalformedURLException {
 				return Download.builder()
-					.resource(new UrlResource("file:"
-						+ System.getProperty("user.dir") + "/" + entity.getStoreFileName()))
+					.resource(new UrlResource(
+						"file:" + fileStore.getFullPath(entity.getStoreFileName())))
 					.build();
 			}
 		}
