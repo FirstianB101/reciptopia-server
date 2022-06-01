@@ -2,8 +2,6 @@ package kr.reciptopia.reciptopiaserver.controller;
 
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Download;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Upload;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import kr.reciptopia.reciptopiaserver.business.service.AccountProfileImgService;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.AccountProfileImgSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Bulk;
@@ -32,12 +30,12 @@ public class AccountProfileImgController {
 	@PostMapping("/account/profileImages")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Upload put(@RequestPart Long ownerId, @RequestPart MultipartFile imgFile,
-		Authentication authentication) throws Exception {
+		Authentication authentication) {
 		return service.put(ownerId, imgFile, authentication);
 	}
 
 	@GetMapping("/account/profileImages/{id}")
-	public Download get(@PathVariable Long id) throws MalformedURLException {
+	public Download get(@PathVariable Long id) {
 		return service.read(id);
 	}
 
@@ -53,8 +51,7 @@ public class AccountProfileImgController {
 
 	@DeleteMapping("/account/profileImages/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable Long id, Authentication authentication)
-		throws FileNotFoundException {
+	public void delete(@PathVariable Long id, Authentication authentication) {
 		service.delete(id, authentication);
 	}
 }
