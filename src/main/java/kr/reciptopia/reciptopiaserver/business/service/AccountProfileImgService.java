@@ -3,8 +3,6 @@ package kr.reciptopia.reciptopiaserver.business.service;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Download;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Upload;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.util.Optional;
@@ -20,6 +18,8 @@ import kr.reciptopia.reciptopiaserver.domain.model.UploadFile;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountProfileImgRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.AccountProfileImgRepositoryImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -41,7 +41,7 @@ public class AccountProfileImgService {
 
 	@Transactional
 	public Upload put(Long ownerId, MultipartFile imgFile,
-		Authentication authentication) throws Exception {
+		Authentication authentication) {
 		throwExceptionWhenInvalidMultipartFile(imgFile);
 
 		Account owner = repoHelper.findAccountOrThrow(ownerId);
@@ -64,16 +64,28 @@ public class AccountProfileImgService {
 		if (originFile.exists()) {
 			originFile.delete();
 		} else {
-			throw new FileNotFoundException();
+			throw errorHelper.notFound("File Not Found from "
+				+ fileStore.getFullPath(originAccountProfileImg.getStoreFileName()));
 		}
 
 		originAccountProfileImg = updateAccountProfileImg(uploadFile, originAccountProfileImg);
 		return Upload.of(accountProfileImgRepository.save(originAccountProfileImg));
 	}
 
-	public Download read(Long id) throws MalformedURLException {
+	public Download read(Long id) {
 		AccountProfileImg accountProfileImg = repoHelper.findAccountProfileImgOrThrow(id);
-		return Download.of(accountProfileImg, fileStore);
+		Resource resource;
+		try {
+			resource = new UrlResource("file:"
+				+ fileStore.getFullPath(accountProfileImg.getStoreFileName()));
+		} catch (MalformedURLException e) {
+			throw errorHelper.notFound("File Not Found from "
+				+ fileStore.getFullPath(accountProfileImg.getStoreFileName()));
+		}
+
+		return Download.builder()
+			.resource(resource)
+			.build();
 	}
 
 	public Bulk.Result.Upload search(
@@ -84,8 +96,7 @@ public class AccountProfileImgService {
 	}
 
 	@Transactional
-	public void delete(Long id, Authentication authentication)
-		throws FileNotFoundException {
+	public void delete(Long id, Authentication authentication) {
 		AccountProfileImg accountProfileImg = repoHelper.findAccountProfileImgOrThrow(id);
 		uploadFileAuthorizer.requireUploadFileOwner(authentication, accountProfileImg);
 
@@ -93,18 +104,24 @@ public class AccountProfileImgService {
 		if (file.exists()) {
 			file.delete();
 		} else {
-			throw new FileNotFoundException();
+			throw errorHelper.notFound("File Not Found from "
+				+ fileStore.getFullPath(accountProfileImg.getStoreFileName()));
 		}
 
 		accountProfileImgRepository.delete(accountProfileImg);
 	}
 
-	private void throwExceptionWhenInvalidMultipartFile(MultipartFile multipartFile)
-		throws IOException {
+	private void throwExceptionWhenInvalidMultipartFile(MultipartFile multipartFile) {
 		String originalFileName = multipartFile.getOriginalFilename();
 
 		File file = new File(originalFileName);
-		String contentType = Files.probeContentType(file.toPath());
+		String contentType;
+		try {
+			contentType = Files.probeContentType(file.toPath());
+		} catch (Exception ex) {
+			throw errorHelper.notFound("File Not Found from" + file.toPath());
+		}
+
 		if (multipartFile.isEmpty() || !contentType.startsWith("image")) {
 			throw errorHelper.badRequest("Requested MultipartFile is invalid");
 		}
