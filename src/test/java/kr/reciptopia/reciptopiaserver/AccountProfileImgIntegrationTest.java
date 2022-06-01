@@ -21,7 +21,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
@@ -47,7 +46,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
@@ -64,8 +65,9 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 public class AccountProfileImgIntegrationTest {
 
-	private static final String TEST_DIR_PATH = System.getProperty("user.dir")
-		+ "/src/test/resources/testfiles/";
+	private static final String TEST_ORIGIN_STORE_FILE_NAME =
+		"faf9da02-4762-461c-bc6f-48a05b561a8e.png";
+
 	private static final String UUID_REGEX =
 		"\\p{Alnum}{8}-\\p{Alnum}{4}-\\p{Alnum}{4}-\\p{Alnum}{4}-\\p{Alnum}{12}";
 	private static final int UUID_LENGTH = 36;
@@ -77,15 +79,16 @@ public class AccountProfileImgIntegrationTest {
 	private static final String TEST_TXT_FILE_NAME = "testText.txt";
 	private static final String TEST_TXT_FILE_PATH = System.getProperty("user.dir")
 		+ "/src/test/resources/testfiles/source/testText.txt";
+	private static final String TEST_ORIGIN_STORE_FILE_PATH = System.getProperty("user.dir")
+		+ "/src/test/resources/testfiles/uploaded/faf9da02-4762-461c-bc6f-48a05b561a8e.png";
+	private static final String TEST_STORE_FILE_NAME = "634f963f-b61d-414b-b35b-57ab90533d36.png";
 
 	private static final String TEST_NEW_UPLOAD_IMG_FILE_NAME = "testProfileImg2.png";
 	private static final String TEST_NEW_UPLOAD_IMG_FILE_PATH = System.getProperty("user.dir")
 		+ "/src/test/resources/testfiles/source/testProfileImg2.png";
-
-	private static final String TEST_STORE_FILE_NAME = "src/test/resources/testfiles/uploaded/"
-		+ "634f963f-b61d-414b-b35b-57ab90533d36.png";
-	private static final String TEST_STORE_FILE_NAME2 = "src/test/resources/testfiles/uploaded/"
-		+ "b88e22ad-ab50-44cb-8dd2-6da0f23ce9ef.png";
+	private static final String TEST_STORE_FILE_NAME2 = "b88e22ad-ab50-44cb-8dd2-6da0f23ce9ef.png";
+	@Value("${file.upload.location}")
+	private String fileDir;
 
 	private static final FieldDescriptor DOC_FIELD_RESOURCE =
 		fieldWithPath("resource").description("이미지 리소스");
@@ -113,8 +116,10 @@ public class AccountProfileImgIntegrationTest {
 		fieldWithPath("storeFileName").description("업로드되어 서버에 저장된 이미지 이름");
 	private static final FieldDescriptor DOC_FIELD_OWNER_ID =
 		fieldWithPath("ownerId").description("이미지를 업로드한 계정의 ID");
+
 	private static final ParameterDescriptor DOC_PARAMETER_OWNER_ID =
 		parameterWithName("ownerId").description("사용자 ID").optional();
+
 	private static final RequestPartDescriptor DOC_PART_OWNER_ID =
 		partWithName("ownerId").description("이미지를 업로드할 계정의 ID");
 	private static final RequestPartDescriptor DOC_PART_IMAGE_FILE =
@@ -156,7 +161,7 @@ public class AccountProfileImgIntegrationTest {
 
 	@AfterEach
 	void deleteUploadImgFiles() {
-		File dir = new File(TEST_DIR_PATH);
+		File dir = new File(fileDir);
 		File[] files = dir.listFiles();
 
 		if (files == null)
@@ -164,6 +169,9 @@ public class AccountProfileImgIntegrationTest {
 
 		for (File file : files) {
 			String fileName = file.getName();
+			if (fileName.equals(TEST_STORE_FILE_NAME))
+				continue;
+
 			String fileNameWithoutExt = fileName.substring(0, fileName.lastIndexOf(".") + 1)
 				.toLowerCase();
 			String ext = fileName.substring(fileName.lastIndexOf(".") + 1)
@@ -215,7 +223,7 @@ public class AccountProfileImgIntegrationTest {
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				multipart("/account/profileImgs")
+				multipart("/account/profileImages")
 					.file(ownerIdMultipart)
 					.file(imgFileMultipart)
 					.header("Authorization", "Bearer " + token)
@@ -261,7 +269,7 @@ public class AccountProfileImgIntegrationTest {
 			FileInputStream fp = new FileInputStream(TEST_IMG_FILE_PATH);
 
 			MockMultipartFile imgFileMultipart = new MockMultipartFile(
-				"imgFile", TEST_IMG_FILE_NAME, "image/png", fp
+				"imgFile", TEST_IMG_FILE_NAME, MediaType.IMAGE_PNG_VALUE, fp
 			);
 			MockMultipartFile ownerIdMultipart = new MockMultipartFile(
 				"ownerId", "ownerId", "application/json",
@@ -270,7 +278,7 @@ public class AccountProfileImgIntegrationTest {
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				multipart("/account/profileImgs")
+				multipart("/account/profileImages")
 					.file(imgFileMultipart)
 					.file(ownerIdMultipart)
 			);
@@ -295,12 +303,12 @@ public class AccountProfileImgIntegrationTest {
 			FileInputStream fp = new FileInputStream(TEST_IMG_FILE_PATH);
 
 			MockMultipartFile imgFileMultipart = new MockMultipartFile(
-				"imgFile", TEST_IMG_FILE_NAME, "image/png", fp
+				"imgFile", TEST_IMG_FILE_NAME, MediaType.IMAGE_PNG_VALUE, fp
 			);
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				multipart("/account/profileImgs")
+				multipart("/account/profileImages")
 					.file(imgFileMultipart)
 					.header("Authorization", "Bearer " + token)
 			);
@@ -331,7 +339,7 @@ public class AccountProfileImgIntegrationTest {
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				multipart("/account/profileImgs")
+				multipart("/account/profileImages")
 					.file(ownerIdMultipart)
 					.header("Authorization", "Bearer " + token)
 			);
@@ -368,7 +376,7 @@ public class AccountProfileImgIntegrationTest {
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				multipart("/account/profileImgs")
+				multipart("/account/profileImages")
 					.file(txtFileMultipart)
 					.file(ownerIdMultipart)
 					.header("Authorization", "Bearer " + token)
@@ -383,7 +391,7 @@ public class AccountProfileImgIntegrationTest {
 		void postAccountProfileImg_이미지_파일_업로드_수정() throws Exception {
 			// Given - 기존 프로필 이미지 존재 가정
 			File file = new File(TEST_IMG_FILE_PATH);
-			File originUploadedFile = new File("faf9da02-4762-461c-bc6f-48a05b561a8e.png");
+			File originUploadedFile = new File(TEST_ORIGIN_STORE_FILE_PATH);
 			Files.copy(file.toPath(), originUploadedFile.toPath(),
 				StandardCopyOption.REPLACE_EXISTING);
 
@@ -393,7 +401,7 @@ public class AccountProfileImgIntegrationTest {
 					.generateAccountProfileImg(it -> it
 						.withOwner(account)
 						.withUploadFileName(TEST_IMG_FILE_NAME)
-						.withStoreFileName("faf9da02-4762-461c-bc6f-48a05b561a8e.png")
+						.withStoreFileName(TEST_ORIGIN_STORE_FILE_NAME)
 					);
 				String token = uploadFileAuthHelper.generateToken(accountProfileImg);
 
@@ -408,16 +416,16 @@ public class AccountProfileImgIntegrationTest {
 			FileInputStream fp = new FileInputStream(TEST_NEW_UPLOAD_IMG_FILE_PATH);
 
 			MockMultipartFile imgFileMultipart = new MockMultipartFile(
-				"imgFile", TEST_NEW_UPLOAD_IMG_FILE_NAME, "image/png", fp
+				"imgFile", TEST_NEW_UPLOAD_IMG_FILE_NAME, MediaType.IMAGE_PNG_VALUE, fp
 			);
 			MockMultipartFile ownerIdMultipart = new MockMultipartFile(
-				"ownerId", "ownerId", "application/json",
+				"ownerId", "ownerId", MediaType.APPLICATION_JSON_VALUE,
 				ownerId.toString().getBytes(StandardCharsets.UTF_8)
 			);
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				multipart("/account/profileImgs")
+				multipart("/account/profileImages")
 					.file(ownerIdMultipart)
 					.file(imgFileMultipart)
 					.header("Authorization", "Bearer " + token));
@@ -457,7 +465,7 @@ public class AccountProfileImgIntegrationTest {
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				get("/account/profileImgs/{id}", id));
+				get("/account/profileImages/{id}", id));
 
 			// Then
 			actions
@@ -484,7 +492,7 @@ public class AccountProfileImgIntegrationTest {
 			throws Exception {
 			// When
 			ResultActions actions = mockMvc.perform(
-				get("/account/profileImgs/{id}", 0L));
+				get("/account/profileImages/{id}", 0L));
 
 			// Then
 			actions
@@ -511,7 +519,7 @@ public class AccountProfileImgIntegrationTest {
 			Long accountProfileImgBId = given.valueOf("accountProfileImgBId");
 
 			// When
-			ResultActions actions = mockMvc.perform(get("/account/profileImgs"));
+			ResultActions actions = mockMvc.perform(get("/account/profileImages"));
 
 			// Then
 			actions
@@ -549,7 +557,7 @@ public class AccountProfileImgIntegrationTest {
 			Long accountProfileImgCId = given.valueOf("accountProfileImgCId");
 
 			// When
-			ResultActions actions = mockMvc.perform(get("/account/profileImgs")
+			ResultActions actions = mockMvc.perform(get("/account/profileImages")
 				.param("size", "2")
 				.param("page", "1")
 				.param("sort", "id,desc"));
@@ -589,7 +597,7 @@ public class AccountProfileImgIntegrationTest {
 			Long accountProfileImgBId = given.valueOf("accountProfileImgBId");
 
 			// When
-			ResultActions actions = mockMvc.perform(get("/account/profileImgs")
+			ResultActions actions = mockMvc.perform(get("/account/profileImages")
 				.param("ownerId", ownerId.toString()));
 
 			// Then
@@ -615,14 +623,14 @@ public class AccountProfileImgIntegrationTest {
 		@Test
 		void deleteAccountProfileImg() throws Exception {
 			// Given
-			File originFile = new File(TEST_STORE_FILE_NAME);
-			File newFile = new File(TEST_STORE_FILE_NAME2);
+			File originFile = new File(fileDir + TEST_STORE_FILE_NAME);
+			File newFile = new File(fileDir + TEST_STORE_FILE_NAME2);
 			Files.copy(originFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 			Struct given = trxHelper.doInTransaction(() -> {
 				AccountProfileImg accountProfileImg = entityHelper
 					.generateAccountProfileImg(it -> it
-						.withUploadFileName("testProfileImg.png")
+						.withUploadFileName(TEST_IMG_FILE_NAME)
 						.withStoreFileName(TEST_STORE_FILE_NAME2)
 					);
 				String token = uploadFileAuthHelper.generateToken(accountProfileImg);
@@ -636,7 +644,7 @@ public class AccountProfileImgIntegrationTest {
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				delete("/account/profileImgs/{id}", id)
+				delete("/account/profileImages/{id}", id)
 					.header("Authorization", "Bearer " + token));
 
 			// Then
@@ -655,7 +663,7 @@ public class AccountProfileImgIntegrationTest {
 			throws Exception {
 			// When
 			ResultActions actions = mockMvc.perform(
-				delete("/account/profileImgs/{id}", 0L));
+				delete("/account/profileImages/{id}", 0L));
 
 			// Then
 			actions
