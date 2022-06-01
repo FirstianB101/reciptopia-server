@@ -30,4 +30,4 @@ auth:
     expiration-interval: 604800   # a week
 file:
   upload:
-    location: ./src/test/resources/testfiles/
+    location: ./src/test/resources/testfiles/uploaded/
