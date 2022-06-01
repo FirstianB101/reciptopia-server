@@ -3,6 +3,7 @@ package kr.reciptopia.reciptopiaserver.business.service;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Download;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Upload;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -57,9 +58,13 @@ public class AccountProfileImgService {
 		}
 
 		AccountProfileImg originAccountProfileImg = optionalAccountProfileImg.get();
-		File originFile = new File(originAccountProfileImg.getStoreFileName());
+		File originFile = new File(fileStore.getFullPath(
+			originAccountProfileImg.getStoreFileName())
+		);
 		if (originFile.exists()) {
 			originFile.delete();
+		} else {
+			throw new FileNotFoundException();
 		}
 
 		originAccountProfileImg = updateAccountProfileImg(uploadFile, originAccountProfileImg);
@@ -67,23 +72,28 @@ public class AccountProfileImgService {
 	}
 
 	public Download read(Long id) throws MalformedURLException {
-		return Download.of(repoHelper.findAccountProfileImgOrThrow(id));
+		AccountProfileImg accountProfileImg = repoHelper.findAccountProfileImgOrThrow(id);
+		return Download.of(accountProfileImg, fileStore);
 	}
 
-	public Bulk.Result search(AccountProfileImgSearchCondition searchCondition, Pageable pageable) {
+	public Bulk.Result.Upload search(
+		AccountProfileImgSearchCondition searchCondition, Pageable pageable) {
 		PageImpl<AccountProfileImg> pageImpl =
 			accountProfileImgRepositoryImpl.search(searchCondition, pageable);
-		return Bulk.Result.of(pageImpl);
+		return Bulk.Result.Upload.of(pageImpl);
 	}
 
 	@Transactional
-	public void delete(Long id, Authentication authentication) {
+	public void delete(Long id, Authentication authentication)
+		throws FileNotFoundException {
 		AccountProfileImg accountProfileImg = repoHelper.findAccountProfileImgOrThrow(id);
 		uploadFileAuthorizer.requireUploadFileOwner(authentication, accountProfileImg);
 
-		File file = new File(accountProfileImg.getStoreFileName());
+		File file = new File(fileStore.getFullPath(accountProfileImg.getStoreFileName()));
 		if (file.exists()) {
 			file.delete();
+		} else {
+			throw new FileNotFoundException();
 		}
 
 		accountProfileImgRepository.delete(accountProfileImg);
