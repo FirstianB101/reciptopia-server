@@ -2,6 +2,7 @@ package kr.reciptopia.reciptopiaserver.controller;
 
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Download;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Upload;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import kr.reciptopia.reciptopiaserver.business.service.AccountProfileImgService;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.AccountProfileImgSearchCondition;
@@ -28,23 +29,21 @@ public class AccountProfileImgController {
 
 	private final AccountProfileImgService service;
 
-	@PostMapping("/account/profileImgs")
+	@PostMapping("/account/profileImages")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Upload put(@RequestPart Long ownerId, @RequestPart MultipartFile imgFile,
 		Authentication authentication) throws Exception {
 		return service.put(ownerId, imgFile, authentication);
 	}
 
-	@GetMapping("/account/profileImgs/{id}")
+	@GetMapping("/account/profileImages/{id}")
 	public Download get(@PathVariable Long id) throws MalformedURLException {
 		return service.read(id);
 	}
 
-	@GetMapping("/account/profileImgs")
-	public Bulk.Result search(
-		@RequestParam(required = false) Long ownerId,
-		Pageable pageable
-	) {
+	@GetMapping("/account/profileImages")
+	public Bulk.Result.Upload search(
+		@RequestParam(required = false) Long ownerId, Pageable pageable) {
 		AccountProfileImgSearchCondition searchCondition = AccountProfileImgSearchCondition.builder()
 			.ownerId(ownerId)
 			.build();
@@ -52,9 +51,10 @@ public class AccountProfileImgController {
 		return service.search(searchCondition, pageable);
 	}
 
-	@DeleteMapping("/account/profileImgs/{id}")
+	@DeleteMapping("/account/profileImages/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable Long id, Authentication authentication) {
+	public void delete(@PathVariable Long id, Authentication authentication)
+		throws FileNotFoundException {
 		service.delete(id, authentication);
 	}
 }
