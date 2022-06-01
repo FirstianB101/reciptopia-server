@@ -5,6 +5,8 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Res
 import java.io.File;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.UploadFileAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.filestore.FileStore;
@@ -76,8 +78,9 @@ public class AccountProfileImgService {
 		AccountProfileImg accountProfileImg = repoHelper.findAccountProfileImgOrThrow(id);
 		Resource resource;
 		try {
-			resource = new UrlResource("file:"
-				+ fileStore.getFullPath(accountProfileImg.getStoreFileName()));
+			Path filePath = Paths.get(
+				fileStore.getFullPath(accountProfileImg.getStoreFileName()));
+			resource = new UrlResource(filePath.toUri());
 		} catch (MalformedURLException e) {
 			throw errorHelper.notFound("File Not Found from "
 				+ fileStore.getFullPath(accountProfileImg.getStoreFileName()));
