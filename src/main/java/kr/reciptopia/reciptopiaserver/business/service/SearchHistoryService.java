@@ -46,7 +46,8 @@ public class SearchHistoryService {
         Account owner = repoHelper.findAccountOrThrow(ownerId);
         searchHistoryAuthorizer.requireByOneself(authentication, owner);
 
-        Page<SearchHistory> searchHistoryRepositories = searchHistoryRepository.findAll(pageable);
+        Page<SearchHistory> searchHistoryRepositories = searchHistoryRepository.findAllByOwnerId(
+            ownerId, pageable);
         return Bulk.Result.of(searchHistoryRepositories);
     }
 
