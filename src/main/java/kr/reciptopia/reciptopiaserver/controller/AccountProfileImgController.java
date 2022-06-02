@@ -1,13 +1,15 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Download;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Upload;
+import javax.servlet.http.HttpServletRequest;
 import kr.reciptopia.reciptopiaserver.business.service.AccountProfileImgService;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.AccountProfileImgSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Bulk;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,8 +37,9 @@ public class AccountProfileImgController {
 	}
 
 	@GetMapping("/account/profileImages/{id}")
-	public Download get(@PathVariable Long id) {
-		return service.read(id);
+	public ResponseEntity<Resource> get(@PathVariable Long id,
+		HttpServletRequest request) {
+		return service.read(id, request);
 	}
 
 	@GetMapping("/account/profileImages")
