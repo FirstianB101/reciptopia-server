@@ -1,13 +1,12 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Download;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Upload;
 import java.io.File;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.UploadFileAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.filestore.FileStore;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
@@ -24,6 +23,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,21 +76,28 @@ public class AccountProfileImgService {
 		return Upload.of(accountProfileImgRepository.save(originAccountProfileImg));
 	}
 
-	public Download read(Long id) {
+	public ResponseEntity<Resource> read(Long id, HttpServletRequest request) {
 		AccountProfileImg accountProfileImg = repoHelper.findAccountProfileImgOrThrow(id);
+
 		Resource resource;
+		String contentType;
 		try {
 			Path filePath = Paths.get(
 				fileStore.getFullPath(accountProfileImg.getStoreFileName()));
+
 			resource = new UrlResource(filePath.toUri());
-		} catch (MalformedURLException e) {
+			contentType = request.getServletContext().getMimeType(
+				resource.getFile().getAbsolutePath());
+		} catch (Exception e) {
 			throw errorHelper.notFound("File Not Found from "
 				+ fileStore.getFullPath(accountProfileImg.getStoreFileName()));
 		}
 
-		return Download.builder()
-			.resource(resource)
-			.build();
+		return ResponseEntity.ok()
+			.contentType(MediaType.parseMediaType(contentType))
+			.header(HttpHeaders.CONTENT_DISPOSITION,
+				"attachment; filename=\"" + resource.getFilename() + "\"")
+			.body(resource);
 	}
 
 	public Bulk.Result.Upload search(
