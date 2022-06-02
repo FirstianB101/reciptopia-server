@@ -198,11 +198,17 @@ public class SearchHistoryIntegrationTest {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
                 Account owner = entityHelper.generateAccount();
-                SearchHistory searchHistoryA = entityHelper.generateSearchHistory(
-                    it -> it.withOwner(owner));
-                SearchHistory searchHistoryB = entityHelper.generateSearchHistory(
-                    it -> it.withOwner(owner));
-                String token = searchHistoryAuthHelper.generateToken(owner);
+                SearchHistory searchHistoryA = entityHelper.generateSearchHistory(it -> it
+                    .withOwner(owner));
+
+                SearchHistory searchHistoryB = entityHelper.generateSearchHistory(it -> it
+                    .withOwner(owner));
+
+                SearchHistory searchHistoryC = entityHelper.generateSearchHistory();
+
+                SearchHistory searchHistoryD = entityHelper.generateSearchHistory();
+
+                String token = searchHistoryAuthHelper.generateToken(searchHistoryA);
 
                 return new Struct()
                     .withValue("ownerId", owner.getId())
