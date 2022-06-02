@@ -469,22 +469,7 @@ public class AccountProfileImgIntegrationTest {
 
 			// Then
 			actions
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.resource").exists());
-
-			// Document
-			actions.andDo(document("accountProfileImg-retrieve-example",
-				responseFields(
-					DOC_FIELD_RESOURCE,
-					DOC_FIELD_RESOURCE_URI,
-					DOC_FIELD_RESOURCE_URL,
-					DOC_FIELD_RESOURCE_INPUT_STREAM,
-					DOC_FIELD_RESOURCE_FILE,
-					DOC_FIELD_RESOURCE_FILENAME,
-					DOC_FIELD_RESOURCE_DESCRIPTION,
-					DOC_FIELD_RESOURCE_READABLE,
-					DOC_FIELD_RESOURCE_OPEN
-				)));
+				.andExpect(status().isOk());
 		}
 
 		@Test
