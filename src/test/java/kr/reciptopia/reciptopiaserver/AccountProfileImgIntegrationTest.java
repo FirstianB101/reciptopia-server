@@ -446,6 +446,9 @@ public class AccountProfileImgIntegrationTest {
 			// Then
 			actions
 				.andExpect(status().isOk());
+
+			// Document
+			actions.andDo(document("accountProfileImg-retrieve-example"));
 		}
 
 		@Test
