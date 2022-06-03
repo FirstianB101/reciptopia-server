@@ -2,9 +2,6 @@ package kr.reciptopia.reciptopiaserver;
 
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -30,7 +27,6 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
-import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.AccountProfileImg;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
@@ -65,9 +61,6 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 public class AccountProfileImgIntegrationTest {
 
-	private static final String TEST_ORIGIN_STORE_FILE_NAME =
-		"faf9da02-4762-461c-bc6f-48a05b561a8e.png";
-
 	private static final String UUID_REGEX =
 		"\\p{Alnum}{8}-\\p{Alnum}{4}-\\p{Alnum}{4}-\\p{Alnum}{4}-\\p{Alnum}{12}";
 	private static final int UUID_LENGTH = 36;
@@ -75,39 +68,19 @@ public class AccountProfileImgIntegrationTest {
 	private static final String TEST_IMG_FILE_NAME = "testProfileImg.png";
 	private static final String TEST_IMG_FILE_PATH = System.getProperty("user.dir")
 		+ "/src/test/resources/testfiles/source/testProfileImg.png";
-
 	private static final String TEST_TXT_FILE_NAME = "testText.txt";
 	private static final String TEST_TXT_FILE_PATH = System.getProperty("user.dir")
 		+ "/src/test/resources/testfiles/source/testText.txt";
+	private static final String TEST_ORIGIN_STORE_FILE_NAME =
+		"faf9da02-4762-461c-bc6f-48a05b561a8e.png";
 	private static final String TEST_ORIGIN_STORE_FILE_PATH = System.getProperty("user.dir")
 		+ "/src/test/resources/testfiles/uploaded/faf9da02-4762-461c-bc6f-48a05b561a8e.png";
 	private static final String TEST_STORE_FILE_NAME = "634f963f-b61d-414b-b35b-57ab90533d36.png";
-
 	private static final String TEST_NEW_UPLOAD_IMG_FILE_NAME = "testProfileImg2.png";
 	private static final String TEST_NEW_UPLOAD_IMG_FILE_PATH = System.getProperty("user.dir")
 		+ "/src/test/resources/testfiles/source/testProfileImg2.png";
 	private static final String TEST_STORE_FILE_NAME2 = "b88e22ad-ab50-44cb-8dd2-6da0f23ce9ef.png";
-	@Value("${file.upload.location}")
-	private String fileDir;
 
-	private static final FieldDescriptor DOC_FIELD_RESOURCE =
-		fieldWithPath("resource").description("이미지 리소스");
-	private static final FieldDescriptor DOC_FIELD_RESOURCE_URI =
-		fieldWithPath("resource.uri").description("이미지 리소스 URI");
-	private static final FieldDescriptor DOC_FIELD_RESOURCE_URL =
-		fieldWithPath("resource.url").description("이미지 리소스 URL");
-	private static final FieldDescriptor DOC_FIELD_RESOURCE_INPUT_STREAM =
-		fieldWithPath("resource.inputStream").description("이미지 리소스 Input Stream");
-	private static final FieldDescriptor DOC_FIELD_RESOURCE_FILE =
-		fieldWithPath("resource.file").description("이미지 리소스 파일");
-	private static final FieldDescriptor DOC_FIELD_RESOURCE_FILENAME =
-		fieldWithPath("resource.filename").description("이미지 리소스 파일 이름");
-	private static final FieldDescriptor DOC_FIELD_RESOURCE_DESCRIPTION =
-		fieldWithPath("resource.description").description("이미지 리소스 설명");
-	private static final FieldDescriptor DOC_FIELD_RESOURCE_READABLE =
-		fieldWithPath("resource.readable").description("이미지 리소스 읽기 가능 여부");
-	private static final FieldDescriptor DOC_FIELD_RESOURCE_OPEN =
-		fieldWithPath("resource.open").description("이미지 리소스 열기 가능 여부");
 	private static final FieldDescriptor DOC_FIELD_ID =
 		fieldWithPath("id").description("업로드한 이미지의 ID");
 	private static final FieldDescriptor DOC_FIELD_UPLOADED_FILE_NAME =
@@ -124,6 +97,9 @@ public class AccountProfileImgIntegrationTest {
 		partWithName("ownerId").description("이미지를 업로드할 계정의 ID");
 	private static final RequestPartDescriptor DOC_PART_IMAGE_FILE =
 		partWithName("imgFile").description("업로드할 이미지 파일");
+
+	@Value("${file.upload.location}")
+	private String fileDir;
 
 	@Autowired
 	PasswordEncoder passwordEncoder;
@@ -490,86 +466,17 @@ public class AccountProfileImgIntegrationTest {
 	class SearchAccountProfileImgs {
 
 		@Test
-		void listAccountProfileImgs() throws Exception {
-			// Given
-			Struct given = trxHelper.doInTransaction(() -> {
-				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgB = entityHelper.generateAccountProfileImg();
-
-				return new Struct()
-					.withValue("accountProfileImgAId", accountProfileImgA.getId())
-					.withValue("accountProfileImgBId", accountProfileImgB.getId());
-			});
-			Long accountProfileImgAId = given.valueOf("accountProfileImgAId");
-			Long accountProfileImgBId = given.valueOf("accountProfileImgBId");
-
-			// When
-			ResultActions actions = mockMvc.perform(get("/account/profileImages"));
-
-			// Then
-			actions
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.accountProfileImgs").value(aMapWithSize(2)))
-				.andExpect(jsonPath("$.accountProfileImgs.[*].id").value(containsInAnyOrder(
-					accountProfileImgAId.intValue(),
-					accountProfileImgBId.intValue()
-				)));
-
-			// Document
-			actions.andDo(document("accountProfileImg-list-example",
-				requestParameters(
-					ApiDocumentation.DOC_PARAMETER_PAGE,
-					ApiDocumentation.DOC_PARAMETER_SIZE,
-					ApiDocumentation.DOC_PARAMETER_SORT
-				)));
-		}
-
-		@Test
-		void listAccountProfileImgsWithPaging() throws Exception {
-			// Given
-			Struct given = trxHelper.doInTransaction(() -> {
-				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgB = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgC = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgD = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgE = entityHelper.generateAccountProfileImg();
-
-				return new Struct()
-					.withValue("accountProfileImgBId", accountProfileImgB.getId())
-					.withValue("accountProfileImgCId", accountProfileImgC.getId());
-			});
-			Long accountProfileImgBId = given.valueOf("accountProfileImgBId");
-			Long accountProfileImgCId = given.valueOf("accountProfileImgCId");
-
-			// When
-			ResultActions actions = mockMvc.perform(get("/account/profileImages")
-				.param("size", "2")
-				.param("page", "1")
-				.param("sort", "id,desc"));
-
-			// Then
-			actions
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.accountProfileImgs").value(aMapWithSize(2)))
-				.andExpect(jsonPath("$.accountProfileImgs.[*].id").value(contains(
-					accountProfileImgCId.intValue(),
-					accountProfileImgBId.intValue()
-				)));
-
-			// Document
-			actions.andDo(document("accountProfileImg-list-with-paging-example"));
-		}
-
-		@Test
 		void searchAccountProfileImgsByOwnerId() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
 				Account account = entityHelper.generateAccount();
 
 				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgB = entityHelper.generateAccountProfileImg(
-					it -> it.withOwner(account)
-				);
+				AccountProfileImg accountProfileImgB = entityHelper
+					.generateAccountProfileImg(it -> it
+						.withOwner(account)
+						.withStoreFileName(TEST_STORE_FILE_NAME)
+					);
 				AccountProfileImg accountProfileImgC = entityHelper.generateAccountProfileImg();
 				AccountProfileImg accountProfileImgD = entityHelper.generateAccountProfileImg();
 				AccountProfileImg accountProfileImgE = entityHelper.generateAccountProfileImg();
@@ -579,7 +486,6 @@ public class AccountProfileImgIntegrationTest {
 					.withValue("accountProfileImgBId", accountProfileImgB.getId());
 			});
 			Long ownerId = given.valueOf("ownerId");
-			Long accountProfileImgBId = given.valueOf("accountProfileImgBId");
 
 			// When
 			ResultActions actions = mockMvc.perform(get("/account/profileImages")
@@ -587,17 +493,39 @@ public class AccountProfileImgIntegrationTest {
 
 			// Then
 			actions
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.accountProfileImgs").value(aMapWithSize(1)))
-				.andExpect(jsonPath("$.accountProfileImgs.[*].id").value(containsInAnyOrder(
-					accountProfileImgBId.intValue()
-				)));
+				.andExpect(status().isOk());
 
 			// Document
 			actions.andDo(document("accountProfileImg-search-example",
 				requestParameters(
 					DOC_PARAMETER_OWNER_ID
 				)));
+		}
+
+		@Test
+		void searchAccountProfileImgsByOwnerId_프로필_이미지가_없는_경우() throws Exception {
+			// Given
+			Struct given = trxHelper.doInTransaction(() -> {
+				Account account = entityHelper.generateAccount();
+
+				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
+				AccountProfileImg accountProfileImgB = entityHelper.generateAccountProfileImg();
+				AccountProfileImg accountProfileImgC = entityHelper.generateAccountProfileImg();
+				AccountProfileImg accountProfileImgD = entityHelper.generateAccountProfileImg();
+				AccountProfileImg accountProfileImgE = entityHelper.generateAccountProfileImg();
+
+				return new Struct()
+					.withValue("ownerId", account.getId());
+			});
+			Long ownerId = given.valueOf("ownerId");
+
+			// When
+			ResultActions actions = mockMvc.perform(get("/account/profileImages")
+				.param("ownerId", ownerId.toString()));
+
+			// Then
+			actions
+				.andExpect(status().isOk());
 		}
 
 	}
