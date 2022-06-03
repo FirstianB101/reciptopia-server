@@ -12,7 +12,6 @@ import kr.reciptopia.reciptopiaserver.business.service.filestore.FileStore;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.AccountProfileImgSearchCondition;
-import kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Bulk;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.AccountProfileImg;
 import kr.reciptopia.reciptopiaserver.domain.model.UploadFile;
@@ -21,8 +20,6 @@ import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.Accou
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -78,33 +75,22 @@ public class AccountProfileImgService {
 
 	public ResponseEntity<Resource> read(Long id, HttpServletRequest request) {
 		AccountProfileImg accountProfileImg = repoHelper.findAccountProfileImgOrThrow(id);
-
-		Resource resource;
-		String contentType;
-		try {
-			Path filePath = Paths.get(
-				fileStore.getFullPath(accountProfileImg.getStoreFileName()));
-
-			resource = new UrlResource(filePath.toUri());
-			contentType = request.getServletContext().getMimeType(
-				resource.getFile().getAbsolutePath());
-		} catch (Exception e) {
-			throw errorHelper.notFound("File Not Found from "
-				+ fileStore.getFullPath(accountProfileImg.getStoreFileName()));
-		}
-
-		return ResponseEntity.ok()
-			.contentType(MediaType.parseMediaType(contentType))
-			.header(HttpHeaders.CONTENT_DISPOSITION,
-				"attachment; filename=\"" + resource.getFilename() + "\"")
-			.body(resource);
+		return createResponseEntity(accountProfileImg, request);
 	}
 
-	public Bulk.Result.Upload search(
-		AccountProfileImgSearchCondition searchCondition, Pageable pageable) {
-		PageImpl<AccountProfileImg> pageImpl =
-			accountProfileImgRepositoryImpl.search(searchCondition, pageable);
-		return Bulk.Result.Upload.of(pageImpl);
+	public ResponseEntity<Resource> search(
+		AccountProfileImgSearchCondition searchCondition, HttpServletRequest request) {
+		Optional<AccountProfileImg> optionalAccountProfileImg =
+			accountProfileImgRepository.findByOwnerId(searchCondition.ownerId());
+
+		if (optionalAccountProfileImg.isEmpty()) {
+			return ResponseEntity.ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(null);
+		}
+
+		AccountProfileImg accountProfileImg = optionalAccountProfileImg.get();
+		return createResponseEntity(accountProfileImg, request);
 	}
 
 	@Transactional
@@ -155,6 +141,29 @@ public class AccountProfileImgService {
 			.owner(originAccountProfileImg.getOwner())
 			.build()
 			.withId(originAccountProfileImg.getId());
+	}
+
+	private ResponseEntity<Resource> createResponseEntity(
+		AccountProfileImg accountProfileImg, HttpServletRequest request) {
+		Resource resource;
+		String contentType;
+		try {
+			Path filePath = Paths.get(
+				fileStore.getFullPath(accountProfileImg.getStoreFileName()));
+
+			resource = new UrlResource(filePath.toUri());
+			contentType = request.getServletContext().getMimeType(
+				resource.getFile().getAbsolutePath());
+		} catch (Exception e) {
+			throw errorHelper.notFound("File Not Found from "
+				+ fileStore.getFullPath(accountProfileImg.getStoreFileName()));
+		}
+
+		return ResponseEntity.ok()
+			.contentType(MediaType.parseMediaType(contentType))
+			.header(HttpHeaders.CONTENT_DISPOSITION,
+				"attachment; filename=\"" + resource.getFilename() + "\"")
+			.body(resource);
 	}
 
 }
