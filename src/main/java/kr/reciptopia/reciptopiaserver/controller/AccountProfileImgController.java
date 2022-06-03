@@ -4,10 +4,8 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Res
 import javax.servlet.http.HttpServletRequest;
 import kr.reciptopia.reciptopiaserver.business.service.AccountProfileImgService;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.AccountProfileImgSearchCondition;
-import kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Bulk;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -43,13 +41,13 @@ public class AccountProfileImgController {
 	}
 
 	@GetMapping("/account/profileImages")
-	public Bulk.Result.Upload search(
-		@RequestParam(required = false) Long ownerId, Pageable pageable) {
+	public ResponseEntity<Resource> search(@RequestParam Long ownerId,
+		HttpServletRequest request) {
 		AccountProfileImgSearchCondition searchCondition = AccountProfileImgSearchCondition.builder()
 			.ownerId(ownerId)
 			.build();
 
-		return service.search(searchCondition, pageable);
+		return service.search(searchCondition, request);
 	}
 
 	@DeleteMapping("/account/profileImages/{id}")
@@ -57,4 +55,5 @@ public class AccountProfileImgController {
 	public void delete(@PathVariable Long id, Authentication authentication) {
 		service.delete(id, authentication);
 	}
+
 }
