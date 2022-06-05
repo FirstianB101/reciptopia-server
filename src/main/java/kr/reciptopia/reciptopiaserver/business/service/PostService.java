@@ -2,7 +2,6 @@ package kr.reciptopia.reciptopiaserver.business.service;
 
 import static kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostSearchCondition.getRecipeSearchCondition;
 import static kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostSearchCondition.updateConditionWithRecipeCondition;
-
 import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.PostAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
@@ -83,9 +82,6 @@ public class PostService {
         Post post = repoHelper.findPostOrThrow(id);
         postAuthorizer.requirePostOwner(authentication, post);
 
-        if (dto.pictureUrls() != null) {
-            post.setPictureUrls(dto.pictureUrls());
-        }
         if (dto.title() != null && !dto.title().isBlank()) {
             post.setTitle(dto.title());
         }

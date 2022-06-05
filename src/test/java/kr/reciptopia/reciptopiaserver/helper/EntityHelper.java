@@ -14,7 +14,6 @@ import static kr.reciptopia.reciptopiaserver.helper.ReplyLikeTagHelper.aReplyLik
 import static kr.reciptopia.reciptopiaserver.helper.SearchHistoryHelper.aSearchHistory;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStep;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredient;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -77,8 +76,7 @@ public record EntityHelper(EntityManager em) {
     public Post generatePost(Function<? super Post, ? extends Post> initialize) {
         Post post = aPost()
             .withId(null)
-            .withOwner(null)
-            .withPictureUrls(new ArrayList<>());
+            .withOwner(null);
 
         post = initialize.apply(post);
         if (post.getOwner() == null) {

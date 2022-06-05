@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -22,7 +21,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -150,8 +148,6 @@ public class PostIntegrationTest {
                 .ownerId(ownerId)
                 .title("매콤 가문어 볶음 만들기")
                 .content("매콤매콤 맨들맨들 가문어 볶음")
-                .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
-                .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
                 .build();
             String body = jsonHelper.toJson(dto);
 
@@ -166,11 +162,6 @@ public class PostIntegrationTest {
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.title").value("매콤 가문어 볶음 만들기"))
                 .andExpect(jsonPath("$.content").value("매콤매콤 맨들맨들 가문어 볶음"))
-                .andExpect(jsonPath("$.pictureUrls").value(hasSize(2)))
-                .andExpect(jsonPath("$.pictureUrls").value(contains(
-                    "C:\\Users\\eunsung\\Desktop\\temp\\picture",
-                    "C:\\Users\\tellang\\Desktop\\temp\\picture"
-                )))
                 .andExpect(jsonPath("$.views").isNumber())
                 .andExpect(jsonPath("$.views").value(0))
                 .andExpect(jsonPath("$.ownerId").value(ownerId))    // 임시
@@ -181,8 +172,7 @@ public class PostIntegrationTest {
                 requestFields(
                     DOC_FIELD_OWNER_ID,
                     DOC_FIELD_TITLE,
-                    DOC_FIELD_CONTENT,
-                    DOC_FIELD_PICTURE_URLS
+                    DOC_FIELD_CONTENT
                 )));
         }
     }
@@ -197,8 +187,6 @@ public class PostIntegrationTest {
                 Post post = entityHelper.generatePost(it ->
                     it.withTitle("매콤 가문어 볶음 만들기")
                         .withContent("매콤매콤 맨들맨들 가문어 볶음")
-                        .withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
-                        .withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
                         .withViews(10L)
                 );
 
@@ -219,11 +207,6 @@ public class PostIntegrationTest {
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.title").value("매콤 가문어 볶음 만들기"))
                 .andExpect(jsonPath("$.content").value("매콤매콤 맨들맨들 가문어 볶음"))
-                .andExpect(jsonPath("$.pictureUrls").value(hasSize(2)))
-                .andExpect(jsonPath("$.pictureUrls").value(contains(
-                    "C:\\Users\\eunsung\\Desktop\\temp\\picture",
-                    "C:\\Users\\tellang\\Desktop\\temp\\picture"
-                )))
                 .andExpect(jsonPath("$.views").isNumber())
                 .andExpect(jsonPath("$.views").value(11))
                 .andExpect(jsonPath("$.ownerId").value(ownerId))
@@ -236,7 +219,6 @@ public class PostIntegrationTest {
                     DOC_FIELD_OWNER_ID,
                     DOC_FIELD_TITLE,
                     DOC_FIELD_CONTENT,
-                    DOC_FIELD_PICTURE_URLS,
                     DOC_FIELD_VIEWS
                 )));
         }
@@ -679,8 +661,6 @@ public class PostIntegrationTest {
                 Post post = entityHelper.generatePost(it ->
                     it.withTitle("테스트 요리 만들기")
                         .withContent("테스트 요리 컨텐츠")
-                        .withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
-                        .withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
                 );
                 String token = postAuthHelper.generateToken(post.getOwner());
 
@@ -695,9 +675,6 @@ public class PostIntegrationTest {
             Update dto = Update.builder()
                 .title("새로운 요리 만들기")
                 .content("새로운 요리 컨텐츠")
-                .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
-                .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
-                .pictureUrl("C:\\Users\\silverstar\\Desktop\\temp\\picture")
                 .build();
             String body = jsonHelper.toJson(dto);
 
@@ -712,20 +689,13 @@ public class PostIntegrationTest {
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.title").value("새로운 요리 만들기"))
                 .andExpect(jsonPath("$.content").value("새로운 요리 컨텐츠"))
-                .andExpect(jsonPath("$.pictureUrls").value(hasSize(3)))
-                .andExpect(jsonPath("$.pictureUrls").value(contains(
-                    "C:\\Users\\eunsung\\Desktop\\temp\\picture",
-                    "C:\\Users\\tellang\\Desktop\\temp\\picture",
-                    "C:\\Users\\silverstar\\Desktop\\temp\\picture"
-                )))
                 .andReturn();
 
             // Document
             actions.andDo(document("post-update-example",
                 requestFields(
                     DOC_FIELD_TITLE,
-                    DOC_FIELD_CONTENT,
-                    DOC_FIELD_PICTURE_URLS
+                    DOC_FIELD_CONTENT
                 )));
         }
 
@@ -755,8 +725,6 @@ public class PostIntegrationTest {
                 Post post = entityHelper.generatePost(it ->
                     it.withTitle("테스트 요리 만들기")
                         .withContent("테스트 요리 컨텐츠")
-                        .withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
-                        .withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
                 );
                 String token = postAuthHelper.generateToken(post.getOwner());
 
