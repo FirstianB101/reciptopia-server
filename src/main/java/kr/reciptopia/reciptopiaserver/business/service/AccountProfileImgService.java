@@ -73,15 +73,14 @@ public class AccountProfileImgService {
 		return Upload.of(accountProfileImgRepository.save(originAccountProfileImg));
 	}
 
-	public ResponseEntity<Resource> read(Long id, HttpServletRequest request) {
+	public ResponseEntity<Resource> download(Long id, HttpServletRequest request) {
 		AccountProfileImg accountProfileImg = repoHelper.findAccountProfileImgOrThrow(id);
 		return createResponseEntity(accountProfileImg, request);
 	}
 
-	public ResponseEntity<Resource> search(
-		AccountProfileImgSearchCondition searchCondition, HttpServletRequest request) {
+	public ResponseEntity<Resource> downloadByOwnerId(Long ownerId, HttpServletRequest request) {
 		Optional<AccountProfileImg> optionalAccountProfileImg =
-			accountProfileImgRepository.findByOwnerId(searchCondition.ownerId());
+			accountProfileImgRepository.findByOwnerId(ownerId);
 
 		if (optionalAccountProfileImg.isEmpty()) {
 			return ResponseEntity.ok()

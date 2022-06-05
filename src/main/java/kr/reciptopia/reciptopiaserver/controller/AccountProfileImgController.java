@@ -34,14 +34,14 @@ public class AccountProfileImgController {
 		return service.put(ownerId, imgFile, authentication);
 	}
 
-	@GetMapping("/account/profileImages/{id}")
-	public ResponseEntity<Resource> get(@PathVariable Long id,
+	@GetMapping("/account/profileImages/{id}/download")
+	public ResponseEntity<Resource> download(@PathVariable Long id,
 		HttpServletRequest request) {
-		return service.read(id, request);
+		return service.download(id, request);
 	}
 
-	@GetMapping("/account/profileImages")
-	public ResponseEntity<Resource> search(@RequestParam Long ownerId,
+	@GetMapping("/account/profileImages/download")
+	public ResponseEntity<Resource> downloadByOwnerId(@RequestParam Long ownerId,
 		HttpServletRequest request) {
 		AccountProfileImgSearchCondition searchCondition = AccountProfileImgSearchCondition.builder()
 			.ownerId(ownerId)
