@@ -6,7 +6,6 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.CheckDuplicat
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Update;
-
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.AccountAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
@@ -66,9 +65,6 @@ public class AccountService {
         }
         if (dto.nickname() != null) {
             entity.setNickname(dto.nickname());
-        }
-        if (dto.profilePictureUrl() != null) {
-            entity.setProfilePictureUrl(dto.profilePictureUrl());
         }
 
         return Result.of(accountRepository.save(entity));

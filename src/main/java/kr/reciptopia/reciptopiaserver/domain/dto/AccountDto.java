@@ -129,7 +129,7 @@ public interface AccountDto {
 
     @With
     record Update(
-        String email, String password, String nickname, String profilePictureUrl) {
+        String email, String password, String nickname) {
 
         @Builder
         public Update(
@@ -140,13 +140,10 @@ public interface AccountDto {
                 String password,
 
             @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
-                String nickname,
-
-            String profilePictureUrl) {
+                String nickname) {
             this.email = email;
             this.password = password;
             this.nickname = nickname;
-            this.profilePictureUrl = profilePictureUrl;
         }
     }
 
@@ -161,7 +158,7 @@ public interface AccountDto {
 
     @With
     record Result(
-        Long id, String email, String nickname, String profilePictureUrl, UserRole role) {
+        Long id, String email, String nickname, UserRole role) {
 
         @Builder
         public Result(
@@ -176,24 +173,20 @@ public interface AccountDto {
             @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
                 String nickname,
 
-            String profilePictureUrl,
-
             @NotEmpty
                 UserRole role) {
             this.id = id;
             this.email = email;
             this.nickname = nickname;
-            this.profilePictureUrl = profilePictureUrl;
             this.role = role;
         }
 
-        public static Result of(Account entitiy) {
+        public static Result of(Account entity) {
             return Result.builder()
-                .id(entitiy.getId())
-                .email(entitiy.getEmail())
-                .nickname(entitiy.getNickname())
-                .profilePictureUrl(entitiy.getProfilePictureUrl())
-                .role(entitiy.getRole())
+                .id(entity.getId())
+                .email(entity.getEmail())
+                .nickname(entity.getNickname())
+                .role(entity.getRole())
                 .build();
         }
 
