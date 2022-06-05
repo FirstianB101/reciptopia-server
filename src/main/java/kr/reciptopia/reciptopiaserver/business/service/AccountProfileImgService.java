@@ -12,6 +12,7 @@ import kr.reciptopia.reciptopiaserver.business.service.filestore.FileStore;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.AccountProfileImgSearchCondition;
+import kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Bulk;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.AccountProfileImg;
 import kr.reciptopia.reciptopiaserver.domain.model.UploadFile;
@@ -20,6 +21,8 @@ import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.Accou
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -90,6 +93,13 @@ public class AccountProfileImgService {
 
 		AccountProfileImg accountProfileImg = optionalAccountProfileImg.get();
 		return createResponseEntity(accountProfileImg, request);
+	}
+
+	public Bulk.Result.Upload search(
+		AccountProfileImgSearchCondition searchCondition, Pageable pageable) {
+		PageImpl<AccountProfileImg> pageImpl =
+			accountProfileImgRepositoryImpl.search(searchCondition, pageable);
+		return Bulk.Result.Upload.of(pageImpl);
 	}
 
 	@Transactional
