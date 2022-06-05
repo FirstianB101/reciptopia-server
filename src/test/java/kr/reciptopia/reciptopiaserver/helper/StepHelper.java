@@ -5,7 +5,6 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create.WithRecip
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
-
 import java.util.function.Function;
 import kr.reciptopia.reciptopiaserver.domain.dto.StepDto;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
@@ -16,7 +15,6 @@ public class StepHelper {
         "고춧가루 2수저 가득, 고추장 1수저 가득, "
             + "양조간장 3수저, 맛술 1수저, 설탕 2수저, "
             + "올리고당 1수저, 다진 마늘 1수저 넣고 양념장을 만든다.";
-    private static final String ARBITRARY_URL = "C:\\Users\\eunsung\\Desktop\\temp\\picture";
     private static final Long ARBITRARY_ID = 0L;
     private static final Long ARBITRARY_RECIPE_ID = 0L;
     private static final Long ARBITRARY_BULK_ID_0 = 0L;
@@ -27,7 +25,6 @@ public class StepHelper {
         return Step.builder()
             .recipe(aRecipe().withId(ARBITRARY_RECIPE_ID))
             .description(ARBITRARY_DESCRIPTION)
-            .pictureUrl(ARBITRARY_URL)
             .build()
             .withId(ARBITRARY_RECIPE_ID);
     }
@@ -40,7 +37,6 @@ public class StepHelper {
         return Single.builder()
             .recipeId(singleDto.recipeId() == null ? ARBITRARY_RECIPE_ID : singleDto.recipeId())
             .description(ARBITRARY_DESCRIPTION)
-            .pictureUrl(ARBITRARY_URL)
             .build();
     }
 
@@ -51,14 +47,12 @@ public class StepHelper {
     public static WithRecipe aStepCreateWithRecipeDto() {
         return WithRecipe.builder()
             .description(ARBITRARY_DESCRIPTION)
-            .pictureUrl(ARBITRARY_URL)
             .build();
     }
 
     public static Update aStepUpdateDto() {
         return Update.builder()
             .description(ARBITRARY_DESCRIPTION)
-            .pictureUrl(ARBITRARY_URL)
             .build();
     }
 
@@ -67,7 +61,6 @@ public class StepHelper {
             .id(ARBITRARY_ID)
             .recipeId(ARBITRARY_RECIPE_ID)
             .description(ARBITRARY_DESCRIPTION)
-            .pictureUrl(ARBITRARY_URL)
             .build();
     }
 

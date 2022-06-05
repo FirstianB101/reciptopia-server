@@ -2,7 +2,6 @@ package kr.reciptopia.reciptopiaserver.domain.model;
 
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -46,12 +45,10 @@ public class Step extends TimeEntity {
 	@NotEmpty
 	private String description;
 
-	private String pictureUrl;
-
 	@Builder
-	public Step(Recipe recipe, String description, String pictureUrl) {
+	public Step(Recipe recipe, String description) {
 		setRecipe(recipe);
 		setDescription(description);
-		setPictureUrl(pictureUrl);
 	}
+
 }
