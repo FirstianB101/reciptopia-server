@@ -119,32 +119,28 @@ public interface StepDto {
     interface Create {
 
         record WithRecipe(
-            String description, String pictureUrl
+            String description
         ) {
 
             @Builder
             public WithRecipe(
 
                 @NotEmpty
-                    String description,
-
-                String pictureUrl) {
+                    String description) {
                 this.description = description;
-                this.pictureUrl = pictureUrl;
             }
 
             public StepDto.Create.Single asSingleDto(
                 Function<? super StepDto.Create.Single, ? extends StepDto.Create.Single> initialize) {
                 return initialize.apply(StepDto.Create.Single.builder()
                     .description(description)
-                    .pictureUrl(pictureUrl)
                     .build());
             }
         }
 
         @With
         record Single(
-            Long recipeId, String description, String pictureUrl
+            Long recipeId, String description
         ) {
 
             @Builder
@@ -153,19 +149,15 @@ public interface StepDto {
                     Long recipeId,
 
                 @NotEmpty
-                    String description,
-
-                String pictureUrl) {
+                    String description) {
                 this.recipeId = recipeId;
                 this.description = description;
-                this.pictureUrl = pictureUrl;
             }
 
             public Step asEntity(
                 Function<? super Step, ? extends Step> initialize) {
                 return initialize.apply(Step.builder()
                     .description(description)
-                    .pictureUrl(pictureUrl)
                     .build());
             }
 
@@ -178,7 +170,6 @@ public interface StepDto {
                     : Single.builder()
                         .recipeId(recipeId)
                         .description(description)
-                        .pictureUrl(pictureUrl)
                         .build();
             }
 
@@ -190,7 +181,7 @@ public interface StepDto {
 
     @With
     record Update(
-        String description, String pictureUrl
+        String description
     ) {
 
         @Builder
@@ -200,7 +191,7 @@ public interface StepDto {
 
     @With
     record Result(
-        Long id, Long recipeId, String description, String pictureUrl
+        Long id, Long recipeId, String description
     ) {
 
         @Builder
@@ -212,13 +203,10 @@ public interface StepDto {
                 Long recipeId,
 
             @NotEmpty
-                String description,
-
-            String pictureUrl) {
+                String description) {
             this.id = id;
             this.recipeId = recipeId;
             this.description = description;
-            this.pictureUrl = pictureUrl;
         }
 
         public static Result of(Step entity) {
@@ -226,7 +214,6 @@ public interface StepDto {
                 .id(entity.getId())
                 .recipeId(entity.getRecipe().getId())
                 .description(entity.getDescription())
-                .pictureUrl(entity.getPictureUrl())
                 .build();
         }
 

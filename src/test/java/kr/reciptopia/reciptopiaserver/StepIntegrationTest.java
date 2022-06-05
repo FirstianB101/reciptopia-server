@@ -27,7 +27,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -69,8 +68,6 @@ public class StepIntegrationTest {
         fieldWithPath("recipeId").description("레시피 ID");
     private static final FieldDescriptor DOC_FIELD_DESCRIPTION =
         fieldWithPath("description").description("단계별 조리 방법 설명");
-    private static final FieldDescriptor DOC_FIELD_PICTURE_URL =
-        fieldWithPath("pictureUrl").description("참고 이미지 URL");
     private static final ParameterDescriptor DOC_PARAMETER_RECIPE_ID =
         parameterWithName("recipeId").description("레시피 ID").optional();
 
@@ -131,7 +128,6 @@ public class StepIntegrationTest {
                 .description("고춧가루 2수저 가득, 청정원 고추장 1수저 가득, "
                     + "청정원 양조간장 3수저, 맛술 1수저, 설탕 2수저, "
                     + "청정원 올리고당 1수저, 청정원 다진 마늘 1수저 넣고 양념장을 만든다.")
-                .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
                 .build();
             String body = jsonHelper.toJson(dto);
 
@@ -147,16 +143,13 @@ public class StepIntegrationTest {
                 .andExpect(jsonPath("$.description").value("고춧가루 2수저 가득, 청정원 고추장 1수저 가득, "
                     + "청정원 양조간장 3수저, 맛술 1수저, 설탕 2수저, "
                     + "청정원 올리고당 1수저, 청정원 다진 마늘 1수저 넣고 양념장을 만든다."))
-                .andExpect(
-                    jsonPath("$.pictureUrl").value("C:\\Users\\eunsung\\Desktop\\temp\\picture"))
                 .andReturn();
 
             // Document
             actions.andDo(document("step-create-example",
                 requestFields(
                     DOC_FIELD_RECIPE_ID,
-                    DOC_FIELD_DESCRIPTION,
-                    DOC_FIELD_PICTURE_URL
+                    DOC_FIELD_DESCRIPTION
                 )));
         }
 
@@ -188,7 +181,6 @@ public class StepIntegrationTest {
                     it.withDescription("고춧가루 2수저 가득, 고추장 1수저 가득, "
                             + "양조간장 3수저, 맛술 1수저, 설탕 2수저, "
                             + "올리고당 1수저, 다진 마늘 1수저 넣고 양념장을 만든다.")
-                        .withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
                 );
                 return new Struct()
                     .withValue("id", step.getId())
@@ -209,17 +201,14 @@ public class StepIntegrationTest {
                 .andExpect(jsonPath("$.description").value(
                     "고춧가루 2수저 가득, 고추장 1수저 가득, "
                         + "양조간장 3수저, 맛술 1수저, 설탕 2수저, "
-                        + "올리고당 1수저, 다진 마늘 1수저 넣고 양념장을 만든다."))
-                .andExpect(jsonPath("$.pictureUrl")
-                    .value("C:\\Users\\eunsung\\Desktop\\temp\\picture"));
+                        + "올리고당 1수저, 다진 마늘 1수저 넣고 양념장을 만든다."));
 
             // Document
             actions.andDo(document("step-retrieve-example",
                 responseFields(
                     DOC_FIELD_ID,
                     DOC_FIELD_RECIPE_ID,
-                    DOC_FIELD_DESCRIPTION,
-                    DOC_FIELD_PICTURE_URL
+                    DOC_FIELD_DESCRIPTION
                 )));
         }
 
@@ -373,7 +362,6 @@ public class StepIntegrationTest {
             // When
             Update dto = Update.builder()
                 .description("새로운 조리 방법!")
-                .pictureUrl("완전 새로운 사진!")
                 .build();
             String body = jsonHelper.toJson(dto);
 
@@ -387,14 +375,12 @@ public class StepIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.description").value("새로운 조리 방법!"))
-                .andExpect(jsonPath("$.pictureUrl").value("완전 새로운 사진!"))
                 .andReturn();
 
             // Document
             actions.andDo(document("step-update-example",
                 requestFields(
-                    DOC_FIELD_DESCRIPTION,
-                    DOC_FIELD_PICTURE_URL
+                    DOC_FIELD_DESCRIPTION
                 )));
         }
 

@@ -4,7 +4,6 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Bulk;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
-
 import java.util.Set;
 import java.util.stream.Collectors;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.StepAuthorizer;
@@ -53,9 +52,6 @@ public class StepService {
 
         if (dto.description() != null) {
             step.setDescription(dto.description());
-        }
-        if (dto.pictureUrl() != null) {
-            step.setPictureUrl(dto.pictureUrl());
         }
 
         return Result.of(stepRepository.save(step));
