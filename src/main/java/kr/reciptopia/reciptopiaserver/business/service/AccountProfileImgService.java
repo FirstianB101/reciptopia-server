@@ -1,6 +1,5 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Upload;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +12,7 @@ import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.AccountProfileImgSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Bulk;
+import kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.AccountProfileImg;
 import kr.reciptopia.reciptopiaserver.domain.model.UploadFile;
@@ -44,7 +44,7 @@ public class AccountProfileImgService {
 	private final UploadFileAuthorizer uploadFileAuthorizer;
 
 	@Transactional
-	public Upload put(Long ownerId, MultipartFile imgFile,
+	public Result put(Long ownerId, MultipartFile imgFile,
 		Authentication authentication) {
 		throwExceptionWhenInvalidMultipartFile(imgFile);
 
@@ -58,7 +58,7 @@ public class AccountProfileImgService {
 
 		if (optionalAccountProfileImg.isEmpty()) {
 			AccountProfileImg newAccountProfileImg = createAccountProfileImg(uploadFile, owner);
-			return Upload.of(accountProfileImgRepository.save(newAccountProfileImg));
+			return Result.of(accountProfileImgRepository.save(newAccountProfileImg));
 		}
 
 		AccountProfileImg originAccountProfileImg = optionalAccountProfileImg.get();
@@ -73,7 +73,7 @@ public class AccountProfileImgService {
 		}
 
 		originAccountProfileImg = updateAccountProfileImg(uploadFile, originAccountProfileImg);
-		return Upload.of(accountProfileImgRepository.save(originAccountProfileImg));
+		return Result.of(accountProfileImgRepository.save(originAccountProfileImg));
 	}
 
 	public ResponseEntity<Resource> download(Long id, HttpServletRequest request) {
@@ -95,11 +95,11 @@ public class AccountProfileImgService {
 		return createResponseEntity(accountProfileImg, request);
 	}
 
-	public Bulk.Result.Upload search(
+	public Bulk.Result search(
 		AccountProfileImgSearchCondition searchCondition, Pageable pageable) {
 		PageImpl<AccountProfileImg> pageImpl =
 			accountProfileImgRepositoryImpl.search(searchCondition, pageable);
-		return Bulk.Result.Upload.of(pageImpl);
+		return Bulk.Result.of(pageImpl);
 	}
 
 	@Transactional
