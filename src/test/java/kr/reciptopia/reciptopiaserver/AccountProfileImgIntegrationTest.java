@@ -30,6 +30,7 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
+import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.AccountProfileImg;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
@@ -533,6 +534,128 @@ public class AccountProfileImgIntegrationTest {
 			// Then
 			actions
 				.andExpect(status().isOk());
+		}
+
+	}
+
+	@Nested
+	class SearchAccountProfileImgs {
+
+		@Test
+		void listAccountProfileImgs() throws Exception {
+			// Given
+			Struct given = trxHelper.doInTransaction(() -> {
+				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
+				AccountProfileImg accountProfileImgB = entityHelper.generateAccountProfileImg();
+
+				return new Struct()
+					.withValue("accountProfileImgAId", accountProfileImgA.getId())
+					.withValue("accountProfileImgBId", accountProfileImgB.getId());
+			});
+			Long accountProfileImgAId = given.valueOf("accountProfileImgAId");
+			Long accountProfileImgBId = given.valueOf("accountProfileImgBId");
+
+			// When
+			ResultActions actions = mockMvc.perform(
+				get("/account/profileImages"));
+
+			// Then
+			actions
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.accountProfileImgs").value(aMapWithSize(2)))
+				.andExpect(jsonPath("$.accountProfileImgs.[*].id").value(containsInAnyOrder(
+					accountProfileImgAId.intValue(),
+					accountProfileImgBId.intValue()
+				)));
+
+			// Document
+			actions.andDo(document("accountProfileImg-list-example",
+				requestParameters(
+					ApiDocumentation.DOC_PARAMETER_PAGE,
+					ApiDocumentation.DOC_PARAMETER_SIZE,
+					ApiDocumentation.DOC_PARAMETER_SORT
+				)));
+		}
+
+		@Test
+		void listAccountProfileImgsWithPaging() throws Exception {
+			// Given
+			Struct given = trxHelper.doInTransaction(() -> {
+				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
+				AccountProfileImg accountProfileImgB = entityHelper.generateAccountProfileImg();
+				AccountProfileImg accountProfileImgC = entityHelper.generateAccountProfileImg();
+				AccountProfileImg accountProfileImgD = entityHelper.generateAccountProfileImg();
+				AccountProfileImg accountProfileImgE = entityHelper.generateAccountProfileImg();
+
+				return new Struct()
+					.withValue("accountProfileImgBId", accountProfileImgB.getId())
+					.withValue("accountProfileImgCId", accountProfileImgC.getId());
+			});
+			Long accountProfileImgBId = given.valueOf("accountProfileImgBId");
+			Long accountProfileImgCId = given.valueOf("accountProfileImgCId");
+
+			// When
+			ResultActions actions = mockMvc.perform(
+				get("/account/profileImages")
+					.param("size", "2")
+					.param("page", "1")
+					.param("sort", "id,desc"));
+
+			// Then
+			actions
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.accountProfileImgs").value(aMapWithSize(2)))
+				.andExpect(jsonPath("$.accountProfileImgs.[*].id").value(contains(
+					accountProfileImgCId.intValue(),
+					accountProfileImgBId.intValue()
+				)));
+
+			// Document
+			actions.andDo(document("accountProfileImg-list-with-paging-example"));
+		}
+
+		@Test
+		void searchAccountProfileImgsByOwnerId() throws Exception {
+			// Given
+			Struct given = trxHelper.doInTransaction(() -> {
+				Account account = entityHelper.generateAccount();
+
+				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
+				AccountProfileImg accountProfileImgB = entityHelper
+					.generateAccountProfileImg(it -> it.withOwner(account));
+				AccountProfileImg accountProfileImgC = entityHelper
+					.generateAccountProfileImg(it -> it.withOwner(account));
+				AccountProfileImg accountProfileImgD = entityHelper.generateAccountProfileImg();
+				AccountProfileImg accountProfileImgE = entityHelper.generateAccountProfileImg();
+
+				return new Struct()
+					.withValue("ownerId", account.getId())
+					.withValue("accountProfileImgBId", accountProfileImgB.getId())
+					.withValue("accountProfileImgCId", accountProfileImgC.getId());
+			});
+			Long ownerId = given.valueOf("ownerId");
+			Long accountProfileImgBId = given.valueOf("accountProfileImgBId");
+			Long accountProfileImgCId = given.valueOf("accountProfileImgCId");
+
+			// When
+			ResultActions actions = mockMvc.perform(
+				get("/account/profileImages")
+					.param("ownerId", ownerId.toString()));
+
+			// Then
+			actions
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.accountProfileImgs").value(aMapWithSize(2)))
+				.andExpect(jsonPath("$.accountProfileImgs.[*].id").value(containsInAnyOrder(
+					accountProfileImgCId.intValue(),
+					accountProfileImgBId.intValue()
+				)));
+
+			// Document
+			actions.andDo(document("accountProfileImg-search-example",
+				requestParameters(
+					DOC_PARAMETER_OWNER_ID
+				)));
 		}
 
 	}
