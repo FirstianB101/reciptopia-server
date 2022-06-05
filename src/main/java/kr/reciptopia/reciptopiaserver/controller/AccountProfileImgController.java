@@ -1,10 +1,10 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result.Upload;
 import javax.servlet.http.HttpServletRequest;
 import kr.reciptopia.reciptopiaserver.business.service.AccountProfileImgService;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.AccountProfileImgSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Bulk;
+import kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +31,7 @@ public class AccountProfileImgController {
 
 	@PostMapping("/account/profileImages")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Upload put(@RequestPart Long ownerId, @RequestPart MultipartFile imgFile,
+	public Result put(@RequestPart Long ownerId, @RequestPart MultipartFile imgFile,
 		Authentication authentication) {
 		return service.put(ownerId, imgFile, authentication);
 	}
@@ -49,7 +49,7 @@ public class AccountProfileImgController {
 	}
 
 	@GetMapping("/account/profileImages")
-	public Bulk.Result.Upload search(
+	public Bulk.Result search(
 		@RequestParam(required = false) Long ownerId, Pageable pageable) {
 		AccountProfileImgSearchCondition searchCondition = AccountProfileImgSearchCondition.builder()
 			.ownerId(ownerId)
