@@ -190,7 +190,7 @@ public class AccountProfileImgIntegrationTest {
 			FileInputStream fp = new FileInputStream(TEST_IMG_FILE_PATH);
 
 			MockMultipartFile imgFileMultipart = new MockMultipartFile(
-				"imgFile", TEST_IMG_FILE_NAME, "image/png", fp
+				"imgFile", TEST_IMG_FILE_NAME, MediaType.IMAGE_PNG_VALUE, fp
 			);
 			MockMultipartFile ownerIdMultipart = new MockMultipartFile(
 				"ownerId", "ownerId", "application/json",
@@ -248,7 +248,7 @@ public class AccountProfileImgIntegrationTest {
 				"imgFile", TEST_IMG_FILE_NAME, MediaType.IMAGE_PNG_VALUE, fp
 			);
 			MockMultipartFile ownerIdMultipart = new MockMultipartFile(
-				"ownerId", "ownerId", "application/json",
+				"ownerId", "ownerId", MediaType.APPLICATION_JSON_VALUE,
 				ownerId.toString().getBytes(StandardCharsets.UTF_8)
 			);
 
@@ -309,7 +309,7 @@ public class AccountProfileImgIntegrationTest {
 			Long ownerId = given.valueOf("ownerId");
 
 			MockMultipartFile ownerIdMultipart = new MockMultipartFile(
-				"ownerId", "ownerId", "application/json",
+				"ownerId", "ownerId", MediaType.APPLICATION_JSON_VALUE,
 				ownerId.toString().getBytes(StandardCharsets.UTF_8)
 			);
 
@@ -342,11 +342,10 @@ public class AccountProfileImgIntegrationTest {
 			FileInputStream fp = new FileInputStream(TEST_TXT_FILE_PATH);
 
 			MockMultipartFile txtFileMultipart = new MockMultipartFile(
-				"imgFile", TEST_TXT_FILE_NAME, "text/plain", fp
+				"imgFile", TEST_TXT_FILE_NAME, MediaType.TEXT_PLAIN_VALUE, fp
 			);
-
 			MockMultipartFile ownerIdMultipart = new MockMultipartFile(
-				"ownerId", "ownerId", "application/json",
+				"ownerId", "ownerId", MediaType.APPLICATION_JSON_VALUE,
 				ownerId.toString().getBytes(StandardCharsets.UTF_8)
 			);
 
