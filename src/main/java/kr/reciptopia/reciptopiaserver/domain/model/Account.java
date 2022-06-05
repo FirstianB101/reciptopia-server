@@ -1,7 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.model;
 
 import static javax.persistence.GenerationType.IDENTITY;
-
 import java.util.function.Function;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -49,8 +48,6 @@ public class Account extends TimeEntity {
     @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
     private String nickname;
 
-    private String profilePictureUrl;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     private UserRole role;
@@ -82,12 +79,7 @@ public class Account extends TimeEntity {
             .nickname(nickname)
             .role(role)
             .build()
-            .withId(id)
-            .withProfilePictureUrl(profilePictureUrl);
-    }
-
-    public void setProfilePictureUrl(String profilePictureUrl) {
-        this.profilePictureUrl = profilePictureUrl;
+            .withId(id);
     }
 
 }
