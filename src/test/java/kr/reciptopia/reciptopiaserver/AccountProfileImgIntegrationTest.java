@@ -2,6 +2,9 @@ package kr.reciptopia.reciptopiaserver;
 
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -422,10 +425,10 @@ public class AccountProfileImgIntegrationTest {
 	}
 
 	@Nested
-	class GetAccountProfileImg {
+	class DownloadAccountProfileImg {
 
 		@Test
-		void getAccountProfileImg() throws Exception {
+		void downloadAccountProfileImg() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
 				AccountProfileImg accountProfileImg = entityHelper
@@ -440,22 +443,22 @@ public class AccountProfileImgIntegrationTest {
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				get("/account/profileImages/{id}", id));
+				get("/account/profileImages/{id}/download", id));
 
 			// Then
 			actions
 				.andExpect(status().isOk());
 
 			// Document
-			actions.andDo(document("accountProfileImg-retrieve-example"));
+			actions.andDo(document("accountProfileImg-download-example"));
 		}
 
 		@Test
-		void getAccountProfileImg_AccountProfileImgNotFound_NotFoundStatus()
+		void downloadAccountProfileImg_AccountProfileImgNotFound_NotFoundStatus()
 			throws Exception {
 			// When
 			ResultActions actions = mockMvc.perform(
-				get("/account/profileImages/{id}", 0L));
+				get("/account/profileImages/{id}/download", 0L));
 
 			// Then
 			actions
@@ -465,10 +468,10 @@ public class AccountProfileImgIntegrationTest {
 	}
 
 	@Nested
-	class SearchAccountProfileImgs {
+	class DownloadAccountProfileImgByOwnerId {
 
 		@Test
-		void searchAccountProfileImgsByOwnerId() throws Exception {
+		void downloadAccountProfileImgByOwnerId() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
 				Account account = entityHelper.generateAccount();
@@ -490,22 +493,23 @@ public class AccountProfileImgIntegrationTest {
 			Long ownerId = given.valueOf("ownerId");
 
 			// When
-			ResultActions actions = mockMvc.perform(get("/account/profileImages")
-				.param("ownerId", ownerId.toString()));
+			ResultActions actions = mockMvc.perform(
+				get("/account/profileImages/download")
+					.param("ownerId", ownerId.toString()));
 
 			// Then
 			actions
 				.andExpect(status().isOk());
 
 			// Document
-			actions.andDo(document("accountProfileImg-search-example",
+			actions.andDo(document("accountProfileImg-downloadByOwnerId-example",
 				requestParameters(
 					DOC_PARAMETER_OWNER_ID
 				)));
 		}
 
 		@Test
-		void searchAccountProfileImgsByOwnerId_프로필_이미지가_없는_경우() throws Exception {
+		void downloadAccountProfileImgByOwnerId_프로필_이미지가_없는_경우() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
 				Account account = entityHelper.generateAccount();
@@ -522,8 +526,9 @@ public class AccountProfileImgIntegrationTest {
 			Long ownerId = given.valueOf("ownerId");
 
 			// When
-			ResultActions actions = mockMvc.perform(get("/account/profileImages")
-				.param("ownerId", ownerId.toString()));
+			ResultActions actions = mockMvc.perform(
+				get("/account/profileImages/download")
+					.param("ownerId", ownerId.toString()));
 
 			// Then
 			actions
