@@ -8,6 +8,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
+import kr.reciptopia.reciptopiaserver.domain.model.PostImg;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
@@ -41,6 +42,10 @@ public record RepositoryHelper(EntityManager em,
 
     public Post findPostOrThrow(Long id) throws ResponseStatusException {
         return findOrThrow(Post.class, id);
+    }
+
+    public PostImg findPostImgOrThrow(Long id) throws ResponseStatusException {
+        return findOrThrow(PostImg.class, id);
     }
 
     public Comment findCommentOrThrow(Long id) throws ResponseStatusException {
