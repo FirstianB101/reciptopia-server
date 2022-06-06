@@ -7,6 +7,7 @@ import static kr.reciptopia.reciptopiaserver.helper.CommentLikeTagHelper.aCommen
 import static kr.reciptopia.reciptopiaserver.helper.FavoriteHelper.aFavorite;
 import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.aMainIngredient;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPost;
+import static kr.reciptopia.reciptopiaserver.helper.PostImgHelper.aPostImg;
 import static kr.reciptopia.reciptopiaserver.helper.PostLikeTagHelper.aPostLikeTag;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
 import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReply;
@@ -25,6 +26,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
+import kr.reciptopia.reciptopiaserver.domain.model.PostImg;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
@@ -85,6 +87,25 @@ public record EntityHelper(EntityManager em) {
 
         em.persist(post);
         return post;
+    }
+
+    public PostImg generatePostImg() {
+        return generatePostImg(noInit());
+    }
+
+    public PostImg generatePostImg(
+        Function<? super PostImg, ? extends PostImg> initialize) {
+        PostImg postImg = aPostImg()
+            .withId(null)
+            .withPost(null);
+
+        postImg = initialize.apply(postImg);
+        if (postImg.getPost() == null) {
+            postImg.setPost(generatePost());
+        }
+
+        em.persist(postImg);
+        return postImg;
     }
 
     public Comment generateComment() {
