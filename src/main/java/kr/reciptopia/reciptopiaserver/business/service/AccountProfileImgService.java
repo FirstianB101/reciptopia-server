@@ -62,15 +62,7 @@ public class AccountProfileImgService {
 		}
 
 		AccountProfileImg originAccountProfileImg = optionalAccountProfileImg.get();
-		File originFile = new File(fileStore.getFullPath(
-			originAccountProfileImg.getStoreFileName())
-		);
-		if (originFile.exists()) {
-			originFile.delete();
-		} else {
-			throw errorHelper.notFound("File Not Found from "
-				+ fileStore.getFullPath(originAccountProfileImg.getStoreFileName()));
-		}
+		deleteAccountProfileImgFile(originAccountProfileImg);
 
 		originAccountProfileImg = updateAccountProfileImg(uploadFile, originAccountProfileImg);
 		return Result.of(accountProfileImgRepository.save(originAccountProfileImg));
@@ -110,9 +102,6 @@ public class AccountProfileImgService {
 		File file = new File(fileStore.getFullPath(accountProfileImg.getStoreFileName()));
 		if (file.exists()) {
 			file.delete();
-		} else {
-			throw errorHelper.notFound("File Not Found from "
-				+ fileStore.getFullPath(accountProfileImg.getStoreFileName()));
 		}
 
 		accountProfileImgRepository.delete(accountProfileImg);
@@ -140,6 +129,15 @@ public class AccountProfileImgService {
 			.storeFileName(uploadFile.getStoreFileName())
 			.owner(owner)
 			.build();
+	}
+
+	private void deleteAccountProfileImgFile(AccountProfileImg accountProfileImg) {
+		File originFile = new File(fileStore.getFullPath(
+			accountProfileImg.getStoreFileName())
+		);
+		if (originFile.exists()) {
+			originFile.delete();
+		}
 	}
 
 	private AccountProfileImg updateAccountProfileImg(UploadFile uploadFile,
