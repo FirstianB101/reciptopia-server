@@ -65,17 +65,7 @@ public class PostImgService {
 		Post post = repoHelper.findPostOrThrow(postId);
 		uploadFileAuthorizer.requireByOneself(authentication, post.getOwner());
 
-		List<PostImg> postImgList = postImgRepository.findAllByPostId(postId);
-		for (PostImg postImg : postImgList) {
-			File file = new File(fileStore.getFullPath(postImg.getStoreFileName()));
-			if (file.exists()) {
-				file.delete();
-			} else {
-				throw errorHelper.notFound("File Not Found from "
-					+ fileStore.getFullPath(postImg.getStoreFileName()));
-			}
-		}
-		postImgRepository.deleteAllInBatch(postImgList);
+		clearByPostId(post.getId());
 
 		Map<Long, Result> postImgs = new LinkedHashMap<>();
 		for (MultipartFile imgFile : imgFiles) {
@@ -113,9 +103,6 @@ public class PostImgService {
 		File file = new File(fileStore.getFullPath(postImg.getStoreFileName()));
 		if (file.exists()) {
 			file.delete();
-		} else {
-			throw errorHelper.notFound("File Not Found from "
-				+ fileStore.getFullPath(postImg.getStoreFileName()));
 		}
 
 		postImgRepository.delete(postImg);
@@ -143,6 +130,18 @@ public class PostImgService {
 			.storeFileName(uploadFile.getStoreFileName())
 			.post(post)
 			.build();
+	}
+
+	private void clearByPostId(Long postId) {
+		List<PostImg> postImgList = postImgRepository.findAllByPostId(postId);
+		for (PostImg postImg : postImgList) {
+			File file = new File(fileStore.getFullPath(postImg.getStoreFileName()));
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+
+		postImgRepository.deleteAllInBatch(postImgList);
 	}
 
 	private ResponseEntity<Resource> createResponseEntity(
