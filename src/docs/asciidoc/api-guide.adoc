@@ -11,14 +11,14 @@
 
 WARNING: 이 API는 아직 구현 중에 있으며 추후에 변경될 수 있습니다.
 
-NOTE: v0.16.0-alpha
+NOTE: v0.17.0-alpha
 
 ****
-v0.16.0-alpha 변경사항
+v0.17.0-alpha 변경사항
 
 '''
 
-* PostImg API 추가
+* StepImg API 추가
 
 ****
 
@@ -677,6 +677,59 @@ operation::step-bulk-update-example[snippets='request-fields,curl-request,http-r
 모든 작업이 성공해야 성공합니다.
 
 operation::step-bulk-delete-example[snippets='curl-request,http-response']
+
+[[resources_stepImg]]
+== StepImg 리소스
+
+[[resources_stepImg_download]]
+=== StepImg 다운로드
+
+`GET /post/recipe/step/images/{id}/download` 요청으로 하나의 StepImg의 이미지 리소스를 다운로드합니다. +
+유효하지 않은 `id` 가 입력되면 `404 Not Found` 에러를 반환합니다.
+
+operation::stepImg-download-example[snippets='curl-request']
+//operation::stepImg-download-example[snippets='response-fields,curl-request']
+
+요청 패러미터를 추가하면 특정 조건을 기준으로 StepImg의 이미지 리소스를 다운로드할 수 있습니다. +
+
+operation::stepImg-downloadByStepId-example[snippets='request-parameters,curl-request']
+//operation::stepImg-downloadByStepId-example[snippets='request-parameters,curl-request,http-response']
+
+[[resources_stepImg_list]]
+=== StepImg 목록 조회
+
+`GET /post/recipe/step/images` 요청으로 다수의 StepImg들을 조회합니다.
+<<overview_paging_and_sorting, Paging 혹은 Sorting>> 요청 패러미터를 추가하면 원하는 방식으로 목록을 조회할 수 있습니다.
+
+operation::stepImg-list-example[snippets='request-parameters,curl-request,http-response']
+
+[[resources_stepImg_search]]
+=== StepImg 목록 검색
+
+<<resources_stepImg_list, StepImg 목록 조회 API>>에 요청 패러미터를 추가하면 특정 조건을 기준으로 StepImg를 검색할 수 있습니다.
+
+operation::stepImg-search-example[snippets='request-parameters,curl-request,http-response']
+
+[[resources_stepImg_create]]
+=== StepImg 생성
+
+`POST /post/recipe/step/images` 요청으로 StepImg를 생성합니다. +
+Step의 id에 해당하는 StepImg가 이미 존재하는 경우, +
+기존 StepImg를 요청 StepImg로 덮어씁니다.
+
+이미지 파일을 제외한 유효하지 않은 파일이 입력되면 `400 Bad Request` 에러를 반환합니다.
+
+성공 시 생성한 StepImg를 응답 Body로 전달합니다.
+
+operation::stepImg-create-example[snippets='request-parts,curl-request,response-fields,http-response']
+
+[[resources_stepImg_delete]]
+=== StepImg 삭제
+
+`DELETE /post/recipe/step/images/{id}` 요청으로 StepImg를 삭제합니다. +
+요청의 `Authorization` 헤더로 요청을 보낸 `StepImg` 의 엑세스 토큰이 제공되어야 합니다.
+
+operation::stepImg-delete-example[snippets='curl-request,http-response']
 
 [[resources_mainIngredient]]
 == MainIngredient 리소스
