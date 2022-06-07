@@ -45,10 +45,13 @@ public class Step extends TimeEntity {
 	@NotEmpty
 	private String description;
 
+	private String pictureUrl;
+
 	@Builder
-	public Step(Recipe recipe, String description) {
+	public Step(Recipe recipe, String description, String pictureUrl) {
 		setRecipe(recipe);
 		setDescription(description);
+		setPictureUrl(pictureUrl);
 	}
 
 }
