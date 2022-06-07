@@ -14,6 +14,7 @@ import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReply;
 import static kr.reciptopia.reciptopiaserver.helper.ReplyLikeTagHelper.aReplyLikeTag;
 import static kr.reciptopia.reciptopiaserver.helper.SearchHistoryHelper.aSearchHistory;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStep;
+import static kr.reciptopia.reciptopiaserver.helper.StepImgHelper.aStepImg;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredient;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,6 +34,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import kr.reciptopia.reciptopiaserver.domain.model.ReplyLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
+import kr.reciptopia.reciptopiaserver.domain.model.StepImg;
 import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
 import org.springframework.stereotype.Component;
 
@@ -278,6 +280,10 @@ public record EntityHelper(EntityManager em) {
         return subIngredient;
     }
 
+    public Step generateStep() {
+        return generateStep(noInit());
+    }
+
     public Step generateStep(Function<? super Step, ? extends Step> initialize) {
         Step step = aStep()
             .withId(null)
@@ -292,8 +298,23 @@ public record EntityHelper(EntityManager em) {
         return step;
     }
 
-    public Step generateStep() {
-        return generateStep(noInit());
+    public StepImg generateStepImg() {
+        return generateStepImg(noInit());
+    }
+
+    public StepImg generateStepImg(
+        Function<? super StepImg, ? extends StepImg> initialize) {
+        StepImg stepImg = aStepImg()
+            .withId(null)
+            .withStep(null);
+
+        stepImg = initialize.apply(stepImg);
+        if (stepImg.getStep() == null) {
+            stepImg.setStep(generateStep());
+        }
+
+        em.persist(stepImg);
+        return stepImg;
     }
 
     private <T> Function<? super T, ? extends T> noInit() {
