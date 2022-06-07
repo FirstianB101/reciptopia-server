@@ -15,6 +15,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import kr.reciptopia.reciptopiaserver.domain.model.ReplyLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
+import kr.reciptopia.reciptopiaserver.domain.model.StepImg;
 import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -66,25 +67,29 @@ public record RepositoryHelper(EntityManager em,
 
     public ReplyLikeTag findReplyLikeTagOrThrow(Long id) throws ResponseStatusException {
         return findOrThrow(ReplyLikeTag.class, id);
-    }
+	}
 
-    public Recipe findRecipeOrThrow(Long id) throws ResponseStatusException {
-        return findOrThrow(Recipe.class, id);
-    }
+	public Recipe findRecipeOrThrow(Long id) throws ResponseStatusException {
+		return findOrThrow(Recipe.class, id);
+	}
 
-    public Step findStepOrThrow(Long id) throws ResponseStatusException {
-        return findOrThrow(Step.class, id);
-    }
+	public Step findStepOrThrow(Long id) throws ResponseStatusException {
+		return findOrThrow(Step.class, id);
+	}
 
-    public MainIngredient findMainIngredientOrThrow(Long id) throws ResponseStatusException {
-        return findOrThrow(MainIngredient.class, id);
-    }
+	public StepImg findStepImgOrThrow(Long id) throws ResponseStatusException {
+		return findOrThrow(StepImg.class, id);
+	}
 
-    public SubIngredient findSubIngredientOrThrow(Long id) throws ResponseStatusException {
-        return findOrThrow(SubIngredient.class, id);
-    }
+	public MainIngredient findMainIngredientOrThrow(Long id) throws ResponseStatusException {
+		return findOrThrow(MainIngredient.class, id);
+	}
 
-    public SearchHistory findSearchHistoryOrThrow(Long id) throws ResponseStatusException {
+	public SubIngredient findSubIngredientOrThrow(Long id) throws ResponseStatusException {
+		return findOrThrow(SubIngredient.class, id);
+	}
+
+	public SearchHistory findSearchHistoryOrThrow(Long id) throws ResponseStatusException {
         return findOrThrow(SearchHistory.class, id);
     }
 
