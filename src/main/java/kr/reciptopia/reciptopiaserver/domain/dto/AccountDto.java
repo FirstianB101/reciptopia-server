@@ -128,23 +128,26 @@ public interface AccountDto {
     }
 
     @With
-    record Update(
-        String email, String password, String nickname) {
+	record Update(
+		String email, String password, String nickname, String profilePictureUrl) {
 
-        @Builder
-        public Update(
-            @Email(message = "이메일 형식이 아닙니다.")
-                String email,
+		@Builder
+		public Update(
+			@Email(message = "이메일 형식이 아닙니다.")
+				String email,
 
-            @Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!")
-                String password,
+			@Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!")
+				String password,
 
-            @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
-                String nickname) {
-            this.email = email;
-            this.password = password;
-            this.nickname = nickname;
-        }
+			@Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
+				String nickname,
+
+			String profilePictureUrl) {
+			this.email = email;
+			this.password = password;
+			this.nickname = nickname;
+			this.profilePictureUrl = profilePictureUrl;
+		}
     }
 
     @With
@@ -156,36 +159,40 @@ public interface AccountDto {
         }
     }
 
-    @With
-    record Result(
-        Long id, String email, String nickname, UserRole role) {
+	@With
+	record Result(
+		Long id, String email, String nickname, String profilePictureUrl, UserRole role) {
 
-        @Builder
-        public Result(
-            @NotNull
-                Long id,
+		@Builder
+		public Result(
+			@NotNull
+				Long id,
 
-            @NotNull
-            @Email(message = "이메일 형식이 아닙니다.")
-                String email,
+			@NotNull
+			@Email(message = "이메일 형식이 아닙니다.")
+				String email,
 
-            @NotBlank
-            @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
-                String nickname,
+			@NotBlank
+			@Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
+				String nickname,
 
-            @NotEmpty
-                UserRole role) {
+			String profilePictureUrl,
+
+			@NotEmpty
+				UserRole role) {
             this.id = id;
             this.email = email;
-            this.nickname = nickname;
-            this.role = role;
+			this.nickname = nickname;
+			this.profilePictureUrl = profilePictureUrl;
+			this.role = role;
         }
 
         public static Result of(Account entity) {
             return Result.builder()
-                .id(entity.getId())
-                .email(entity.getEmail())
-                .nickname(entity.getNickname())
+				.id(entity.getId())
+				.email(entity.getEmail())
+				.nickname(entity.getNickname())
+				.profilePictureUrl(entity.getProfilePictureUrl())
                 .role(entity.getRole())
                 .build();
         }
