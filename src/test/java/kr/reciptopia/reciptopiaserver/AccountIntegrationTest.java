@@ -92,6 +92,8 @@ public class AccountIntegrationTest {
         fieldWithPath("password").description("비밀번호");
     private static final FieldDescriptor DOC_FIELD_NICKNAME =
         fieldWithPath("nickname").description("닉네임");
+    private static final FieldDescriptor DOC_FIELD_PICTURE_URL =
+        fieldWithPath("profilePictureUrl").description("프로필 사진 URL");
     private static final FieldDescriptor DOC_FIELD_ROLE =
         fieldWithPath("role").description("시스템 역할 (`USER`, `ADMIN`)");
     private static final FieldDescriptor DOC_FIELD_EMAIL_DUPLICATION =
@@ -195,6 +197,7 @@ public class AccountIntegrationTest {
                     it.withEmail("test@email.com")
                         .withPassword(passwordEncoder::encode, "this!sPassw0rd")
                         .withNickname("pte1024")
+                        .withProfilePictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
                         .withRole(UserRole.USER)
                 );
                 return account.getId();
@@ -209,6 +212,8 @@ public class AccountIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.email").value("test@email.com"))
+                .andExpect(jsonPath("$.profilePictureUrl").value(
+                    "C:\\Users\\tellang\\Desktop\\temp\\picture"))
                 .andExpect(jsonPath("$.nickname").value("pte1024"));
 
             // Document
@@ -217,6 +222,7 @@ public class AccountIntegrationTest {
                     DOC_FIELD_ID,
                     DOC_FIELD_EMAIL,
                     DOC_FIELD_NICKNAME,
+                    DOC_FIELD_PICTURE_URL,
                     DOC_FIELD_ROLE
                 )));
         }
@@ -376,6 +382,7 @@ public class AccountIntegrationTest {
                     it.withEmail("test@email.com")
                         .withPassword(passwordEncoder::encode, "this!sPassw0rd")
                         .withNickname("pte1024")
+                        .withProfilePictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
                         .withRole(UserRole.USER)
                 );
 
@@ -405,6 +412,8 @@ public class AccountIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.email").value("new@email.com"))
+                .andExpect(jsonPath("$.profilePictureUrl").value(
+                    "C:\\Users\\tellang\\Desktop\\temp\\picture"))
                 .andExpect(jsonPath("$.nickname").value("new1024"))
                 .andReturn();
 
@@ -422,7 +431,8 @@ public class AccountIntegrationTest {
                 requestFields(
                     DOC_FIELD_EMAIL,
                     DOC_FIELD_PASSWORD,
-                    DOC_FIELD_NICKNAME
+                    DOC_FIELD_NICKNAME,
+                    DOC_FIELD_PICTURE_URL
                 )));
         }
 
@@ -463,6 +473,7 @@ public class AccountIntegrationTest {
                 .email("new@email.com")
                 .password("newPassw0rd")
                 .nickname("new1024")
+                .profilePictureUrl("C:\\Users\\tellang\\Desktop\\temp\\new-picture")
                 .build();
             String body = jsonHelper.toJson(dto);
 
@@ -476,6 +487,8 @@ public class AccountIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(ownerId))
                 .andExpect(jsonPath("$.email").value("new@email.com"))
+                .andExpect(jsonPath("$.profilePictureUrl").value(
+                    "C:\\Users\\tellang\\Desktop\\temp\\new-picture"))
                 .andExpect(jsonPath("$.nickname").value("new1024"))
                 .andReturn();
 
