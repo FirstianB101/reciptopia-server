@@ -2,7 +2,10 @@ package kr.reciptopia.reciptopiaserver.domain.model;
 
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -16,6 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Singular;
 import lombok.ToString;
 import lombok.With;
 import org.hibernate.annotations.OnDelete;
@@ -42,6 +46,9 @@ public class Post extends TimeEntity {
     @JoinColumn(name = "account_id")
     private Account owner;
 
+    @ElementCollection
+    private List<String> pictureUrls = new ArrayList<>();
+
     @NotEmpty
     private String title;
 
@@ -51,11 +58,24 @@ public class Post extends TimeEntity {
     private Long views;
 
     @Builder
-    public Post(Account owner, String title, String content) {
+    public Post(Account owner, @Singular List<String> pictureUrls, String title, String content) {
         setOwner(owner);
+        this.pictureUrls = pictureUrls;
         this.title = title;
         this.content = content;
         this.views = 0L;
+    }
+
+    public Post withPictureUrl(String pictureUrl) {
+        return Post.builder()
+            .title(title)
+            .content(content)
+            .pictureUrls(pictureUrls)
+            .pictureUrl(pictureUrl)
+            .build()
+            .withId(id)
+            .withOwner(owner)
+            .withViews(views);
     }
 
     public void addViews() {

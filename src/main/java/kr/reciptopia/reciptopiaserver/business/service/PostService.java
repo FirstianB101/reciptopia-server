@@ -82,6 +82,9 @@ public class PostService {
         Post post = repoHelper.findPostOrThrow(id);
         postAuthorizer.requirePostOwner(authentication, post);
 
+        if (dto.pictureUrls() != null) {
+            post.setPictureUrls(dto.pictureUrls());
+        }
         if (dto.title() != null && !dto.title().isBlank()) {
             post.setTitle(dto.title());
         }
