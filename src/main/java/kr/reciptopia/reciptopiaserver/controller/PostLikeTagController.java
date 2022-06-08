@@ -1,8 +1,11 @@
 package kr.reciptopia.reciptopiaserver.controller;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.PostLikeTagDto.Bulk;
+
 import java.util.List;
 import javax.validation.Valid;
 import kr.reciptopia.reciptopiaserver.business.service.PostLikeTagService;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostLikeTagSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostLikeTagDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostLikeTagDto.Result;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,8 +41,20 @@ public class PostLikeTagController {
 	}
 
 	@GetMapping("/post/likeTags")
-	public List<Result> search(Pageable pageable) {
-		return service.search(pageable);
+	public Bulk.Result search(
+		@RequestParam(required = false) Long id,
+		@RequestParam(required = false) List<Long> ids,
+		@RequestParam(required = false) Long ownerId,
+		@RequestParam(required = false) List<Long> ownerIds,
+		Pageable pageable) {
+		PostLikeTagSearchCondition postLikeTagSearchCondition = PostLikeTagSearchCondition.builder()
+			.id(id)
+			.ids(ids)
+			.ownerIds(ownerIds)
+			.ownerId(ownerId)
+			.build();
+
+		return service.search(postLikeTagSearchCondition, pageable);
 	}
 
 	@DeleteMapping("/post/likeTags/{id}")
