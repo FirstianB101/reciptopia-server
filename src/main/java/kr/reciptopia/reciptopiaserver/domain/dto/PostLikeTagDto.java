@@ -32,11 +32,27 @@ public interface PostLikeTagDto {
                 this.postLikeTags = postLikeTags;
             }
 
-            public static Result of(Page<PostLikeTag> postLikeTags,
-                Function<PostLikeTagDto.Result, Long> getKey) {
-                return Result.builder()
-                    .postLikeTags(getResultMapFromPageWithKey(postLikeTags, getKey))
-                    .build();
+            public interface GroupBy {
+
+                interface Id {
+
+                    static Result of(Page<PostLikeTag> postLikeTags) {
+                        return Result.builder()
+                            .postLikeTags(getResultMapFromPageWithKey(postLikeTags,
+                                PostLikeTagDto.Result::id))
+                            .build();
+                    }
+                }
+
+                interface OwnerId {
+
+                    static Result of(Page<PostLikeTag> postLikeTags) {
+                        return Result.builder()
+                            .postLikeTags(getResultMapFromPageWithKey(postLikeTags,
+                                PostLikeTagDto.Result::ownerId))
+                            .build();
+                    }
+                }
             }
 
             private static Map<Long, List<PostLikeTagDto.Result>> getResultMapFromPageWithKey(
