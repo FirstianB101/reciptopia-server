@@ -197,7 +197,7 @@ public class AccountProfileImgIntegrationTest {
 				"imgFile", TEST_IMG_FILE_NAME, MediaType.IMAGE_PNG_VALUE, fp
 			);
 			MockMultipartFile ownerIdMultipart = new MockMultipartFile(
-				"ownerId", "ownerId", "application/json",
+				"ownerId", "ownerId", MediaType.APPLICATION_JSON_VALUE,
 				ownerId.toString().getBytes(StandardCharsets.UTF_8)
 			);
 
@@ -215,7 +215,8 @@ public class AccountProfileImgIntegrationTest {
 				.andExpect(jsonPath("$.id").isNumber())
 				.andExpect(jsonPath("$.ownerId").value(ownerId))
 				.andExpect(
-					jsonPath("$.uploadFileName").value(imgFileMultipart.getOriginalFilename()))
+					jsonPath("$.uploadFileName").value(
+						imgFileMultipart.getOriginalFilename()))
 				.andExpect(jsonPath("$.storeFileName").value(stringContainsInOrder(
 					".png"
 				)));
@@ -386,10 +387,12 @@ public class AccountProfileImgIntegrationTest {
 
 				return new Struct()
 					.withValue("token", token)
-					.withValue("ownerId", account.getId());
+					.withValue("ownerId", account.getId())
+					.withValue("accountProfileImgId", accountProfileImg.getId());
 			});
 			String token = given.valueOf("token");
 			Long ownerId = given.valueOf("ownerId");
+			Long accountProfileImgId = given.valueOf("accountProfileImgId");
 
 			// Upload New File
 			FileInputStream fp = new FileInputStream(TEST_NEW_UPLOAD_IMG_FILE_PATH);
@@ -412,7 +415,7 @@ public class AccountProfileImgIntegrationTest {
 			// Then
 			actions
 				.andExpect(status().isCreated())
-				.andExpect(jsonPath("$.id").isNumber())
+				.andExpect(jsonPath("$.id").value(accountProfileImgId))
 				.andExpect(jsonPath("$.ownerId").value(ownerId))
 				.andExpect(
 					jsonPath("$.uploadFileName").value(imgFileMultipart.getOriginalFilename()))
@@ -488,8 +491,7 @@ public class AccountProfileImgIntegrationTest {
 				AccountProfileImg accountProfileImgE = entityHelper.generateAccountProfileImg();
 
 				return new Struct()
-					.withValue("ownerId", account.getId())
-					.withValue("accountProfileImgBId", accountProfileImgB.getId());
+					.withValue("ownerId", account.getId());
 			});
 			Long ownerId = given.valueOf("ownerId");
 
@@ -623,19 +625,16 @@ public class AccountProfileImgIntegrationTest {
 				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
 				AccountProfileImg accountProfileImgB = entityHelper
 					.generateAccountProfileImg(it -> it.withOwner(account));
-				AccountProfileImg accountProfileImgC = entityHelper
-					.generateAccountProfileImg(it -> it.withOwner(account));
+				AccountProfileImg accountProfileImgC = entityHelper.generateAccountProfileImg();
 				AccountProfileImg accountProfileImgD = entityHelper.generateAccountProfileImg();
 				AccountProfileImg accountProfileImgE = entityHelper.generateAccountProfileImg();
 
 				return new Struct()
 					.withValue("ownerId", account.getId())
-					.withValue("accountProfileImgBId", accountProfileImgB.getId())
-					.withValue("accountProfileImgCId", accountProfileImgC.getId());
+					.withValue("accountProfileImgBId", accountProfileImgB.getId());
 			});
 			Long ownerId = given.valueOf("ownerId");
 			Long accountProfileImgBId = given.valueOf("accountProfileImgBId");
-			Long accountProfileImgCId = given.valueOf("accountProfileImgCId");
 
 			// When
 			ResultActions actions = mockMvc.perform(
@@ -645,9 +644,8 @@ public class AccountProfileImgIntegrationTest {
 			// Then
 			actions
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.accountProfileImgs").value(aMapWithSize(2)))
-				.andExpect(jsonPath("$.accountProfileImgs.[*].id").value(containsInAnyOrder(
-					accountProfileImgCId.intValue(),
+				.andExpect(jsonPath("$.accountProfileImgs").value(aMapWithSize(1)))
+				.andExpect(jsonPath("$.accountProfileImgs.[*].id").value(contains(
 					accountProfileImgBId.intValue()
 				)));
 
