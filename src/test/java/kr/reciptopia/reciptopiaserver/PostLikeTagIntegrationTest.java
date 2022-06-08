@@ -228,8 +228,8 @@ public class PostLikeTagIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.postLikeTags.[*]").value(hasSize(2)))
+                .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(containsInAnyOrder(
                     postLikeTagAId.intValue(),
                     postLikeTagBId.intValue()
                 )));
@@ -266,8 +266,8 @@ public class PostLikeTagIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(contains(
+                .andExpect(jsonPath("$.postLikeTags.[*]").value(hasSize(2)))
+                .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(containsInAnyOrder(
                     postLikeTagBId.intValue(),
                     postLikeTagAId.intValue()
                 )));
