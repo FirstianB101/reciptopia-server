@@ -175,10 +175,10 @@ public class AccountProfileImgIntegrationTest {
 	}
 
 	@Nested
-	class PostAccountProfileImg {
+	class PutAccountProfileImg {
 
 		@Test
-		void postAccountProfileImg() throws Exception {
+		void putAccountProfileImg() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
 				Account account = entityHelper.generateAccount();
@@ -235,7 +235,7 @@ public class AccountProfileImgIntegrationTest {
 		}
 
 		@Test
-		void postAccountProfileImg_AccountProfileImgUnauthorized_UnauthorizedStatus()
+		void putAccountProfileImg_AccountProfileImgUnauthorized_UnauthorizedStatus()
 			throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
@@ -269,7 +269,7 @@ public class AccountProfileImgIntegrationTest {
 		}
 
 		@Test
-		void postAccountProfileImg_RequestPart의_ownerId_누락() throws Exception {
+		void putAccountProfileImg_RequestPart의_ownerId_누락() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
 				Account account = entityHelper.generateAccount();
@@ -299,7 +299,7 @@ public class AccountProfileImgIntegrationTest {
 		}
 
 		@Test
-		void postAccountProfileImg_RequestPart의_imgFile_누락() throws Exception {
+		void putAccountProfileImg_RequestPart의_imgFile_누락() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
 				Account account = entityHelper.generateAccount();
@@ -330,7 +330,7 @@ public class AccountProfileImgIntegrationTest {
 		}
 
 		@Test
-		void postAccountProfileImg_이미지가_아닌_파일_업로드() throws Exception {
+		void putAccountProfileImg_이미지가_아닌_파일_업로드() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
 				Account account = entityHelper.generateAccount();
@@ -367,7 +367,7 @@ public class AccountProfileImgIntegrationTest {
 		}
 
 		@Test
-		void postAccountProfileImg_이미지_파일_업로드_수정() throws Exception {
+		void putAccountProfileImg_이미지_파일_업로드_수정() throws Exception {
 			// Given - 기존 프로필 이미지 존재 가정
 			File file = new File(TEST_IMG_FILE_PATH);
 			File originUploadedFile = new File(TEST_ORIGIN_STORE_FILE_PATH);
