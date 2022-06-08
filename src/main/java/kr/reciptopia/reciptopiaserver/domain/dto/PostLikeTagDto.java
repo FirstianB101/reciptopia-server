@@ -1,15 +1,53 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.CollectorHelper.byListValueLinkedHashMapWithKey;
+
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import lombok.Builder;
+import lombok.Singular;
 import lombok.With;
+import org.springframework.data.domain.Page;
 import org.springframework.data.util.Streamable;
 
 public interface PostLikeTagDto {
+
+    interface Bulk {
+
+        record Result(
+            Map<Long, List<PostLikeTagDto.Result>> postLikeTags
+        ) {
+
+            @Builder
+            public Result(
+                @NotEmpty
+                @Singular
+                    Map<Long, List<PostLikeTagDto.Result>> postLikeTags
+            ) {
+                this.postLikeTags = postLikeTags;
+            }
+
+            public static Result of(Page<PostLikeTag> postLikeTags,
+                Function<PostLikeTagDto.Result, Long> getKey) {
+                return Result.builder()
+                    .postLikeTags(getResultMapFromPageWithKey(postLikeTags, getKey))
+                    .build();
+            }
+
+            private static Map<Long, List<PostLikeTagDto.Result>> getResultMapFromPageWithKey(
+                Page<PostLikeTag> postLikeTags,
+                Function<PostLikeTagDto.Result, Long> getKey) {
+                return postLikeTags.stream()
+                    .map(PostLikeTagDto.Result::of)
+                    .collect(byListValueLinkedHashMapWithKey(getKey));
+            }
+        }
+    }
 
     @With
     record Create(
