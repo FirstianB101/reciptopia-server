@@ -11,6 +11,8 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -19,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -43,6 +46,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -59,6 +63,19 @@ public class PostLikeTagIntegrationTest {
         fieldWithPath("ownerId").description("게시물 좋아요 누른 사용자 ID");
     private static final FieldDescriptor DOC_FIELD_POST_ID =
         fieldWithPath("postId").description("게시물 좋아요가 달린 게시물 ID");
+
+    private static final ParameterDescriptor DOC_PARAMETER_ID =
+        parameterWithName("id").description("게시물 좋아요 ID").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_IDS =
+        parameterWithName("ids").description("게시물 좋아요 ID 배열").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_OWNER_ID =
+        parameterWithName("ownerId").description("게시물 좋아요 누른 사용자 ID").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_OWNER_IDS =
+        parameterWithName("ownerIds").description("게시물 좋아요 누른 사용자 ID 배열").optional();
+
+    private static final FieldDescriptor DOC_FIELD_BULK_POST_LIKE_TAG_GRUOP_BY_OWNER_ID =
+        subsectionWithPath("postLikeTags").type("Map<ownerId, List<postLikeTag>>")
+            .description("게시물 좋아요 누른 사용자 ID를 Key 로 갖고 게시물 좋아요 List를 Value 로 갖는 Map");
 
     private MockMvc mockMvc;
 
@@ -302,6 +319,18 @@ public class PostLikeTagIntegrationTest {
                 .andExpect(jsonPath("$.postLikeTags.[*]").value(hasSize(1)))
                 .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(containsInAnyOrder(
                     postLikeTagCId.intValue()
+                )));
+
+            // Document
+            actions.andDo(document("postLikeTag-search-example",
+                requestParameters(
+                    DOC_PARAMETER_ID,
+                    DOC_PARAMETER_IDS,
+                    DOC_PARAMETER_OWNER_ID,
+                    DOC_PARAMETER_OWNER_IDS
+                ))).andDo(document("postLikeTag-search-response-example",
+                responseFields(
+                    DOC_FIELD_BULK_POST_LIKE_TAG_GRUOP_BY_OWNER_ID
                 )));
         }
 

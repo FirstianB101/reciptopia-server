@@ -11,17 +11,14 @@
 
 WARNING: 이 API는 아직 구현 중에 있으며 추후에 변경될 수 있습니다.
 
-NOTE: v0.15.3-alpha
+NOTE: v0.17.1-alpha
 
 ****
-v0.15.3-alpha 변경사항
+v0.17.1-alpha 변경사항
 
 '''
 
-* AccountProfileImg API의 RESTful 하지 않은 URL 수정 +
-- 줄임말 "img"를 "image"로 수정
-* AccountProfileImg Download API URL 수정
-* AccountProfileImg Search API 추가
+* PostLikeTag 검색 API 파라미터 추가
 
 ****
 
@@ -864,12 +861,14 @@ operation::postLikeTag-retrieve-example[snippets='response-fields,curl-request,h
 
 operation::postLikeTag-list-example[snippets='request-parameters,curl-request,http-response']
 
-//[[resources_postLikeTag_search]]
-//=== PostLikeTag 목록 검색
-//
-//<<resources_postLikeTag_list, PostLikeTag 목록 조회 API>>에 요청 패러미터를 추가하면 특정 조건을 기준으로 PostLikeTag를 검색할 수 있습니다.
-//
-//operation::postLikeTag-search-example[snippets='request-parameters,curl-request,http-response']
+[[resources_postLikeTag_search]]
+=== PostLikeTag 목록 검색
+
+<<resources_postLikeTag_list, PostLikeTag 목록 조회 API>>에 요청 패러미터를 추가하면 특정 조건을 기준으로 PostLikeTag를 검색할 수 있습니다.
+
+operation::postLikeTag-search-example[snippets='request-parameters,curl-request,http-response']
+
+operation::postLikeTag-search-response-example[snippets='response-fields,curl-request,http-response']
 
 [[resources_postLikeTag_create]]
 === PostLikeTag 생성
