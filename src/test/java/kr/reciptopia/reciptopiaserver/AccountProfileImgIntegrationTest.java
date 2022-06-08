@@ -86,11 +86,11 @@ public class AccountProfileImgIntegrationTest {
 	private static final String TEST_STORE_FILE_NAME2 = "b88e22ad-ab50-44cb-8dd2-6da0f23ce9ef.png";
 
 	private static final FieldDescriptor DOC_FIELD_ID =
-		fieldWithPath("id").description("업로드한 이미지의 ID");
+		fieldWithPath("id").description("업로드한 계정 프로필 이미지 ID");
 	private static final FieldDescriptor DOC_FIELD_UPLOADED_FILE_NAME =
-		fieldWithPath("uploadFileName").description("업로드한 이미지 이름");
+		fieldWithPath("uploadFileName").description("업로드한 이미지 파일 이름");
 	private static final FieldDescriptor DOC_FIELD_STORED_FILE_NAME =
-		fieldWithPath("storeFileName").description("업로드되어 서버에 저장된 이미지 이름");
+		fieldWithPath("storeFileName").description("업로드되어 서버에 저장된 이미지 파일 이름");
 	private static final FieldDescriptor DOC_FIELD_OWNER_ID =
 		fieldWithPath("ownerId").description("이미지를 업로드한 계정의 ID");
 
@@ -98,7 +98,7 @@ public class AccountProfileImgIntegrationTest {
 		parameterWithName("ownerId").description("사용자 ID").optional();
 
 	private static final RequestPartDescriptor DOC_PART_OWNER_ID =
-		partWithName("ownerId").description("이미지를 업로드할 계정의 ID");
+		partWithName("ownerId").description("이미지를 업로드할 계정 ID");
 	private static final RequestPartDescriptor DOC_PART_IMAGE_FILE =
 		partWithName("imgFile").description("업로드할 이미지 파일");
 

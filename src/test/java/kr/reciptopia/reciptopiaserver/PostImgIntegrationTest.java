@@ -93,13 +93,13 @@ public class PostImgIntegrationTest {
 	private static final String TEST_STORE_FILE_NAME2 = "b88e22ad-ab50-44cb-8dd2-6da0f23ce9ef.png";
 
 	private static final FieldDescriptor DOC_FIELD_ID =
-		fieldWithPath("id").description("업로드한 이미지의 ID");
+		fieldWithPath("id").description("업로드한 게시물 이미지 ID");
 	private static final FieldDescriptor DOC_FIELD_UPLOADED_FILE_NAME =
-		fieldWithPath("uploadFileName").description("업로드한 이미지 이름");
+		fieldWithPath("uploadFileName").description("업로드한 이미지 파일 이름");
 	private static final FieldDescriptor DOC_FIELD_STORED_FILE_NAME =
-		fieldWithPath("storeFileName").description("업로드되어 서버에 저장된 이미지 이름");
+		fieldWithPath("storeFileName").description("업로드되어 서버에 저장된 이미지 파일 이름");
 	private static final FieldDescriptor DOC_FIELD_POST_ID =
-		fieldWithPath("postId").description("업로드된 이미지의 게시물 ID");
+		fieldWithPath("postId").description("업로드된 게시물 이미지가 속한 게시물 ID");
 	private static final FieldDescriptor DOC_FIELD_PUT_BULK_POST_IMGS =
 		subsectionWithPath("postImgs").type("Map<id, postImg>")
 			.description("<게시물 이미지 ID, 게시물 이미지 업로드 정보>");
@@ -108,11 +108,12 @@ public class PostImgIntegrationTest {
 		parameterWithName("postId").description("게시물 ID").optional();
 
 	private static final RequestPartDescriptor DOC_PART_POST_ID =
-		partWithName("postId").description("이미지를 업로드할 게시물의 ID");
+		partWithName("postId").description("이미지를 업로드할 게시물 ID");
 	private static final RequestPartDescriptor DOC_PART_IMAGE_FILE =
 		partWithName("imgFile").description("업로드할 이미지 파일");
 	private static final RequestPartDescriptor DOC_PART_IMAGE_FILES =
 		partWithName("imgFiles").description("업로드할 이미지 파일들");
+
 	@Autowired
 	PasswordEncoder passwordEncoder;
 	@Value("${file.upload.location}")
