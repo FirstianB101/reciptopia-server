@@ -3,7 +3,7 @@ package kr.reciptopia.reciptopiaserver;
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static kr.reciptopia.reciptopiaserver.helper.PostLikeTagHelper.aPostLikeTagCreateDto;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasSize;
@@ -276,6 +276,159 @@ public class PostLikeTagIntegrationTest {
             actions.andDo(document("postLikeTag-list-with-paging-example"));
         }
 
+        @Test
+        void searchPostLikeTagById() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                PostLikeTag postLikeTagA = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagB = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagC = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagD = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagE = entityHelper.generatePostLikeTag();
+
+                return new Struct()
+                    .withValue("postLikeTagCId", postLikeTagC.getId());
+            });
+
+            Long postLikeTagCId = given.valueOf("postLikeTagCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/likeTags")
+                .param("id", postLikeTagCId.toString()));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postLikeTags.[*]").value(hasSize(1)))
+                .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(containsInAnyOrder(
+                    postLikeTagCId.intValue()
+                )));
+        }
+
+        @Test
+        void searchPostLikeTagsByOwnerId() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                PostLikeTag postLikeTagA = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagB = entityHelper.generatePostLikeTag(it -> it
+                    .withOwner(owner));
+                PostLikeTag postLikeTagC = entityHelper.generatePostLikeTag(it -> it
+                    .withOwner(owner));
+                PostLikeTag postLikeTagD = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagE = entityHelper.generatePostLikeTag();
+
+                return new Struct()
+                    .withValue("ownerId", owner.getId())
+                    .withValue("postLikeTagBId", postLikeTagB.getId())
+                    .withValue("postLikeTagCId", postLikeTagC.getId());
+            });
+            Long ownerId = given.valueOf("ownerId");
+            Long postLikeTagBId = given.valueOf("postLikeTagBId");
+            Long postLikeTagCId = given.valueOf("postLikeTagCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/likeTags")
+                .param("ownerId", ownerId.toString()));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postLikeTags.[*].[*]").value(hasSize(2)))
+                .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(containsInAnyOrder(
+                    postLikeTagBId.intValue(),
+                    postLikeTagCId.intValue()
+                )));
+        }
+
+        @Test
+        void searchPostLikeTagsByIds() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                PostLikeTag postLikeTagA = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagB = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagC = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagD = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagE = entityHelper.generatePostLikeTag();
+
+                return new Struct()
+                    .withValue("postLikeTagBId", postLikeTagB.getId())
+                    .withValue("postLikeTagCId", postLikeTagC.getId())
+                    .withValue("postLikeTagEId", postLikeTagE.getId());
+            });
+            Long postLikeTagBId = given.valueOf("postLikeTagBId");
+            Long postLikeTagCId = given.valueOf("postLikeTagCId");
+            Long postLikeTagEId = given.valueOf("postLikeTagEId");
+
+            // When
+            String idsParam = postLikeTagBId + ", " + postLikeTagCId + ", " + postLikeTagEId;
+            ResultActions actions = mockMvc.perform(get("/post/likeTags")
+                .param("ids", idsParam));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postLikeTags").value(aMapWithSize(3)))
+                .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(
+                    containsInAnyOrder(
+                        postLikeTagCId.intValue(),
+                        postLikeTagBId.intValue(),
+                        postLikeTagEId.intValue()
+                    )));
+        }
+
+        @Test
+        void searchPostLikeTagsByOwnerIds() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Account ownerB = entityHelper.generateAccount();
+
+                PostLikeTag postLikeTagA = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagB = entityHelper.generatePostLikeTag(it -> it
+                    .withOwner(ownerB));
+                PostLikeTag postLikeTagC = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagD = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagE = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagF = entityHelper.generatePostLikeTag(it -> it
+                    .withOwner(ownerB));
+
+                return new Struct()
+                    .withValue("postLikeTagBId", postLikeTagB.getId())
+                    .withValue("postLikeTagCId", postLikeTagC.getId())
+                    .withValue("postLikeTagEId", postLikeTagE.getId())
+                    .withValue("postLikeTagFId", postLikeTagF.getId())
+                    .withValue("ownerBId", ownerB.getId())
+                    .withValue("ownerCId", postLikeTagC.getOwner().getId())
+                    .withValue("ownerEId", postLikeTagE.getOwner().getId());
+            });
+            Long postLikeTagBId = given.valueOf("postLikeTagBId");
+            Long postLikeTagCId = given.valueOf("postLikeTagCId");
+            Long postLikeTagEId = given.valueOf("postLikeTagEId");
+            Long postLikeTagFId = given.valueOf("postLikeTagFId");
+            Long ownerBId = given.valueOf("ownerBId");
+            Long ownerCId = given.valueOf("ownerCId");
+            Long ownerEId = given.valueOf("ownerEId");
+
+            // When
+            String ownerIdsParam = ownerBId + ", " + ownerCId + ", " + ownerEId;
+            ResultActions actions = mockMvc.perform(get("/post/likeTags")
+                .param("ownerIds", ownerIdsParam));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postLikeTags").value(aMapWithSize(3)))
+                .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(
+                    containsInAnyOrder(
+                        postLikeTagCId.intValue(),
+                        postLikeTagBId.intValue(),
+                        postLikeTagEId.intValue(),
+                        postLikeTagFId.intValue()
+                    )));
+        }
     }
 
     @Nested
