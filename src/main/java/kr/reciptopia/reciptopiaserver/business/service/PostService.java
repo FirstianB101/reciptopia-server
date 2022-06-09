@@ -2,6 +2,7 @@ package kr.reciptopia.reciptopiaserver.business.service;
 
 import static kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostSearchCondition.getRecipeSearchCondition;
 import static kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostSearchCondition.updateConditionWithRecipeCondition;
+
 import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.PostAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
@@ -49,10 +50,11 @@ public class PostService {
         return Result.of(postRepository.save(post));
     }
 
+    @Transactional
     public Result read(Long id) {
         Post post = repoHelper.findPostOrThrow(id);
         post.addViews();
-        return Result.of(post);
+        return Result.of(postRepository.save(post));
     }
 
     public Bulk.ResultWithCommentAndLikeTagCount search(PostSearchCondition condition,
