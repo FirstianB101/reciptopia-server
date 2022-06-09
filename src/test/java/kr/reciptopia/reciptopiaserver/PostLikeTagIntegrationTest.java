@@ -266,18 +266,21 @@ public class PostLikeTagIntegrationTest {
             Struct given = trxHelper.doInTransaction(() -> {
                 PostLikeTag postLikeTagA = entityHelper.generatePostLikeTag();
                 PostLikeTag postLikeTagB = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagC = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagD = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagE = entityHelper.generatePostLikeTag();
 
                 return new Struct()
-                    .withValue("postLikeTagAId", postLikeTagA.getId())
-                    .withValue("postLikeTagBId", postLikeTagB.getId());
+                    .withValue("postLikeTagBId", postLikeTagB.getId())
+                    .withValue("postLikeTagCId", postLikeTagC.getId());
             });
-            Long postLikeTagAId = given.valueOf("postLikeTagAId");
             Long postLikeTagBId = given.valueOf("postLikeTagBId");
+            Long postLikeTagCId = given.valueOf("postLikeTagCId");
 
             // When
             ResultActions actions = mockMvc.perform(get("/post/likeTags")
                 .param("size", "2")
-                .param("page", "0")
+                .param("page", "1")
                 .param("sort", "id,desc"));
 
             // Then
@@ -285,8 +288,8 @@ public class PostLikeTagIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.postLikeTags.[*]").value(hasSize(2)))
                 .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(containsInAnyOrder(
-                    postLikeTagBId.intValue(),
-                    postLikeTagAId.intValue()
+                    postLikeTagCId.intValue(),
+                    postLikeTagBId.intValue()
                 )));
 
             // Document
