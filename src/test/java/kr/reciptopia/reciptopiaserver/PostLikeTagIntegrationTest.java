@@ -297,84 +297,6 @@ public class PostLikeTagIntegrationTest {
         }
 
         @Test
-        void searchPostLikeTagById() throws Exception {
-            // Given
-            Struct given = trxHelper.doInTransaction(() -> {
-                PostLikeTag postLikeTagA = entityHelper.generatePostLikeTag();
-                PostLikeTag postLikeTagB = entityHelper.generatePostLikeTag();
-                PostLikeTag postLikeTagC = entityHelper.generatePostLikeTag();
-                PostLikeTag postLikeTagD = entityHelper.generatePostLikeTag();
-                PostLikeTag postLikeTagE = entityHelper.generatePostLikeTag();
-
-                return new Struct()
-                    .withValue("postLikeTagCId", postLikeTagC.getId());
-            });
-
-            Long postLikeTagCId = given.valueOf("postLikeTagCId");
-
-            // When
-            ResultActions actions = mockMvc.perform(get("/post/likeTags")
-                .param("id", postLikeTagCId.toString()));
-
-            // Then
-            actions
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.postLikeTags.[*]").value(hasSize(1)))
-                .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(containsInAnyOrder(
-                    postLikeTagCId.intValue()
-                )));
-
-            // Document
-            actions.andDo(document("postLikeTag-search-example",
-                requestParameters(
-                    DOC_PARAMETER_ID,
-                    DOC_PARAMETER_IDS,
-                    DOC_PARAMETER_OWNER_ID,
-                    DOC_PARAMETER_OWNER_IDS
-                ))).andDo(document("postLikeTag-search-response-example",
-                responseFields(
-                    DOC_FIELD_BULK_POST_LIKE_TAG_GRUOP_BY_OWNER_ID
-                )));
-        }
-
-        @Test
-        void searchPostLikeTagsByOwnerId() throws Exception {
-            // Given
-            Struct given = trxHelper.doInTransaction(() -> {
-                Account owner = entityHelper.generateAccount();
-
-                PostLikeTag postLikeTagA = entityHelper.generatePostLikeTag();
-                PostLikeTag postLikeTagB = entityHelper.generatePostLikeTag(it -> it
-                    .withOwner(owner));
-                PostLikeTag postLikeTagC = entityHelper.generatePostLikeTag(it -> it
-                    .withOwner(owner));
-                PostLikeTag postLikeTagD = entityHelper.generatePostLikeTag();
-                PostLikeTag postLikeTagE = entityHelper.generatePostLikeTag();
-
-                return new Struct()
-                    .withValue("ownerId", owner.getId())
-                    .withValue("postLikeTagBId", postLikeTagB.getId())
-                    .withValue("postLikeTagCId", postLikeTagC.getId());
-            });
-            Long ownerId = given.valueOf("ownerId");
-            Long postLikeTagBId = given.valueOf("postLikeTagBId");
-            Long postLikeTagCId = given.valueOf("postLikeTagCId");
-
-            // When
-            ResultActions actions = mockMvc.perform(get("/post/likeTags")
-                .param("ownerId", ownerId.toString()));
-
-            // Then
-            actions
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.postLikeTags.[*].[*]").value(hasSize(2)))
-                .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(containsInAnyOrder(
-                    postLikeTagBId.intValue(),
-                    postLikeTagCId.intValue()
-                )));
-        }
-
-        @Test
         void searchPostLikeTagsByIds() throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
@@ -409,6 +331,16 @@ public class PostLikeTagIntegrationTest {
                         postLikeTagBId.intValue(),
                         postLikeTagEId.intValue()
                     )));
+
+            // Document
+            actions.andDo(document("postLikeTag-search-example",
+                requestParameters(
+                    DOC_PARAMETER_IDS,
+                    DOC_PARAMETER_OWNER_IDS
+                ))).andDo(document("postLikeTag-search-response-example",
+                responseFields(
+                    DOC_FIELD_BULK_POST_LIKE_TAG_GRUOP_BY_OWNER_ID
+                )));
         }
 
         @Test

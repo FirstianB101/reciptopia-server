@@ -48,10 +48,8 @@ public class PostLikeTagController {
 		@RequestParam(required = false) List<Long> ownerIds,
 		Pageable pageable) {
 		PostLikeTagSearchCondition postLikeTagSearchCondition = PostLikeTagSearchCondition.builder()
-			.id(id)
 			.ids(ids)
 			.ownerIds(ownerIds)
-			.ownerId(ownerId)
 			.build();
 
 		return service.search(postLikeTagSearchCondition, pageable);
