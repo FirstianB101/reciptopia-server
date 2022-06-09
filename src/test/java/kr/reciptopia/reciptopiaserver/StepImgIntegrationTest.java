@@ -31,14 +31,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
-import kr.reciptopia.reciptopiaserver.domain.model.Account;
-import kr.reciptopia.reciptopiaserver.domain.model.AccountProfileImg;
+import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
+import kr.reciptopia.reciptopiaserver.domain.model.Step;
+import kr.reciptopia.reciptopiaserver.domain.model.StepImg;
 import kr.reciptopia.reciptopiaserver.helper.EntityHelper;
 import kr.reciptopia.reciptopiaserver.helper.JsonHelper;
 import kr.reciptopia.reciptopiaserver.helper.Struct;
 import kr.reciptopia.reciptopiaserver.helper.TransactionHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.UploadFileAuthHelper;
-import kr.reciptopia.reciptopiaserver.persistence.repository.AccountProfileImgRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.StepImgRepository;
 import kr.reciptopia.reciptopiaserver.util.H2DbCleaner;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,68 +64,61 @@ import org.springframework.web.context.WebApplicationContext;
 
 @ExtendWith(RestDocumentationExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-public class AccountProfileImgIntegrationTest {
+public class StepImgIntegrationTest {
 
 	private static final String UUID_REGEX =
 		"\\p{Alnum}{8}-\\p{Alnum}{4}-\\p{Alnum}{4}-\\p{Alnum}{4}-\\p{Alnum}{12}";
 	private static final int UUID_LENGTH = 36;
 
-	private static final String TEST_IMG_FILE_NAME = "testProfileImg.png";
+	private static final String TEST_IMG_FILE_NAME = "testStepImg.jpeg";
 	private static final String TEST_IMG_FILE_PATH = System.getProperty("user.dir")
-		+ "/src/test/resources/testfiles/source/testProfileImg.png";
+		+ "/src/test/resources/testfiles/source/testStepImg.jpeg";
 	private static final String TEST_TXT_FILE_NAME = "testText.txt";
 	private static final String TEST_TXT_FILE_PATH = System.getProperty("user.dir")
 		+ "/src/test/resources/testfiles/source/testText.txt";
 	private static final String TEST_ORIGIN_STORE_FILE_NAME =
-		"faf9da02-4762-461c-bc6f-48a05b561a8e.png";
+		"faf9da02-4762-461c-bc6f-48a05b561a8e.jpeg";
 	private static final String TEST_ORIGIN_STORE_FILE_PATH = System.getProperty("user.dir")
-		+ "/src/test/resources/testfiles/uploaded/faf9da02-4762-461c-bc6f-48a05b561a8e.png";
-	private static final String TEST_STORE_FILE_NAME = "634f963f-b61d-414b-b35b-57ab90533d36.png";
-	private static final String TEST_NEW_UPLOAD_IMG_FILE_NAME = "testProfileImg2.png";
+		+ "/src/test/resources/testfiles/uploaded/faf9da02-4762-461c-bc6f-48a05b561a8e.jpeg";
+	private static final String TEST_NEW_UPLOAD_IMG_FILE_NAME = "testStepImg2.jpeg";
 	private static final String TEST_NEW_UPLOAD_IMG_FILE_PATH = System.getProperty("user.dir")
-		+ "/src/test/resources/testfiles/source/testProfileImg2.png";
-	private static final String TEST_STORE_FILE_NAME2 = "b88e22ad-ab50-44cb-8dd2-6da0f23ce9ef.png";
+		+ "/src/test/resources/testfiles/source/testStepImg2.jpeg";
+	private static final String TEST_STORE_FILE_NAME = "689f963f-b61d-414b-b35b-57ab90533d36.jpeg";
+	private static final String TEST_STORE_FILE_NAME2 = "b88e22ad-ab50-44cb-8dd2-6da0f23ce9ef.jpeg";
 
 	private static final FieldDescriptor DOC_FIELD_ID =
-		fieldWithPath("id").description("업로드한 계정 프로필 이미지 ID");
+		fieldWithPath("id").description("업로드한 조리 단계 이미지 ID");
 	private static final FieldDescriptor DOC_FIELD_UPLOADED_FILE_NAME =
 		fieldWithPath("uploadFileName").description("업로드한 이미지 파일 이름");
 	private static final FieldDescriptor DOC_FIELD_STORED_FILE_NAME =
 		fieldWithPath("storeFileName").description("업로드되어 서버에 저장된 이미지 파일 이름");
-	private static final FieldDescriptor DOC_FIELD_OWNER_ID =
-		fieldWithPath("ownerId").description("이미지를 업로드한 계정의 ID");
+	private static final FieldDescriptor DOC_FIELD_STEP_ID =
+		fieldWithPath("stepId").description("업로드된 이미지가 속한 조리 단계 ID");
 
-	private static final ParameterDescriptor DOC_PARAMETER_OWNER_ID =
-		parameterWithName("ownerId").description("사용자 ID").optional();
+	private static final ParameterDescriptor DOC_PARAMETER_STEP_ID =
+		parameterWithName("stepId").description("조리 단계 ID").optional();
+	private static final ParameterDescriptor DOC_PARAMETER_RECIPE_ID =
+		parameterWithName("recipeId").description("레시피 ID").optional();
 
-	private static final RequestPartDescriptor DOC_PART_OWNER_ID =
-		partWithName("ownerId").description("이미지를 업로드할 계정 ID");
+	private static final RequestPartDescriptor DOC_PART_STEP_ID =
+		partWithName("stepId").description("이미지를 업로드할 조리 단계 ID");
 	private static final RequestPartDescriptor DOC_PART_IMAGE_FILE =
 		partWithName("imgFile").description("업로드할 이미지 파일");
-
-	@Value("${file.upload.location}")
-	private String fileDir;
-
 	@Autowired
 	PasswordEncoder passwordEncoder;
-
+	@Value("${file.upload.location}")
+	private String fileDir;
 	private MockMvc mockMvc;
-
 	@Autowired
 	private JsonHelper jsonHelper;
-
 	@Autowired
-	private AccountProfileImgRepository repository;
-
+	private StepImgRepository repository;
 	@Autowired
 	private DataSource dataSource;
-
 	@Autowired
 	private TransactionHelper trxHelper;
-
 	@Autowired
 	private EntityHelper entityHelper;
-
 	@Autowired
 	private UploadFileAuthHelper uploadFileAuthHelper;
 
@@ -163,7 +157,7 @@ public class AccountProfileImgIntegrationTest {
 			fileNameWithoutExt = fileNameWithoutExt.substring(0, fileNameWithoutExt.length() - 1);
 
 			Matcher uuidMatcher = createUUIDMatcher(fileNameWithoutExt);
-			if (uuidMatcher.matches() && ext.equals("png")) {
+			if (uuidMatcher.matches() && ext.equals("jpeg")) {
 				file.delete();
 			}
 		}
@@ -175,36 +169,37 @@ public class AccountProfileImgIntegrationTest {
 	}
 
 	@Nested
-	class PutAccountProfileImg {
+	class PutStepImg {
 
 		@Test
-		void putAccountProfileImg() throws Exception {
+		void putStepImg() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
-				Account account = entityHelper.generateAccount();
-				String token = uploadFileAuthHelper.generateToken(account);
+				Step step = entityHelper.generateStep();
+				String token = uploadFileAuthHelper.generateToken(
+					step.getRecipe().getPost().getOwner());
 
 				return new Struct()
 					.withValue("token", token)
-					.withValue("ownerId", account.getId());
+					.withValue("stepId", step.getId());
 			});
 			String token = given.valueOf("token");
-			Long ownerId = given.valueOf("ownerId");
+			Long stepId = given.valueOf("stepId");
 
 			FileInputStream fp = new FileInputStream(TEST_IMG_FILE_PATH);
 
 			MockMultipartFile imgFileMultipart = new MockMultipartFile(
-				"imgFile", TEST_IMG_FILE_NAME, MediaType.IMAGE_PNG_VALUE, fp
+				"imgFile", TEST_IMG_FILE_NAME, MediaType.IMAGE_JPEG_VALUE, fp
 			);
-			MockMultipartFile ownerIdMultipart = new MockMultipartFile(
-				"ownerId", "ownerId", MediaType.APPLICATION_JSON_VALUE,
-				ownerId.toString().getBytes(StandardCharsets.UTF_8)
+			MockMultipartFile stepIdMultipart = new MockMultipartFile(
+				"stepId", "stepId", MediaType.APPLICATION_JSON_VALUE,
+				stepId.toString().getBytes(StandardCharsets.UTF_8)
 			);
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				multipart("/account/profileImages")
-					.file(ownerIdMultipart)
+				multipart("/post/recipe/step/images")
+					.file(stepIdMultipart)
 					.file(imgFileMultipart)
 					.header("Authorization", "Bearer " + token)
 			);
@@ -213,55 +208,52 @@ public class AccountProfileImgIntegrationTest {
 			actions
 				.andExpect(status().isCreated())
 				.andExpect(jsonPath("$.id").isNumber())
-				.andExpect(jsonPath("$.ownerId").value(ownerId))
-				.andExpect(
-					jsonPath("$.uploadFileName").value(
-						imgFileMultipart.getOriginalFilename()))
+				.andExpect(jsonPath("$.uploadFileName").value(
+					imgFileMultipart.getOriginalFilename()))
 				.andExpect(jsonPath("$.storeFileName").value(stringContainsInOrder(
-					".png"
+					".jpeg"
 				)));
 
 			// Document
-			actions.andDo(document("accountProfileImg-create-example",
+			actions.andDo(document("stepImg-create-example",
 				requestParts(
-					DOC_PART_OWNER_ID,
+					DOC_PART_STEP_ID,
 					DOC_PART_IMAGE_FILE
 				),
 				responseFields(
 					DOC_FIELD_ID,
 					DOC_FIELD_UPLOADED_FILE_NAME,
 					DOC_FIELD_STORED_FILE_NAME,
-					DOC_FIELD_OWNER_ID
+					DOC_FIELD_STEP_ID
 				)));
 		}
 
 		@Test
-		void putAccountProfileImg_AccountProfileImgUnauthorized_UnauthorizedStatus()
-			throws Exception {
+		void putStepImg_StepImgUnauthorized_UnauthorizedStatus() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
-				Account account = entityHelper.generateAccount();
+				Step step = entityHelper.generateStep();
 
 				return new Struct()
-					.withValue("ownerId", account.getId());
+					.withValue("stepId", step.getId());
 			});
-			Long ownerId = given.valueOf("ownerId");
+			Long stepId = given.valueOf("stepId");
 
 			FileInputStream fp = new FileInputStream(TEST_IMG_FILE_PATH);
 
 			MockMultipartFile imgFileMultipart = new MockMultipartFile(
-				"imgFile", TEST_IMG_FILE_NAME, MediaType.IMAGE_PNG_VALUE, fp
+				"imgFile", TEST_IMG_FILE_NAME, MediaType.IMAGE_JPEG_VALUE, fp
 			);
-			MockMultipartFile ownerIdMultipart = new MockMultipartFile(
-				"ownerId", "ownerId", MediaType.APPLICATION_JSON_VALUE,
-				ownerId.toString().getBytes(StandardCharsets.UTF_8)
+			MockMultipartFile stepIdMultipart = new MockMultipartFile(
+				"stepId", "stepId", MediaType.APPLICATION_JSON_VALUE,
+				stepId.toString().getBytes(StandardCharsets.UTF_8)
 			);
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				multipart("/account/profileImages")
+				multipart("/post/recipe/step/images")
+					.file(stepIdMultipart)
 					.file(imgFileMultipart)
-					.file(ownerIdMultipart)
 			);
 
 			// Then
@@ -270,11 +262,12 @@ public class AccountProfileImgIntegrationTest {
 		}
 
 		@Test
-		void putAccountProfileImg_RequestPart의_ownerId_누락() throws Exception {
+		void putStepImg_RequestPart의_stepId_누락() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
-				Account account = entityHelper.generateAccount();
-				String token = uploadFileAuthHelper.generateToken(account);
+				Step step = entityHelper.generateStep();
+				String token = uploadFileAuthHelper.generateToken(
+					step.getRecipe().getPost().getOwner());
 
 				return new Struct()
 					.withValue("token", token);
@@ -284,12 +277,12 @@ public class AccountProfileImgIntegrationTest {
 			FileInputStream fp = new FileInputStream(TEST_IMG_FILE_PATH);
 
 			MockMultipartFile imgFileMultipart = new MockMultipartFile(
-				"imgFile", TEST_IMG_FILE_NAME, MediaType.IMAGE_PNG_VALUE, fp
+				"imgFile", TEST_IMG_FILE_NAME, MediaType.IMAGE_JPEG_VALUE, fp
 			);
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				multipart("/account/profileImages")
+				multipart("/post/recipe/step/images")
 					.file(imgFileMultipart)
 					.header("Authorization", "Bearer " + token)
 			);
@@ -300,28 +293,29 @@ public class AccountProfileImgIntegrationTest {
 		}
 
 		@Test
-		void putAccountProfileImg_RequestPart의_imgFile_누락() throws Exception {
+		void putStepImg_RequestPart의_imgFile_누락() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
-				Account account = entityHelper.generateAccount();
-				String token = uploadFileAuthHelper.generateToken(account);
+				Step step = entityHelper.generateStep();
+				String token = uploadFileAuthHelper.generateToken(
+					step.getRecipe().getPost().getOwner());
 
 				return new Struct()
 					.withValue("token", token)
-					.withValue("ownerId", account.getId());
+					.withValue("stepId", step.getId());
 			});
 			String token = given.valueOf("token");
-			Long ownerId = given.valueOf("ownerId");
+			Long stepId = given.valueOf("stepId");
 
-			MockMultipartFile ownerIdMultipart = new MockMultipartFile(
-				"ownerId", "ownerId", MediaType.APPLICATION_JSON_VALUE,
-				ownerId.toString().getBytes(StandardCharsets.UTF_8)
+			MockMultipartFile stepIdMultipart = new MockMultipartFile(
+				"stepId", "stepId", MediaType.APPLICATION_JSON_VALUE,
+				stepId.toString().getBytes(StandardCharsets.UTF_8)
 			);
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				multipart("/account/profileImages")
-					.file(ownerIdMultipart)
+				multipart("/post/recipe/step/images")
+					.file(stepIdMultipart)
 					.header("Authorization", "Bearer " + token)
 			);
 
@@ -331,34 +325,35 @@ public class AccountProfileImgIntegrationTest {
 		}
 
 		@Test
-		void putAccountProfileImg_이미지가_아닌_파일_업로드() throws Exception {
+		void putStepImg_이미지가_아닌_파일_업로드() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
-				Account account = entityHelper.generateAccount();
-				String token = uploadFileAuthHelper.generateToken(account);
+				Step step = entityHelper.generateStep();
+				String token = uploadFileAuthHelper.generateToken(
+					step.getRecipe().getPost().getOwner());
 
 				return new Struct()
 					.withValue("token", token)
-					.withValue("ownerId", account.getId());
+					.withValue("stepId", step.getId());
 			});
 			String token = given.valueOf("token");
-			Long ownerId = given.valueOf("ownerId");
+			Long stepId = given.valueOf("stepId");
 
 			FileInputStream fp = new FileInputStream(TEST_TXT_FILE_PATH);
 
 			MockMultipartFile txtFileMultipart = new MockMultipartFile(
 				"imgFile", TEST_TXT_FILE_NAME, MediaType.TEXT_PLAIN_VALUE, fp
 			);
-			MockMultipartFile ownerIdMultipart = new MockMultipartFile(
-				"ownerId", "ownerId", MediaType.APPLICATION_JSON_VALUE,
-				ownerId.toString().getBytes(StandardCharsets.UTF_8)
+			MockMultipartFile stepIdMultipart = new MockMultipartFile(
+				"stepId", "stepId", MediaType.APPLICATION_JSON_VALUE,
+				stepId.toString().getBytes(StandardCharsets.UTF_8)
 			);
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				multipart("/account/profileImages")
+				multipart("/post/recipe/step/images")
+					.file(stepIdMultipart)
 					.file(txtFileMultipart)
-					.file(ownerIdMultipart)
 					.header("Authorization", "Bearer " + token)
 			);
 
@@ -368,101 +363,99 @@ public class AccountProfileImgIntegrationTest {
 		}
 
 		@Test
-		void putAccountProfileImg_이미지_파일_업로드_수정() throws Exception {
-			// Given - 기존 프로필 이미지 존재 가정
+		void putStepImg_이미지_파일_업로드_수정() throws Exception {
+			// Given - 기존 StepImg 존재 가정
 			File file = new File(TEST_IMG_FILE_PATH);
 			File originUploadedFile = new File(TEST_ORIGIN_STORE_FILE_PATH);
 			Files.copy(file.toPath(), originUploadedFile.toPath(),
 				StandardCopyOption.REPLACE_EXISTING);
 
 			Struct given = trxHelper.doInTransaction(() -> {
-				Account account = entityHelper.generateAccount();
-				AccountProfileImg accountProfileImg = entityHelper
-					.generateAccountProfileImg(it -> it
-						.withOwner(account)
-						.withUploadFileName(TEST_IMG_FILE_NAME)
-						.withStoreFileName(TEST_ORIGIN_STORE_FILE_NAME)
-					);
-				String token = uploadFileAuthHelper.generateToken(accountProfileImg);
+				Step step = entityHelper.generateStep();
+				StepImg stepImg = entityHelper.generateStepImg(it -> it
+					.withStep(step)
+					.withUploadFileName(TEST_IMG_FILE_NAME)
+					.withStoreFileName(TEST_ORIGIN_STORE_FILE_NAME)
+				);
+				String token = uploadFileAuthHelper.generateToken(stepImg);
 
 				return new Struct()
 					.withValue("token", token)
-					.withValue("ownerId", account.getId())
-					.withValue("accountProfileImgId", accountProfileImg.getId());
+					.withValue("stepId", step.getId())
+					.withValue("stepImgId", stepImg.getId());
 			});
 			String token = given.valueOf("token");
-			Long ownerId = given.valueOf("ownerId");
-			Long accountProfileImgId = given.valueOf("accountProfileImgId");
+			Long stepId = given.valueOf("stepId");
+			Long stepImgId = given.valueOf("stepImgId");
 
 			// Upload New File
 			FileInputStream fp = new FileInputStream(TEST_NEW_UPLOAD_IMG_FILE_PATH);
 
 			MockMultipartFile imgFileMultipart = new MockMultipartFile(
-				"imgFile", TEST_NEW_UPLOAD_IMG_FILE_NAME, MediaType.IMAGE_PNG_VALUE, fp
+				"imgFile", TEST_NEW_UPLOAD_IMG_FILE_NAME, MediaType.IMAGE_JPEG_VALUE, fp
 			);
-			MockMultipartFile ownerIdMultipart = new MockMultipartFile(
-				"ownerId", "ownerId", MediaType.APPLICATION_JSON_VALUE,
-				ownerId.toString().getBytes(StandardCharsets.UTF_8)
+			MockMultipartFile stepIdMultipart = new MockMultipartFile(
+				"stepId", "stepId", MediaType.APPLICATION_JSON_VALUE,
+				stepId.toString().getBytes(StandardCharsets.UTF_8)
 			);
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				multipart("/account/profileImages")
-					.file(ownerIdMultipart)
+				multipart("/post/recipe/step/images")
+					.file(stepIdMultipart)
 					.file(imgFileMultipart)
-					.header("Authorization", "Bearer " + token));
+					.header("Authorization", "Bearer " + token)
+			);
 
 			// Then
 			actions
 				.andExpect(status().isCreated())
-				.andExpect(jsonPath("$.id").value(accountProfileImgId))
-				.andExpect(jsonPath("$.ownerId").value(ownerId))
-				.andExpect(
-					jsonPath("$.uploadFileName").value(imgFileMultipart.getOriginalFilename()))
+				.andExpect(jsonPath("$.id").value(stepImgId))
+				.andExpect(jsonPath("$.stepId").value(stepId))
+				.andExpect(jsonPath("$.uploadFileName").value(
+					imgFileMultipart.getOriginalFilename()))
 				.andExpect(jsonPath("$.storeFileName").value(stringContainsInOrder(
-					".png"
+					".jpeg"
 				)));
 
-			assertThat(repository.findByOwnerId(ownerId).stream().count()).isOne();
+			assertThat(repository.findByStepId(stepId).stream().count()).isOne();
 		}
 
 	}
 
 	@Nested
-	class DownloadAccountProfileImg {
+	class DownloadStepImg {
 
 		@Test
-		void downloadAccountProfileImg() throws Exception {
+		void downloadStepImg() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
-				AccountProfileImg accountProfileImg = entityHelper
-					.generateAccountProfileImg(it -> it
-						.withStoreFileName(TEST_STORE_FILE_NAME)
-					);
+				StepImg stepImg = entityHelper.generateStepImg(it -> it
+					.withStoreFileName(TEST_STORE_FILE_NAME)
+				);
 
 				return new Struct()
-					.withValue("id", accountProfileImg.getId());
+					.withValue("id", stepImg.getId());
 			});
 			Long id = given.valueOf("id");
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				get("/account/profileImages/{id}/download", id));
+				get("/post/recipe/step/images/{id}/download", id));
 
 			// Then
 			actions
 				.andExpect(status().isOk());
 
 			// Document
-			actions.andDo(document("accountProfileImg-download-example"));
+			actions.andDo(document("stepImg-download-example"));
 		}
 
 		@Test
-		void downloadAccountProfileImg_AccountProfileImgNotFound_NotFoundStatus()
-			throws Exception {
+		void downloadStepImg_StepImgNotFound_NotFoundStatus() throws Exception {
 			// When
 			ResultActions actions = mockMvc.perform(
-				get("/account/profileImages/{id}/download", 0L));
+				get("/post/recipe/step/images/{id}/download", 0L));
 
 			// Then
 			actions
@@ -472,66 +465,65 @@ public class AccountProfileImgIntegrationTest {
 	}
 
 	@Nested
-	class DownloadAccountProfileImgByOwnerId {
+	class DownloadStepImgByStepId {
 
 		@Test
-		void downloadAccountProfileImgByOwnerId() throws Exception {
+		void downloadStepImgByStepId() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
-				Account account = entityHelper.generateAccount();
+				Step step = entityHelper.generateStep();
 
-				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgB = entityHelper
-					.generateAccountProfileImg(it -> it
-						.withOwner(account)
-						.withStoreFileName(TEST_STORE_FILE_NAME)
-					);
-				AccountProfileImg accountProfileImgC = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgD = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgE = entityHelper.generateAccountProfileImg();
+				StepImg stepImgA = entityHelper.generateStepImg();
+				StepImg stepImgB = entityHelper.generateStepImg(it -> it
+					.withStep(step)
+					.withStoreFileName(TEST_STORE_FILE_NAME)
+				);
+				StepImg stepImgC = entityHelper.generateStepImg();
+				StepImg stepImgD = entityHelper.generateStepImg();
+				StepImg stepImgE = entityHelper.generateStepImg();
 
 				return new Struct()
-					.withValue("ownerId", account.getId());
+					.withValue("stepId", step.getId());
 			});
-			Long ownerId = given.valueOf("ownerId");
+			Long stepId = given.valueOf("stepId");
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				get("/account/profileImages/download")
-					.param("ownerId", ownerId.toString()));
+				get("/post/recipe/step/images/download")
+					.param("stepId", stepId.toString()));
 
 			// Then
 			actions
 				.andExpect(status().isOk());
 
 			// Document
-			actions.andDo(document("accountProfileImg-downloadByOwnerId-example",
+			actions.andDo(document("stepImg-downloadByStepId-example",
 				requestParameters(
-					DOC_PARAMETER_OWNER_ID
+					DOC_PARAMETER_STEP_ID
 				)));
 		}
 
 		@Test
-		void downloadAccountProfileImgByOwnerId_프로필_이미지가_없는_경우() throws Exception {
+		void downloadStepImgByStepId_조리과정_이미지가_없는_경우() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
-				Account account = entityHelper.generateAccount();
+				Step step = entityHelper.generateStep();
 
-				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgB = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgC = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgD = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgE = entityHelper.generateAccountProfileImg();
+				StepImg stepImgA = entityHelper.generateStepImg();
+				StepImg stepImgB = entityHelper.generateStepImg();
+				StepImg stepImgC = entityHelper.generateStepImg();
+				StepImg stepImgD = entityHelper.generateStepImg();
+				StepImg stepImgE = entityHelper.generateStepImg();
 
 				return new Struct()
-					.withValue("ownerId", account.getId());
+					.withValue("stepId", step.getId());
 			});
-			Long ownerId = given.valueOf("ownerId");
+			Long stepId = given.valueOf("stepId");
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				get("/account/profileImages/download")
-					.param("ownerId", ownerId.toString()));
+				get("/post/recipe/step/images/download")
+					.param("stepId", stepId.toString()));
 
 			// Then
 			actions
@@ -541,37 +533,37 @@ public class AccountProfileImgIntegrationTest {
 	}
 
 	@Nested
-	class SearchAccountProfileImgs {
+	class SearchStepImgs {
 
 		@Test
-		void listAccountProfileImgs() throws Exception {
+		void listStepImgs() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
-				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgB = entityHelper.generateAccountProfileImg();
+				StepImg stepImgA = entityHelper.generateStepImg();
+				StepImg stepImgB = entityHelper.generateStepImg();
 
 				return new Struct()
-					.withValue("accountProfileImgAId", accountProfileImgA.getId())
-					.withValue("accountProfileImgBId", accountProfileImgB.getId());
+					.withValue("stepImgAId", stepImgA.getId())
+					.withValue("stepImgBId", stepImgB.getId());
 			});
-			Long accountProfileImgAId = given.valueOf("accountProfileImgAId");
-			Long accountProfileImgBId = given.valueOf("accountProfileImgBId");
+			Long stepImgAId = given.valueOf("stepImgAId");
+			Long stepImgBId = given.valueOf("stepImgBId");
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				get("/account/profileImages"));
+				get("/post/recipe/step/images"));
 
 			// Then
 			actions
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.accountProfileImgs").value(aMapWithSize(2)))
-				.andExpect(jsonPath("$.accountProfileImgs.[*].id").value(containsInAnyOrder(
-					accountProfileImgAId.intValue(),
-					accountProfileImgBId.intValue()
+				.andExpect(jsonPath("$.stepImgs").value(aMapWithSize(2)))
+				.andExpect(jsonPath("$.stepImgs.[*].id").value(containsInAnyOrder(
+					stepImgAId.intValue(),
+					stepImgBId.intValue()
 				)));
 
 			// Document
-			actions.andDo(document("accountProfileImg-list-example",
+			actions.andDo(document("stepImg-list-example",
 				requestParameters(
 					ApiDocumentation.DOC_PARAMETER_PAGE,
 					ApiDocumentation.DOC_PARAMETER_SIZE,
@@ -580,25 +572,25 @@ public class AccountProfileImgIntegrationTest {
 		}
 
 		@Test
-		void listAccountProfileImgsWithPaging() throws Exception {
+		void listStepImgsWithPaging() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
-				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgB = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgC = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgD = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgE = entityHelper.generateAccountProfileImg();
+				StepImg stepImgA = entityHelper.generateStepImg();
+				StepImg stepImgB = entityHelper.generateStepImg();
+				StepImg stepImgC = entityHelper.generateStepImg();
+				StepImg stepImgD = entityHelper.generateStepImg();
+				StepImg stepImgE = entityHelper.generateStepImg();
 
 				return new Struct()
-					.withValue("accountProfileImgBId", accountProfileImgB.getId())
-					.withValue("accountProfileImgCId", accountProfileImgC.getId());
+					.withValue("stepImgBId", stepImgB.getId())
+					.withValue("stepImgCId", stepImgC.getId());
 			});
-			Long accountProfileImgBId = given.valueOf("accountProfileImgBId");
-			Long accountProfileImgCId = given.valueOf("accountProfileImgCId");
+			Long stepImgBId = given.valueOf("stepImgBId");
+			Long stepImgCId = given.valueOf("stepImgCId");
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				get("/account/profileImages")
+				get("/post/recipe/step/images")
 					.param("size", "2")
 					.param("page", "1")
 					.param("sort", "id,desc"));
@@ -606,86 +598,135 @@ public class AccountProfileImgIntegrationTest {
 			// Then
 			actions
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.accountProfileImgs").value(aMapWithSize(2)))
-				.andExpect(jsonPath("$.accountProfileImgs.[*].id").value(contains(
-					accountProfileImgCId.intValue(),
-					accountProfileImgBId.intValue()
+				.andExpect(jsonPath("$.stepImgs").value(aMapWithSize(2)))
+				.andExpect(jsonPath("$.stepImgs.[*].id").value(contains(
+					stepImgCId.intValue(),
+					stepImgBId.intValue()
 				)));
 
 			// Document
-			actions.andDo(document("accountProfileImg-list-with-paging-example"));
+			actions.andDo(document("stepImg-list-with-paging-example"));
 		}
 
 		@Test
-		void searchAccountProfileImgsByOwnerId() throws Exception {
+		void searchStepImgByStepId() throws Exception {
 			// Given
 			Struct given = trxHelper.doInTransaction(() -> {
-				Account account = entityHelper.generateAccount();
+				Step step = entityHelper.generateStep();
 
-				AccountProfileImg accountProfileImgA = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgB = entityHelper
-					.generateAccountProfileImg(it -> it.withOwner(account));
-				AccountProfileImg accountProfileImgC = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgD = entityHelper.generateAccountProfileImg();
-				AccountProfileImg accountProfileImgE = entityHelper.generateAccountProfileImg();
+				StepImg stepImgA = entityHelper.generateStepImg();
+				StepImg stepImgB = entityHelper.generateStepImg(it -> it
+					.withStep(step));
+				StepImg stepImgC = entityHelper.generateStepImg();
+				StepImg stepImgD = entityHelper.generateStepImg();
+				StepImg stepImgE = entityHelper.generateStepImg();
 
 				return new Struct()
-					.withValue("ownerId", account.getId())
-					.withValue("accountProfileImgBId", accountProfileImgB.getId());
+					.withValue("stepId", step.getId())
+					.withValue("stepImgBId", stepImgB.getId());
 			});
-			Long ownerId = given.valueOf("ownerId");
-			Long accountProfileImgBId = given.valueOf("accountProfileImgBId");
+			Long stepId = given.valueOf("stepId");
+			Long stepImgBId = given.valueOf("stepImgBId");
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				get("/account/profileImages")
-					.param("ownerId", ownerId.toString()));
+				get("/post/recipe/step/images")
+					.param("stepId", stepId.toString()));
 
 			// Then
 			actions
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.accountProfileImgs").value(aMapWithSize(1)))
-				.andExpect(jsonPath("$.accountProfileImgs.[*].id").value(contains(
-					accountProfileImgBId.intValue()
+				.andExpect(jsonPath("$.stepImgs").value(aMapWithSize(1)))
+				.andExpect(jsonPath("$.stepImgs.[*].id").value(contains(
+					stepImgBId.intValue()
+				)));
+		}
+
+		@Test
+		void searchStepImgsByRecipeId() throws Exception {
+			// Given
+			Struct given = trxHelper.doInTransaction(() -> {
+				Recipe recipe = entityHelper.generateRecipe();
+
+				Step step1 = entityHelper.generateStep(it -> it
+					.withRecipe(recipe));
+				Step step2 = entityHelper.generateStep(it -> it
+					.withRecipe(recipe));
+				Step step3 = entityHelper.generateStep(it -> it
+					.withRecipe(recipe));
+
+				StepImg stepImgA = entityHelper.generateStepImg();
+				StepImg stepImgB = entityHelper.generateStepImg(it -> it
+					.withStep(step1));
+				StepImg stepImgC = entityHelper.generateStepImg();
+				StepImg stepImgD = entityHelper.generateStepImg(it -> it
+					.withStep(step2));
+				StepImg stepImgE = entityHelper.generateStepImg(it -> it
+					.withStep(step3));
+
+				return new Struct()
+					.withValue("recipeId", recipe.getId())
+					.withValue("stepImgBId", stepImgB.getId())
+					.withValue("stepImgDId", stepImgD.getId())
+					.withValue("stepImgEId", stepImgE.getId());
+			});
+			Long recipeId = given.valueOf("recipeId");
+			Long stepImgBId = given.valueOf("stepImgBId");
+			Long stepImgDId = given.valueOf("stepImgDId");
+			Long stepImgEId = given.valueOf("stepImgEId");
+
+			// When
+			ResultActions actions = mockMvc.perform(
+				get("/post/recipe/step/images")
+					.param("recipeId", recipeId.toString()));
+
+			// Then
+			actions
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.stepImgs").value(aMapWithSize(3)))
+				.andExpect(jsonPath("$.stepImgs.[*].id").value(containsInAnyOrder(
+					stepImgBId.intValue(),
+					stepImgDId.intValue(),
+					stepImgEId.intValue()
 				)));
 
 			// Document
-			actions.andDo(document("accountProfileImg-search-example",
+			actions.andDo(document("stepImg-search-example",
 				requestParameters(
-					DOC_PARAMETER_OWNER_ID
+					DOC_PARAMETER_STEP_ID,
+					DOC_PARAMETER_RECIPE_ID
 				)));
 		}
 
 	}
 
 	@Nested
-	class DeleteAccountProfileImg {
+	class DeleteStepImg {
 
 		@Test
-		void deleteAccountProfileImg() throws Exception {
+		void deleteStepImg() throws Exception {
 			// Given
 			File originFile = new File(fileDir + TEST_STORE_FILE_NAME);
 			File newFile = new File(fileDir + TEST_STORE_FILE_NAME2);
 			Files.copy(originFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 			Struct given = trxHelper.doInTransaction(() -> {
-				AccountProfileImg accountProfileImg = entityHelper
-					.generateAccountProfileImg(it -> it
-						.withUploadFileName(TEST_IMG_FILE_NAME)
-						.withStoreFileName(TEST_STORE_FILE_NAME2)
-					);
-				String token = uploadFileAuthHelper.generateToken(accountProfileImg);
+				StepImg stepImg = entityHelper.generateStepImg(it -> it
+					.withUploadFileName(TEST_IMG_FILE_NAME)
+					.withStoreFileName(TEST_STORE_FILE_NAME2)
+				);
+				String token = uploadFileAuthHelper.generateToken(stepImg);
 
 				return new Struct()
 					.withValue("token", token)
-					.withValue("id", accountProfileImg.getId());
+					.withValue("id", stepImg.getId());
 			});
 			String token = given.valueOf("token");
 			Long id = given.valueOf("id");
 
 			// When
 			ResultActions actions = mockMvc.perform(
-				delete("/account/profileImages/{id}", id)
+				delete("/post/recipe/step/images/{id}", id)
 					.header("Authorization", "Bearer " + token));
 
 			// Then
@@ -696,15 +737,14 @@ public class AccountProfileImgIntegrationTest {
 			assertThat(repository.existsById(id)).isFalse();
 
 			// Document
-			actions.andDo(document("accountProfileImg-delete-example"));
+			actions.andDo(document("stepImg-delete-example"));
 		}
 
 		@Test
-		void deleteAccountProfileImg_AccountProfileImgNotFound_NotFound_Status()
-			throws Exception {
+		void deleteStepImg_StepImgNotFound_NotFound_Status() throws Exception {
 			// When
 			ResultActions actions = mockMvc.perform(
-				delete("/account/profileImages/{id}", 0L));
+				delete("/post/recipe/step/images/{id}", 0L));
 
 			// Then
 			actions

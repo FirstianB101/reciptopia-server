@@ -7,12 +7,14 @@ import static kr.reciptopia.reciptopiaserver.helper.CommentLikeTagHelper.aCommen
 import static kr.reciptopia.reciptopiaserver.helper.FavoriteHelper.aFavorite;
 import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.aMainIngredient;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPost;
+import static kr.reciptopia.reciptopiaserver.helper.PostImgHelper.aPostImg;
 import static kr.reciptopia.reciptopiaserver.helper.PostLikeTagHelper.aPostLikeTag;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
 import static kr.reciptopia.reciptopiaserver.helper.ReplyHelper.aReply;
 import static kr.reciptopia.reciptopiaserver.helper.ReplyLikeTagHelper.aReplyLikeTag;
 import static kr.reciptopia.reciptopiaserver.helper.SearchHistoryHelper.aSearchHistory;
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStep;
+import static kr.reciptopia.reciptopiaserver.helper.StepImgHelper.aStepImg;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredient;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,12 +27,14 @@ import kr.reciptopia.reciptopiaserver.domain.model.CommentLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Favorite;
 import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
+import kr.reciptopia.reciptopiaserver.domain.model.PostImg;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.Recipe;
 import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import kr.reciptopia.reciptopiaserver.domain.model.ReplyLikeTag;
 import kr.reciptopia.reciptopiaserver.domain.model.SearchHistory;
 import kr.reciptopia.reciptopiaserver.domain.model.Step;
+import kr.reciptopia.reciptopiaserver.domain.model.StepImg;
 import kr.reciptopia.reciptopiaserver.domain.model.SubIngredient;
 import org.springframework.stereotype.Component;
 
@@ -85,6 +89,25 @@ public record EntityHelper(EntityManager em) {
 
         em.persist(post);
         return post;
+    }
+
+    public PostImg generatePostImg() {
+        return generatePostImg(noInit());
+    }
+
+    public PostImg generatePostImg(
+        Function<? super PostImg, ? extends PostImg> initialize) {
+        PostImg postImg = aPostImg()
+            .withId(null)
+            .withPost(null);
+
+        postImg = initialize.apply(postImg);
+        if (postImg.getPost() == null) {
+            postImg.setPost(generatePost());
+        }
+
+        em.persist(postImg);
+        return postImg;
     }
 
     public Comment generateComment() {
@@ -257,6 +280,10 @@ public record EntityHelper(EntityManager em) {
         return subIngredient;
     }
 
+    public Step generateStep() {
+        return generateStep(noInit());
+    }
+
     public Step generateStep(Function<? super Step, ? extends Step> initialize) {
         Step step = aStep()
             .withId(null)
@@ -271,8 +298,23 @@ public record EntityHelper(EntityManager em) {
         return step;
     }
 
-    public Step generateStep() {
-        return generateStep(noInit());
+    public StepImg generateStepImg() {
+        return generateStepImg(noInit());
+    }
+
+    public StepImg generateStepImg(
+        Function<? super StepImg, ? extends StepImg> initialize) {
+        StepImg stepImg = aStepImg()
+            .withId(null)
+            .withStep(null);
+
+        stepImg = initialize.apply(stepImg);
+        if (stepImg.getStep() == null) {
+            stepImg.setStep(generateStep());
+        }
+
+        em.persist(stepImg);
+        return stepImg;
     }
 
     private <T> Function<? super T, ? extends T> noInit() {

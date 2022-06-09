@@ -10,14 +10,14 @@ import kr.reciptopia.reciptopiaserver.business.service.authorizer.UploadFileAuth
 import kr.reciptopia.reciptopiaserver.business.service.filestore.FileStore;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
-import kr.reciptopia.reciptopiaserver.business.service.searchcondition.AccountProfileImgSearchCondition;
-import kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Bulk;
-import kr.reciptopia.reciptopiaserver.domain.dto.AccountProfileImgDto.Result;
-import kr.reciptopia.reciptopiaserver.domain.model.Account;
-import kr.reciptopia.reciptopiaserver.domain.model.AccountProfileImg;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.StepImgSearchCondition;
+import kr.reciptopia.reciptopiaserver.domain.dto.StepImgDto.Bulk;
+import kr.reciptopia.reciptopiaserver.domain.dto.StepImgDto.Result;
+import kr.reciptopia.reciptopiaserver.domain.model.Step;
+import kr.reciptopia.reciptopiaserver.domain.model.StepImg;
 import kr.reciptopia.reciptopiaserver.domain.model.UploadFile;
-import kr.reciptopia.reciptopiaserver.persistence.repository.AccountProfileImgRepository;
-import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.AccountProfileImgRepositoryImpl;
+import kr.reciptopia.reciptopiaserver.persistence.repository.StepImgRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.StepImgRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -34,77 +34,76 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AccountProfileImgService {
+public class StepImgService {
 
 	private final FileStore fileStore;
-	private final AccountProfileImgRepository accountProfileImgRepository;
-	private final AccountProfileImgRepositoryImpl accountProfileImgRepositoryImpl;
+	private final StepImgRepository stepImgRepository;
+	private final StepImgRepositoryImpl stepImgRepositoryImpl;
 	private final RepositoryHelper repoHelper;
 	private final ServiceErrorHelper errorHelper;
 	private final UploadFileAuthorizer uploadFileAuthorizer;
 
 	@Transactional
-	public Result put(Long ownerId, MultipartFile imgFile,
+	public Result put(Long stepId, MultipartFile imgFile,
 		Authentication authentication) {
 		throwExceptionWhenInvalidMultipartFile(imgFile);
 
-		Account owner = repoHelper.findAccountOrThrow(ownerId);
-		uploadFileAuthorizer.requireByOneself(authentication, owner);
+		Step step = repoHelper.findStepOrThrow(stepId);
+		uploadFileAuthorizer.requireByOneself(authentication,
+			step.getRecipe().getPost().getOwner());
 
 		UploadFile uploadFile = fileStore.storeFile(imgFile);
 
-		Optional<AccountProfileImg> optionalAccountProfileImg =
-			accountProfileImgRepository.findByOwnerId(ownerId);
+		Optional<StepImg> optionalStepImg = stepImgRepository.findByStepId(stepId);
 
-		if (optionalAccountProfileImg.isEmpty()) {
-			AccountProfileImg newAccountProfileImg = createAccountProfileImg(uploadFile, owner);
-			return Result.of(accountProfileImgRepository.save(newAccountProfileImg));
+		if (optionalStepImg.isEmpty()) {
+			StepImg newStepImg = createStepImg(uploadFile, step);
+			return Result.of(stepImgRepository.save(newStepImg));
 		}
 
-		AccountProfileImg originAccountProfileImg = optionalAccountProfileImg.get();
-		deleteAccountProfileImgFile(originAccountProfileImg);
+		StepImg originStepImg = optionalStepImg.get();
+		deleteStepImgFile(originStepImg);
 
-		originAccountProfileImg = updateAccountProfileImg(uploadFile, originAccountProfileImg);
-		return Result.of(accountProfileImgRepository.save(originAccountProfileImg));
+		originStepImg = updateStepImg(uploadFile, originStepImg);
+		return Result.of(stepImgRepository.save(originStepImg));
 	}
 
 	public ResponseEntity<Resource> download(Long id, HttpServletRequest request) {
-		AccountProfileImg accountProfileImg = repoHelper.findAccountProfileImgOrThrow(id);
-		return createResponseEntity(accountProfileImg, request);
+		StepImg stepImg = repoHelper.findStepImgOrThrow(id);
+		return createResponseEntity(stepImg, request);
 	}
 
-	public ResponseEntity<Resource> downloadByOwnerId(Long ownerId, HttpServletRequest request) {
-		Optional<AccountProfileImg> optionalAccountProfileImg =
-			accountProfileImgRepository.findByOwnerId(ownerId);
+	public ResponseEntity<Resource> downloadByStepId(Long stepId, HttpServletRequest request) {
+		Optional<StepImg> optionalStepImg = stepImgRepository.findByStepId(stepId);
 
-		if (optionalAccountProfileImg.isEmpty()) {
+		if (optionalStepImg.isEmpty()) {
 			return ResponseEntity.ok()
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(null);
 		}
 
-		AccountProfileImg accountProfileImg = optionalAccountProfileImg.get();
-		return createResponseEntity(accountProfileImg, request);
+		StepImg stepImg = optionalStepImg.get();
+		return createResponseEntity(stepImg, request);
 	}
 
 	public Bulk.Result search(
-		AccountProfileImgSearchCondition searchCondition, Pageable pageable) {
-		PageImpl<AccountProfileImg> pageImpl =
-			accountProfileImgRepositoryImpl.search(searchCondition, pageable);
+		StepImgSearchCondition searchCondition, Pageable pageable) {
+		PageImpl<StepImg> pageImpl =
+			stepImgRepositoryImpl.search(searchCondition, pageable);
 		return Bulk.Result.of(pageImpl);
 	}
 
 	@Transactional
 	public void delete(Long id, Authentication authentication) {
-		AccountProfileImg accountProfileImg = repoHelper.findAccountProfileImgOrThrow(id);
-		uploadFileAuthorizer.requireUploadFileOwner(authentication, accountProfileImg);
+		StepImg stepImg = repoHelper.findStepImgOrThrow(id);
+		uploadFileAuthorizer.requireUploadFileOwner(authentication, stepImg);
 
-		File file = new File(fileStore.getFullPath(accountProfileImg.getStoreFileName()));
+		File file = new File(fileStore.getFullPath(stepImg.getStoreFileName()));
 		if (file.exists()) {
 			file.delete();
 		}
 
-		accountProfileImgRepository.delete(accountProfileImg);
+		stepImgRepository.delete(stepImg);
 	}
 
 	private void throwExceptionWhenInvalidMultipartFile(MultipartFile multipartFile) {
@@ -123,47 +122,46 @@ public class AccountProfileImgService {
 		}
 	}
 
-	private AccountProfileImg createAccountProfileImg(UploadFile uploadFile, Account owner) {
-		return AccountProfileImg.builder()
+	private StepImg createStepImg(UploadFile uploadFile, Step step) {
+		return StepImg.builder()
 			.uploadFileName(uploadFile.getUploadFileName())
 			.storeFileName(uploadFile.getStoreFileName())
-			.owner(owner)
+			.step(step)
 			.build();
 	}
 
-	private void deleteAccountProfileImgFile(AccountProfileImg accountProfileImg) {
+	private void deleteStepImgFile(StepImg stepImg) {
 		File originFile = new File(fileStore.getFullPath(
-			accountProfileImg.getStoreFileName())
-		);
+			stepImg.getStoreFileName()
+		));
 		if (originFile.exists()) {
 			originFile.delete();
 		}
 	}
 
-	private AccountProfileImg updateAccountProfileImg(UploadFile uploadFile,
-		AccountProfileImg originAccountProfileImg) {
-		return AccountProfileImg.builder()
+	private StepImg updateStepImg(UploadFile uploadFile, StepImg originStepImg) {
+		return StepImg.builder()
 			.uploadFileName(uploadFile.getUploadFileName())
 			.storeFileName(uploadFile.getStoreFileName())
-			.owner(originAccountProfileImg.getOwner())
+			.step(originStepImg.getStep())
 			.build()
-			.withId(originAccountProfileImg.getId());
+			.withId(originStepImg.getId());
 	}
 
 	private ResponseEntity<Resource> createResponseEntity(
-		AccountProfileImg accountProfileImg, HttpServletRequest request) {
+		StepImg stepImg, HttpServletRequest request) {
 		Resource resource;
 		String contentType;
 		try {
 			Path filePath = Paths.get(
-				fileStore.getFullPath(accountProfileImg.getStoreFileName()));
+				fileStore.getFullPath(stepImg.getStoreFileName()));
 
 			resource = new UrlResource(filePath.toUri());
 			contentType = request.getServletContext().getMimeType(
 				resource.getFile().getAbsolutePath());
 		} catch (Exception e) {
 			throw errorHelper.notFound("File Not Found from "
-				+ fileStore.getFullPath(accountProfileImg.getStoreFileName()));
+				+ fileStore.getFullPath(stepImg.getStoreFileName()));
 		}
 
 		return ResponseEntity.ok()

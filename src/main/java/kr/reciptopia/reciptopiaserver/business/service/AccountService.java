@@ -57,18 +57,21 @@ public class AccountService {
         Account entity = repoHelper.findAccountOrThrow(id);
         accountAuthorizer.requireByOneself(authentication, entity);
 
-        if (dto.email() != null) {
-            entity.setEmail(dto.email());
-        }
-        if (dto.password() != null) {
-            entity.setPassword(passwordEncoder::encode, dto.password());
-        }
-        if (dto.nickname() != null) {
-            entity.setNickname(dto.nickname());
-        }
+		if (dto.email() != null) {
+			entity.setEmail(dto.email());
+		}
+		if (dto.password() != null) {
+			entity.setPassword(passwordEncoder::encode, dto.password());
+		}
+		if (dto.nickname() != null) {
+			entity.setNickname(dto.nickname());
+		}
+		if (dto.profilePictureUrl() != null) {
+			entity.setProfilePictureUrl(dto.profilePictureUrl());
+		}
 
-        return Result.of(accountRepository.save(entity));
-    }
+		return Result.of(accountRepository.save(entity));
+	}
 
     @Transactional
     public void delete(Long id, Authentication authentication) {

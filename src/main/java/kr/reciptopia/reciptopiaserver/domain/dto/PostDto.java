@@ -77,7 +77,7 @@ public interface PostDto {
 
     @With
     record Create(
-        Long ownerId, String title, String content) {
+        Long ownerId, String title, String content, List<String> pictureUrls) {
 
         @Builder
         public Create(
@@ -87,10 +87,14 @@ public interface PostDto {
             @NotEmpty
                 String title,
 
-            String content) {
+            String content,
+
+            @Singular
+                List<String> pictureUrls) {
             this.ownerId = ownerId;
             this.title = title;
             this.content = content;
+            this.pictureUrls = pictureUrls;
         }
 
         public Post asEntity(
@@ -98,6 +102,7 @@ public interface PostDto {
             return initialize.apply(Post.builder()
                 .title(title)
                 .content(content)
+                .pictureUrls(pictureUrls)
                 .build());
         }
 
@@ -110,6 +115,7 @@ public interface PostDto {
                 .ownerId(ownerId)
                 .title(title)
                 .content(content)
+                .pictureUrls(pictureUrls)
                 .build();
         }
 
@@ -119,15 +125,19 @@ public interface PostDto {
     }
 
     @With
-    record Update(String title, String content) {
+    record Update(String title, String content, List<String> pictureUrls) {
 
         @Builder
         public Update(
             String title,
 
-            String content) {
+            String content,
+
+            @Singular
+                List<String> pictureUrls) {
             this.title = title;
             this.content = content;
+            this.pictureUrls = pictureUrls;
         }
     }
 
@@ -151,7 +161,7 @@ public interface PostDto {
     @With
     record Result(
         Long id, Long ownerId,
-        String title, String content, Long views) {
+        String title, String content, List<String> pictureUrls, Long views) {
 
         @Builder
         public Result(
@@ -166,11 +176,14 @@ public interface PostDto {
 
             String content,
 
+            List<String> pictureUrls,
+
             Long views) {
             this.id = id;
             this.ownerId = ownerId;
             this.title = title;
             this.content = content;
+            this.pictureUrls = pictureUrls;
             this.views = views;
         }
 
@@ -180,6 +193,7 @@ public interface PostDto {
                 .ownerId(entity.getOwner().getId())
                 .title(entity.getTitle())
                 .content(entity.getContent())
+                .pictureUrls(entity.getPictureUrls())
                 .views(entity.getViews())
                 .build();
         }

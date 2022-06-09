@@ -53,6 +53,9 @@ public class StepService {
         if (dto.description() != null) {
             step.setDescription(dto.description());
         }
+        if (dto.pictureUrl() != null) {
+            step.setPictureUrl(dto.pictureUrl());
+        }
 
         return Result.of(stepRepository.save(step));
     }
