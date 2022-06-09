@@ -3,7 +3,7 @@ package kr.reciptopia.reciptopiaserver;
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static kr.reciptopia.reciptopiaserver.helper.PostLikeTagHelper.aPostLikeTagCreateDto;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasSize;
@@ -11,6 +11,8 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -19,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -43,6 +46,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -59,6 +63,19 @@ public class PostLikeTagIntegrationTest {
         fieldWithPath("ownerId").description("게시물 좋아요 누른 사용자 ID");
     private static final FieldDescriptor DOC_FIELD_POST_ID =
         fieldWithPath("postId").description("게시물 좋아요가 달린 게시물 ID");
+
+    private static final ParameterDescriptor DOC_PARAMETER_ID =
+        parameterWithName("id").description("게시물 좋아요 ID").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_IDS =
+        parameterWithName("ids").description("게시물 좋아요 ID 배열").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_OWNER_ID =
+        parameterWithName("ownerId").description("게시물 좋아요 누른 사용자 ID").optional();
+    private static final ParameterDescriptor DOC_PARAMETER_OWNER_IDS =
+        parameterWithName("ownerIds").description("게시물 좋아요 누른 사용자 ID 배열").optional();
+
+    private static final FieldDescriptor DOC_FIELD_BULK_POST_LIKE_TAG_GRUOP_BY_OWNER_ID =
+        subsectionWithPath("postLikeTags").type("Map<ownerId, List<postLikeTag>>")
+            .description("게시물 좋아요 누른 사용자 ID를 Key 로 갖고 게시물 좋아요 List를 Value 로 갖는 Map");
 
     private MockMvc mockMvc;
 
@@ -228,8 +245,8 @@ public class PostLikeTagIntegrationTest {
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(containsInAnyOrder(
+                .andExpect(jsonPath("$.postLikeTags.[*]").value(hasSize(2)))
+                .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(containsInAnyOrder(
                     postLikeTagAId.intValue(),
                     postLikeTagBId.intValue()
                 )));
@@ -249,33 +266,133 @@ public class PostLikeTagIntegrationTest {
             Struct given = trxHelper.doInTransaction(() -> {
                 PostLikeTag postLikeTagA = entityHelper.generatePostLikeTag();
                 PostLikeTag postLikeTagB = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagC = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagD = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagE = entityHelper.generatePostLikeTag();
 
                 return new Struct()
-                    .withValue("postLikeTagAId", postLikeTagA.getId())
-                    .withValue("postLikeTagBId", postLikeTagB.getId());
+                    .withValue("postLikeTagBId", postLikeTagB.getId())
+                    .withValue("postLikeTagCId", postLikeTagC.getId());
             });
-            Long postLikeTagAId = given.valueOf("postLikeTagAId");
             Long postLikeTagBId = given.valueOf("postLikeTagBId");
+            Long postLikeTagCId = given.valueOf("postLikeTagCId");
 
             // When
             ResultActions actions = mockMvc.perform(get("/post/likeTags")
                 .param("size", "2")
-                .param("page", "0")
+                .param("page", "1")
                 .param("sort", "id,desc"));
 
             // Then
             actions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(hasSize(2)))
-                .andExpect(jsonPath("$.[*].id").value(contains(
-                    postLikeTagBId.intValue(),
-                    postLikeTagAId.intValue()
+                .andExpect(jsonPath("$.postLikeTags.[*]").value(hasSize(2)))
+                .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(containsInAnyOrder(
+                    postLikeTagCId.intValue(),
+                    postLikeTagBId.intValue()
                 )));
 
             // Document
             actions.andDo(document("postLikeTag-list-with-paging-example"));
         }
 
+        @Test
+        void searchPostLikeTagsByIds() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                PostLikeTag postLikeTagA = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagB = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagC = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagD = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagE = entityHelper.generatePostLikeTag();
+
+                return new Struct()
+                    .withValue("postLikeTagBId", postLikeTagB.getId())
+                    .withValue("postLikeTagCId", postLikeTagC.getId())
+                    .withValue("postLikeTagEId", postLikeTagE.getId());
+            });
+            Long postLikeTagBId = given.valueOf("postLikeTagBId");
+            Long postLikeTagCId = given.valueOf("postLikeTagCId");
+            Long postLikeTagEId = given.valueOf("postLikeTagEId");
+
+            // When
+            String idsParam = postLikeTagBId + ", " + postLikeTagCId + ", " + postLikeTagEId;
+            ResultActions actions = mockMvc.perform(get("/post/likeTags")
+                .param("ids", idsParam));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postLikeTags").value(aMapWithSize(3)))
+                .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(
+                    containsInAnyOrder(
+                        postLikeTagCId.intValue(),
+                        postLikeTagBId.intValue(),
+                        postLikeTagEId.intValue()
+                    )));
+
+            // Document
+            actions.andDo(document("postLikeTag-search-example",
+                requestParameters(
+                    DOC_PARAMETER_IDS,
+                    DOC_PARAMETER_OWNER_IDS
+                ))).andDo(document("postLikeTag-search-response-example",
+                responseFields(
+                    DOC_FIELD_BULK_POST_LIKE_TAG_GRUOP_BY_OWNER_ID
+                )));
+        }
+
+        @Test
+        void searchPostLikeTagsByOwnerIds() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+
+                Account ownerB = entityHelper.generateAccount();
+
+                PostLikeTag postLikeTagA = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagB = entityHelper.generatePostLikeTag(it -> it
+                    .withOwner(ownerB));
+                PostLikeTag postLikeTagC = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagD = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagE = entityHelper.generatePostLikeTag();
+                PostLikeTag postLikeTagF = entityHelper.generatePostLikeTag(it -> it
+                    .withOwner(ownerB));
+
+                return new Struct()
+                    .withValue("postLikeTagBId", postLikeTagB.getId())
+                    .withValue("postLikeTagCId", postLikeTagC.getId())
+                    .withValue("postLikeTagEId", postLikeTagE.getId())
+                    .withValue("postLikeTagFId", postLikeTagF.getId())
+                    .withValue("ownerBId", ownerB.getId())
+                    .withValue("ownerCId", postLikeTagC.getOwner().getId())
+                    .withValue("ownerEId", postLikeTagE.getOwner().getId());
+            });
+            Long postLikeTagBId = given.valueOf("postLikeTagBId");
+            Long postLikeTagCId = given.valueOf("postLikeTagCId");
+            Long postLikeTagEId = given.valueOf("postLikeTagEId");
+            Long postLikeTagFId = given.valueOf("postLikeTagFId");
+            Long ownerBId = given.valueOf("ownerBId");
+            Long ownerCId = given.valueOf("ownerCId");
+            Long ownerEId = given.valueOf("ownerEId");
+
+            // When
+            String ownerIdsParam = ownerBId + ", " + ownerCId + ", " + ownerEId;
+            ResultActions actions = mockMvc.perform(get("/post/likeTags")
+                .param("ownerIds", ownerIdsParam));
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postLikeTags").value(aMapWithSize(3)))
+                .andExpect(jsonPath("$.postLikeTags.[*].[*].id").value(
+                    containsInAnyOrder(
+                        postLikeTagCId.intValue(),
+                        postLikeTagBId.intValue(),
+                        postLikeTagEId.intValue(),
+                        postLikeTagFId.intValue()
+                    )));
+        }
     }
 
     @Nested

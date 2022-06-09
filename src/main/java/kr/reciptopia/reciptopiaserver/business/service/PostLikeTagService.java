@@ -1,14 +1,17 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
-import java.util.List;
+import static kr.reciptopia.reciptopiaserver.domain.dto.PostLikeTagDto.Bulk;
+
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.LikeTagAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
+import kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostLikeTagSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostLikeTagDto.Create;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostLikeTagDto.Result;
 import kr.reciptopia.reciptopiaserver.domain.model.Account;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 import kr.reciptopia.reciptopiaserver.persistence.repository.PostLikeTagRepository;
+import kr.reciptopia.reciptopiaserver.persistence.repository.implementaion.PostLikeTagRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +27,7 @@ public class PostLikeTagService {
     private final PostLikeTagRepository postLikeTagRepository;
     private final RepositoryHelper repoHelper;
     private final LikeTagAuthorizer likeTagAuthorizer;
+    private final PostLikeTagRepositoryImpl postLikeTagRepositoryImpl;
 
     @Transactional
     public Result create(Create dto, Authentication authentication) {
@@ -43,9 +47,9 @@ public class PostLikeTagService {
         return Result.of(repoHelper.findPostLikeTagOrThrow(id));
     }
 
-    public List<Result> search(Pageable pageable) {
-        Page<PostLikeTag> entities = postLikeTagRepository.findAll(pageable);
-        return Result.of(entities);
+    public Bulk.Result search(PostLikeTagSearchCondition condition, Pageable pageable) {
+        Page<PostLikeTag> entities = postLikeTagRepositoryImpl.search(condition, pageable);
+        return Bulk.Result.GroupBy.OwnerId.of(entities);
     }
 
     @Transactional
