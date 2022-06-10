@@ -77,35 +77,16 @@ public interface CommentDto {
 
     @With
     record Result(
-        Long id, Long ownerId, Long postId, String content, LocalDateTime createTime,
-        LocalDateTime modifiedTime) {
+        @NotNull Long id,
+        @NotNull Long ownerId,
+        @NotNull Long postId,
+        @NotBlank @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!") String content,
+        LocalDateTime createTime,
+        @NotNull LocalDateTime modifiedTime) {
 
         @Builder
-        public Result(
-            @NotNull
-                Long id,
+        public Result {
 
-            @NotNull
-                Long ownerId,
-
-            @NotNull
-                Long postId,
-
-            @NotBlank
-            @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
-                String content,
-
-            @NotNull
-                LocalDateTime createTime,
-
-            LocalDateTime modifiedTime
-        ) {
-            this.id = id;
-            this.ownerId = ownerId;
-            this.postId = postId;
-            this.content = content;
-            this.createTime = createTime;
-            this.modifiedTime = modifiedTime;
         }
 
         public static Result of(Comment entity) {
