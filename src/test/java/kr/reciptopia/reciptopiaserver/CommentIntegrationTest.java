@@ -574,6 +574,72 @@ public class CommentIntegrationTest {
             actions
                 .andExpect(status().isNotFound());
         }
+
+        @Test
+        void 공백으로_채워진_content로_comment_수정() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Comment comment = entityHelper.generateComment(it ->
+                    it.withContent("테스트 댓글 내용")
+                );
+
+                String token = commentAuthHelper.generateToken(comment);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", comment.getId());
+            });
+            String token = given.valueOf("token");
+            Long id = given.valueOf("id");
+
+            // When
+            Update dto = Update.builder()
+                .content("         ")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/post/comments/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+
+        }
+
+        @Test
+        void 너무_긴_길이의_content로_comment_수정() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Comment comment = entityHelper.generateComment(it ->
+                    it.withContent("테스트 댓글 내용")
+                );
+
+                String token = commentAuthHelper.generateToken(comment);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", comment.getId());
+            });
+            String token = given.valueOf("token");
+            Long id = given.valueOf("id");
+
+            // When
+            Update dto = Update.builder()
+                .content(
+                    "And_so_I_wake_in_the_morning_and_I_step_Outside_and_I_take_a_deep_breath_And_I_get_real_high_Then_I_scream_from_the_top_of_my_lungs_What's_goin_on")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/post/comments/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
     }
 
     @Nested
