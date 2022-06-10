@@ -21,13 +21,12 @@ public interface CommentDto {
     interface Bulk {
 
         @With
-        record Result(Map<Long, CommentDto.Result> comments) {
+        record Result(@NotEmpty Map<Long, CommentDto.Result> comments) {
 
             @Builder
             public Result(
-                @NotEmpty
                 @Singular
-                    Map<Long, CommentDto.Result> comments
+                Map<Long, CommentDto.Result> comments
             ) {
                 this.comments = comments;
             }
