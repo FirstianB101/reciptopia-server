@@ -13,9 +13,9 @@ import org.springframework.data.domain.Page;
 
 public interface AccountProfileImgDto {
 
-	interface Bulk {
+    interface Bulk {
 
-		@With
+        @With
         record Result(
             @NotEmpty Map<Long, AccountProfileImgDto.Result> accountProfileImgs) {
 
@@ -26,23 +26,23 @@ public interface AccountProfileImgDto {
                 this.accountProfileImgs = accountProfileImgs;
             }
 
-			public static Bulk.Result of(Page<AccountProfileImg> accountProfileImgs) {
-				return Bulk.Result.builder()
-					.accountProfileImgs(
-						(Map<? extends Long, ? extends AccountProfileImgDto.Result>)
-							accountProfileImgs.stream()
-								.map(AccountProfileImgDto.Result::of)
-								.collect(
-									Collectors.toMap(
-										AccountProfileImgDto.Result::id,
-										result -> result,
-										(x, y) -> y,
-										LinkedHashMap::new)))
-					.build();
-			}
-		}
+            public static Bulk.Result of(Page<AccountProfileImg> accountProfileImgs) {
+                return Bulk.Result.builder()
+                    .accountProfileImgs(
+                        (Map<? extends Long, ? extends AccountProfileImgDto.Result>)
+                            accountProfileImgs.stream()
+                                .map(AccountProfileImgDto.Result::of)
+                                .collect(
+                                    Collectors.toMap(
+                                        AccountProfileImgDto.Result::id,
+                                        result -> result,
+                                        (x, y) -> y,
+                                        LinkedHashMap::new)))
+                    .build();
+            }
+        }
 
-	}
+    }
 
 
     @With
@@ -57,14 +57,14 @@ public interface AccountProfileImgDto {
 
         }
 
-		public static Result of(AccountProfileImg entity) {
-			return Result.builder()
-				.id(entity.getId())
-				.uploadFileName(entity.getUploadFileName())
-				.storeFileName(entity.getStoreFileName())
-				.ownerId(entity.getOwner().getId())
-				.build();
-		}
-	}
+        public static Result of(AccountProfileImg entity) {
+            return Result.builder()
+                .id(entity.getId())
+                .uploadFileName(entity.getUploadFileName())
+                .storeFileName(entity.getStoreFileName())
+                .ownerId(entity.getOwner().getId())
+                .build();
+        }
+    }
 
 }
