@@ -174,6 +174,174 @@ public class CommentIntegrationTest {
                 .andExpect(status().isNotFound());
         }
 
+        @Test
+        void post_id가_없는_comment_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+                String token = commentAuthHelper.generateToken(account);
+                Post post = entityHelper.generatePost();
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", account.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            Create dto = Create.builder()
+                .ownerId(ownerId)
+                .content("테스트 댓글 내용")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comments")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void owner_id가_없는_comment_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+                String token = commentAuthHelper.generateToken(account);
+                Post post = entityHelper.generatePost();
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("postId", post.getId());
+            });
+            String token = given.valueOf("token");
+            Long postId = given.valueOf("postId");
+
+            // When
+            Create dto = Create.builder()
+                .postId(postId)
+                .content("테스트 댓글 내용")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comments")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void content가_없는_comment_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+                String token = commentAuthHelper.generateToken(account);
+                Post post = entityHelper.generatePost();
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", account.getId())
+                    .withValue("postId", post.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+            Long postId = given.valueOf("postId");
+
+            // When
+            Create dto = Create.builder()
+                .ownerId(ownerId)
+                .postId(postId)
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comments")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 공백으로_채워진_content로_comment_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+                String token = commentAuthHelper.generateToken(account);
+                Post post = entityHelper.generatePost();
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", account.getId())
+                    .withValue("postId", post.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+            Long postId = given.valueOf("postId");
+
+            // When
+            Create dto = Create.builder()
+                .ownerId(ownerId)
+                .postId(postId)
+                .content("        ")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comments")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_긴_길이의_content로_comment_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+                String token = commentAuthHelper.generateToken(account);
+                Post post = entityHelper.generatePost();
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", account.getId())
+                    .withValue("postId", post.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+            Long postId = given.valueOf("postId");
+
+            // When
+            Create dto = Create.builder()
+                .ownerId(ownerId)
+                .postId(postId)
+                .content(
+                    "And_so_I_wake_in_the_morning_and_I_step_Outside_and_I_take_a_deep_breath_And_I_get_real_high_Then_I_scream_from_the_top_of_my_lungs_What's_goin_on")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comments")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
     }
 
     @Nested
