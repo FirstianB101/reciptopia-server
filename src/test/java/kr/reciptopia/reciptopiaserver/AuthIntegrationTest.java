@@ -163,6 +163,135 @@ public class AuthIntegrationTest {
     }
 
     @Test
+    void email이_없는_token_생성() throws Exception {
+        // Given
+        trxHelper.doInTransaction(() -> {
+            entityHelper.generateAccount(it ->
+                it.withEmail("test@email.com")
+                    .withPassword(passwordEncoder::encode, "pAsSwOrD")
+            );
+        });
+
+        // When
+        AuthDto.GenerateToken dto = AuthDto.GenerateToken.builder()
+            .password("pAsSwOrD")
+            .build();
+        String body = jsonHelper.toJson(dto);
+
+        ResultActions actions = mockMvc.perform(post("/auth/token")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body));
+
+        // Then
+        actions
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void email_형식이_아닌_token_생성() throws Exception {
+        // Given
+        trxHelper.doInTransaction(() -> {
+            entityHelper.generateAccount(it ->
+                it.withEmail("test@email.com")
+                    .withPassword(passwordEncoder::encode, "pAsSwOrD")
+            );
+        });
+
+        // When
+        AuthDto.GenerateToken dto = AuthDto.GenerateToken.builder()
+            .email("test_email_com")
+            .password("pAsSwOrD")
+            .build();
+        String body = jsonHelper.toJson(dto);
+
+        ResultActions actions = mockMvc.perform(post("/auth/token")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body));
+
+        // Then
+        actions
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void password가_없는_token_생성() throws Exception {
+        // Given
+        trxHelper.doInTransaction(() -> {
+            entityHelper.generateAccount(it ->
+                it.withEmail("test@email.com")
+                    .withPassword(passwordEncoder::encode, "pAsSwOrD")
+            );
+        });
+
+        // When
+        AuthDto.GenerateToken dto = AuthDto.GenerateToken.builder()
+            .email("test@email.com")
+            .build();
+        String body = jsonHelper.toJson(dto);
+
+        ResultActions actions = mockMvc.perform(post("/auth/token")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body));
+
+        // Then
+        actions
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 너무_짧은_길이의_password로_token_생성() throws Exception {
+        // Given
+        trxHelper.doInTransaction(() -> {
+            entityHelper.generateAccount(it ->
+                it.withEmail("test@email.com")
+                    .withPassword(passwordEncoder::encode, "pAsSwOrD")
+            );
+        });
+
+        // When
+        AuthDto.GenerateToken dto = AuthDto.GenerateToken.builder()
+            .email("test@email.com")
+            .password("bad")
+            .build();
+        String body = jsonHelper.toJson(dto);
+
+        ResultActions actions = mockMvc.perform(post("/auth/token")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body));
+
+        // Then
+        actions
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 너무_긴_길이의_password로_token_생성() throws Exception {
+        // Given
+        trxHelper.doInTransaction(() -> {
+            entityHelper.generateAccount(it ->
+                it.withEmail("test@email.com")
+                    .withPassword(passwordEncoder::encode, "pAsSwOrD")
+            );
+        });
+
+        // When
+        AuthDto.GenerateToken dto = AuthDto.GenerateToken.builder()
+            .email("test@email.com")
+            .password(
+                "And_so_I_wake_in_the_morning_and_I_step_Outside_and_I_take_a_deep_breath_And_I_get_real_high_Then_I_scream_from_the_top_of_my_lungs_What's_goin_on")
+            .build();
+        String body = jsonHelper.toJson(dto);
+
+        ResultActions actions = mockMvc.perform(post("/auth/token")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body));
+
+        // Then
+        actions
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void getMe() throws Exception {
         // Given
         Struct given = trxHelper.doInTransaction(() -> {
