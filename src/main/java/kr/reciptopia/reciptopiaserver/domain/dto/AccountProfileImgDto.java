@@ -16,16 +16,15 @@ public interface AccountProfileImgDto {
 	interface Bulk {
 
 		@With
-		record Result(
-			Map<Long, AccountProfileImgDto.Result> accountProfileImgs) {
+        record Result(
+            @NotEmpty Map<Long, AccountProfileImgDto.Result> accountProfileImgs) {
 
-			@Builder
-			public Result(
-				@NotEmpty
-				@Singular
-					Map<Long, AccountProfileImgDto.Result> accountProfileImgs) {
-				this.accountProfileImgs = accountProfileImgs;
-			}
+            @Builder
+            public Result(
+                @Singular
+                Map<Long, AccountProfileImgDto.Result> accountProfileImgs) {
+                this.accountProfileImgs = accountProfileImgs;
+            }
 
 			public static Bulk.Result of(Page<AccountProfileImg> accountProfileImgs) {
 				return Bulk.Result.builder()
