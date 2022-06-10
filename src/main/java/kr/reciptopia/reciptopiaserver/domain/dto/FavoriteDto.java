@@ -47,17 +47,11 @@ public interface FavoriteDto {
 
     @With
     record Create(
-        Long ownerId, Long postId) {
+        @NotNull Long ownerId, @NotNull Long postId) {
 
         @Builder
-        public Create(
-            @NotNull
-                Long ownerId,
-
-            @NotNull
-                Long postId) {
-            this.ownerId = ownerId;
-            this.postId = postId;
+        public Create {
+            
         }
 
         public Favorite asEntity(
