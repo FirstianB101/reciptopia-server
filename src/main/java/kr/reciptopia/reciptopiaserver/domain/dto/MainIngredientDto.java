@@ -182,22 +182,14 @@ public interface MainIngredientDto {
 
         @With
         record Single(
-            Long recipeId, String name, String detail
+            @NotNull Long recipeId,
+            @NotEmpty String name,
+            @NotEmpty String detail
         ) {
 
             @Builder
-            public Single(
-                @NotNull
-                    Long recipeId,
+            public Single {
 
-                @NotEmpty
-                    String name,
-
-                @NotEmpty
-                    String detail) {
-                this.recipeId = recipeId;
-                this.name = name;
-                this.detail = detail;
             }
 
             public MainIngredient asEntity(
