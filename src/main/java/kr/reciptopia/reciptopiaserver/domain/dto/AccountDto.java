@@ -137,32 +137,17 @@ public interface AccountDto {
         }
     }
 
-	@With
-	record Result(
-		Long id, String email, String nickname, String profilePictureUrl, UserRole role) {
+    @With
+    record Result(
+        @NotNull Long id,
+        @NotNull @Email(message = "이메일 형식이 아닙니다.") String email,
+        @NotBlank @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!") String nickname,
+        String profilePictureUrl,
+        UserRole role) {
 
-		@Builder
-		public Result(
-			@NotNull
-				Long id,
+        @Builder
+        public Result {
 
-			@NotNull
-			@Email(message = "이메일 형식이 아닙니다.")
-				String email,
-
-			@NotBlank
-			@Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
-				String nickname,
-
-			String profilePictureUrl,
-
-			@NotEmpty
-				UserRole role) {
-            this.id = id;
-            this.email = email;
-			this.nickname = nickname;
-			this.profilePictureUrl = profilePictureUrl;
-			this.role = role;
         }
 
         public static Result of(Account entity) {
