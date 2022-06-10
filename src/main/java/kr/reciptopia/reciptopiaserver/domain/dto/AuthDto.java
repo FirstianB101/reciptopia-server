@@ -19,17 +19,12 @@ public interface AuthDto {
     }
 
     record GenerateTokenResult(
-        String token, AccountDto.Result account) {
+        @NotEmpty String token,
+        @NotNull AccountDto.Result account) {
 
         @Builder
-        public GenerateTokenResult(
-            @NotEmpty
-                String token,
+        public GenerateTokenResult {
 
-            @NotNull
-                AccountDto.Result account) {
-            this.token = token;
-            this.account = account;
         }
     }
 
