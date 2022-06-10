@@ -91,12 +91,11 @@ public interface MainIngredientDto {
 
             @With
             record PostId(
-                Map<Long, List<MainIngredientDto.Result>> mainIngredients
+                @NotEmpty Map<Long, List<MainIngredientDto.Result>> mainIngredients
             ) {
 
                 @Builder
                 public PostId(
-                    @NotEmpty
                     @Singular
                         Map<Long, List<MainIngredientDto.Result>> mainIngredients
                 ) {
