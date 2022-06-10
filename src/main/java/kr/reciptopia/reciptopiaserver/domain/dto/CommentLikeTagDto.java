@@ -36,23 +36,13 @@ public interface CommentLikeTagDto {
 	}
 
 	@With
-	record Result(
-		Long id, Long ownerId, Long commentId) {
+    record Result(
+        @NotNull Long id, @NotNull Long ownerId, @NotNull Long commentId) {
 
-		@Builder
-		public Result(
-			@NotNull
-				Long id,
+        @Builder
+        public Result {
 
-			@NotNull
-				Long ownerId,
-
-			@NotNull
-				Long commentId) {
-			this.id = id;
-			this.ownerId = ownerId;
-			this.commentId = commentId;
-		}
+        }
 
 		public static Result of(CommentLikeTag entity) {
 			return Result.builder()
