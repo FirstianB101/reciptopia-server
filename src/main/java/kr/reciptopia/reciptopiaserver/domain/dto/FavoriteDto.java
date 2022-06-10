@@ -19,11 +19,10 @@ public interface FavoriteDto {
     interface Bulk {
 
         @With
-        record Result(Map<Long, FavoriteDto.Result> favorites) {
+        record Result(@NotEmpty Map<Long, FavoriteDto.Result> favorites) {
 
             @Builder
             public Result(
-                @NotEmpty
                 @Singular
                     Map<Long, FavoriteDto.Result> favorites) {
                 this.favorites = favorites;
