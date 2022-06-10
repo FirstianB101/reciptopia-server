@@ -187,7 +187,7 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        void 이메일이_없는_Account_생성() throws Exception {
+        void email이_없는_account_생성() throws Exception {
             // When
             Create dto = Create.builder()
                 .password("this!sPassw0rd")
@@ -205,7 +205,7 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        void 이메일_형식이_아닌_Account_생성() throws Exception {
+        void email_형식이_아닌_account_생성() throws Exception {
             // When
             Create dto = Create.builder()
                 .email("invalid_email_com")
@@ -224,7 +224,7 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        void 너무_짧은_길이의_Password로_Account_생성() throws Exception {
+        void 너무_짧은_길이의_password로_account_생성() throws Exception {
             // When
             Create dto = Create.builder()
                 .email("test@email.com")
@@ -243,7 +243,7 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        void 너무_긴_길이의_Nickname으로_Account_생성() throws Exception {
+        void 너무_긴_길이의_nickname으로_account_생성() throws Exception {
             // When
             Create dto = Create.builder()
                 .email("test@email.com")
@@ -263,7 +263,7 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        void 공백으로_채워진_Nickname으로_Account_생성() throws Exception {
+        void 공백으로_채워진_nickname으로_account_생성() throws Exception {
             // When
             Create dto = Create.builder()
                 .email("test@email.com")
@@ -547,7 +547,7 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        void Post가_있는_Account_수정(
+        void post가_있는_account_수정(
             @Autowired PostRepository postRepository
         ) throws Exception {
             // Given
@@ -606,7 +606,7 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        void 이메일_형식이_아닌_Account_수정() throws Exception {
+        void email_형식이_아닌_account_수정() throws Exception {
 
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
@@ -643,7 +643,7 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        void 너무_짧은_길이의_Password로_Account_수정() throws Exception {
+        void 너무_짧은_길이의_password로_account_수정() throws Exception {
 
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
@@ -680,7 +680,7 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        void 너무_긴_길이의_Nickname으로_Account_수정() throws Exception {
+        void 너무_긴_길이의_nickname으로_account_수정() throws Exception {
 
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
@@ -718,7 +718,7 @@ public class AccountIntegrationTest {
         }
 
         @Test
-        void 공백으로_채워진_Nickname으로_Account_수정() throws Exception {
+        void white_space_들로_채워진_nickname으로_account_수정() throws Exception {
 
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
