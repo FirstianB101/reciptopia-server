@@ -89,24 +89,13 @@ public interface AccountDto {
 
     @With
     record Create(
-        String email, String password, String nickname) {
+        @NotNull @Email(message = "이메일 형식이 아닙니다.") String email,
+        @NotEmpty @Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!") String password,
+        @NotBlank @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!") String nickname) {
 
         @Builder
-        public Create(
-            @NotNull
-            @Email(message = "이메일 형식이 아닙니다.")
-                String email,
+        public Create {
 
-            @NotEmpty
-            @Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!")
-                String password,
-
-            @NotBlank
-            @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!")
-                String nickname) {
-            this.email = email;
-            this.password = password;
-            this.nickname = nickname;
         }
 
         public Account asEntity(
