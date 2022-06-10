@@ -226,26 +226,15 @@ public interface MainIngredientDto {
 
     @With
     record Result(
-        Long id, Long recipeId, String name, String detail
+        @NotNull Long id,
+        @NotNull Long recipeId,
+        @NotEmpty String name,
+        @NotEmpty String detail
     ) {
 
         @Builder
-        public Result(
-            @NotNull
-                Long id,
+        public Result {
 
-            @NotNull
-                Long recipeId,
-
-            @NotEmpty
-                String name,
-
-            @NotEmpty
-                String detail) {
-            this.id = id;
-            this.recipeId = recipeId;
-            this.name = name;
-            this.detail = detail;
         }
 
         public static Result of(MainIngredient mainIngredient) {
