@@ -1062,6 +1062,31 @@ public class MainIngredientIntegrationTest {
                     .andExpect(status().isForbidden())
                     .andReturn();
             }
+
+            @Test
+            void mainIngredients가_없는_mainIngredient_다중_생성() throws Exception {
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipe = entityHelper.generateRecipe();
+                    String token = ingredientAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("token", token);
+                });
+                String token = given.valueOf("token");
+
+                // When
+                Bulk.Create.Single dto = Bulk.Create.Single.builder().build();
+                String body = jsonHelper.toJson(dto);
+
+                ResultActions actions = mockMvc.perform(post("/post/recipe/bulk-mainIngredient")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(body));
+
+                // Then
+                actions
+                    .andExpect(status().isBadRequest());
+            }
         }
 
         @Nested
