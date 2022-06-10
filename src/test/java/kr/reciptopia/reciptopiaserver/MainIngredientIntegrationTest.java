@@ -68,9 +68,9 @@ public class MainIngredientIntegrationTest {
     private static final FieldDescriptor DOC_FIELD_RECIPE_ID =
         fieldWithPath("recipeId").description("주 재료가 속한 레시피 ID");
     private static final FieldDescriptor DOC_FIELD_NAME =
-        fieldWithPath("name").description("주 재료 이름");
+        fieldWithPath("name").description("주 재료 이름, 1 ~ 20자 이며 공백으로만 이루어 지지않아야 합니다");
     private static final FieldDescriptor DOC_FIELD_DETAIL =
-        fieldWithPath("detail").description("주 재료 세부사항");
+        fieldWithPath("detail").description("주 재료 세부사항, 1 ~ 50자 이며 공백으로만 이루어 지지않아야 합니다");
 
     private static final ParameterDescriptor DOC_PARAMETER_RECIPE_ID =
         parameterWithName("recipeId").description("레시피 ID").optional();
@@ -180,6 +180,220 @@ public class MainIngredientIntegrationTest {
             // Then
             actions
                 .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void recipe_id가_없는_mainIngredient_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipe = entityHelper.generateRecipe();
+                String token = ingredientAuthHelper.generateToken(recipe);
+                return new Struct()
+                    .withValue("token", token);
+            });
+            String token = given.valueOf("token");
+
+            // When
+            Single dto = Single.builder()
+                .name("청경채")
+                .detail("500g")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/recipe/mainIngredients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void name이_없는_mainIngredient_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipe = entityHelper.generateRecipe();
+                String token = ingredientAuthHelper.generateToken(recipe);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("recipeId", recipe.getId());
+            });
+            Long recipeId = given.valueOf("recipeId");
+            String token = given.valueOf("token");
+
+            // When
+            Single dto = Single.builder()
+                .recipeId(recipeId)
+                .detail("500g")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/recipe/mainIngredients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void white_space_들로_채워진_name으로_mainIngredient_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipe = entityHelper.generateRecipe();
+                String token = ingredientAuthHelper.generateToken(recipe);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("recipeId", recipe.getId());
+            });
+            Long recipeId = given.valueOf("recipeId");
+            String token = given.valueOf("token");
+
+            // When
+            Single dto = Single.builder()
+                .recipeId(recipeId)
+                .name("         ")
+                .detail("500g")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/recipe/mainIngredients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_긴_길이의_name으로_mainIngredient_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipe = entityHelper.generateRecipe();
+                String token = ingredientAuthHelper.generateToken(recipe);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("recipeId", recipe.getId());
+            });
+            Long recipeId = given.valueOf("recipeId");
+            String token = given.valueOf("token");
+
+            // When
+            Single dto = Single.builder()
+                .recipeId(recipeId)
+                .name(
+                    "압력밥솥에 물 2000ml정도와 한방팩, 대추, 마늘, 과 같이 뚜껑을 잘 닫은 뒤 센불에서 끓여 주시다가 추가 움직이기 시작하면 중불로 낮춰 10분간 삶아주고 바로 김을 빼준뒤 꺼낸 닭")
+                .detail("500g")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/recipe/mainIngredients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void detail이_없는_mainIngredient_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipe = entityHelper.generateRecipe();
+                String token = ingredientAuthHelper.generateToken(recipe);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("recipeId", recipe.getId());
+            });
+            Long recipeId = given.valueOf("recipeId");
+            String token = given.valueOf("token");
+
+            // When
+            Single dto = Single.builder()
+                .recipeId(recipeId)
+                .name("청경채")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/recipe/mainIngredients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_긴_길이의_detail로_mainIngredient_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipe = entityHelper.generateRecipe();
+                String token = ingredientAuthHelper.generateToken(recipe);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("recipeId", recipe.getId());
+            });
+            Long recipeId = given.valueOf("recipeId");
+            String token = given.valueOf("token");
+
+            // When
+            Single dto = Single.builder()
+                .recipeId(recipeId)
+                .name("삼계탕 소스")
+                .detail(
+                    "닭육수1/4컵, 고춧가루1/4컵, 겨자조금, 간장2T, 식초2T, 설탕1/3T, 다진마늘1T 과 대파 약간을 잘 섞어서만든 소스 1T")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/recipe/mainIngredients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void white_space_들로_채워진_detail로_mainIngredient_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipe = entityHelper.generateRecipe();
+                String token = ingredientAuthHelper.generateToken(recipe);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("recipeId", recipe.getId());
+            });
+            Long recipeId = given.valueOf("recipeId");
+            String token = given.valueOf("token");
+
+            // When
+            Single dto = Single.builder()
+                .recipeId(recipeId)
+                .detail("         ")
+                .name("청경채")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/recipe/mainIngredients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
         }
     }
 
