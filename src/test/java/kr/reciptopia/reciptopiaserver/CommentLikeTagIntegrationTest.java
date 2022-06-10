@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -144,16 +145,77 @@ public class CommentLikeTagIntegrationTest {
 			// When
 			String body = jsonHelper.toJson(aCommentLikeTagCreateDto());
 
-			ResultActions actions = mockMvc.perform(post("/post/comment/likeTags")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(body));
+            ResultActions actions = mockMvc.perform(post("/post/comment/likeTags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
 
-			// Then
-			actions
-				.andExpect(status().isNotFound());
-		}
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
 
-	}
+        @Test
+        void owner_id가_없는_postLikeTag_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+                String token = likeTagAuthHelper.generateToken(account);
+                Comment comment = entityHelper.generateComment();
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("commentId", comment.getId());
+            });
+            String token = given.valueOf("token");
+            Long commentId = given.valueOf("commentId");
+
+            // When
+            Create dto = Create.builder()
+                .commentId(commentId)
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/likeTags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void comment_id가_없는_postLikeTag_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+                String token = likeTagAuthHelper.generateToken(account);
+                entityHelper.generateComment();
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", account.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            Create dto = Create.builder()
+                .ownerId(ownerId)
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/likeTags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+    }
 
 	@Nested
 	class GetCommentLikeTag {
