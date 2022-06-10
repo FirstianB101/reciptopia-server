@@ -24,7 +24,7 @@ public interface FavoriteDto {
             @Builder
             public Result(
                 @Singular
-                    Map<Long, FavoriteDto.Result> favorites) {
+                Map<Long, FavoriteDto.Result> favorites) {
                 this.favorites = favorites;
             }
 
