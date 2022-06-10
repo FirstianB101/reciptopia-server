@@ -28,12 +28,11 @@ public interface AuthDto {
         }
     }
 
-    record MeResult(AccountDto.Result account) {
+    record MeResult(@NotNull AccountDto.Result account) {
 
         @Builder
-        public MeResult(
-            @NotNull AccountDto.Result account) {
-            this.account = account;
+        public MeResult {
+
         }
     }
 }
