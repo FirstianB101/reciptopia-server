@@ -49,22 +49,13 @@ public interface CommentDto {
 
     @With
     record Create(
-        Long ownerId, Long postId, String content) {
+        @NotNull Long ownerId,
+        @NotNull Long postId,
+        @NotBlank @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!") String content) {
 
         @Builder
-        public Create(
-            @NotNull
-                Long ownerId,
+        public Create {
 
-            @NotNull
-                Long postId,
-
-            @NotBlank
-            @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
-                String content) {
-            this.ownerId = ownerId;
-            this.postId = postId;
-            this.content = content;
         }
 
         public Comment asEntity() {
