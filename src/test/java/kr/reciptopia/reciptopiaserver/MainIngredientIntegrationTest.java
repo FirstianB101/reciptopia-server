@@ -1182,6 +1182,40 @@ public class MainIngredientIntegrationTest {
                 assertThat(repository.findById(mainIngredientCId).get().getName()).isEqualTo(
                     "바뀌기 전MainIngredientC");
             }
+
+            @Test
+            void mainIngredients가_없는_mainIngredient_다중_수정() throws Exception {
+
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipe = entityHelper.generateRecipe();
+                    entityHelper.generateMainIngredient(
+                        it -> it.withRecipe(recipe).withName("바꾸기 전 MainIngredientA"));
+                    entityHelper.generateMainIngredient(
+                        it -> it.withRecipe(recipe).withName("바꾸기 전 MainIngredientB"));
+                    entityHelper.generateMainIngredient(
+                        it -> it.withRecipe(recipe).withName("바꾸기 전 MainIngredientC"));
+
+                    String token = ingredientAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("token", token);
+                });
+                String token = given.valueOf("token");
+
+                // When
+                Bulk.Update dto = Bulk.Update.builder()
+                    .build();
+                String body = jsonHelper.toJson(dto);
+
+                ResultActions actions = mockMvc.perform(patch("/post/recipe/bulk-mainIngredient")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(body));
+
+                // Then
+                actions
+                    .andExpect(status().isBadRequest());
+            }
         }
 
         @Nested
