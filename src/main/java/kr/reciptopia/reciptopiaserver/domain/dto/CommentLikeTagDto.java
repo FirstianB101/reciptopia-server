@@ -11,7 +11,7 @@ import org.springframework.data.util.Streamable;
 
 public interface CommentLikeTagDto {
 
-	@With
+    @With
     record Create(
         @NotNull Long ownerId, @NotNull Long commentId) {
 
@@ -24,18 +24,18 @@ public interface CommentLikeTagDto {
             Function<? super CommentLikeTag, ? extends CommentLikeTag> initialize) {
             return initialize.apply(CommentLikeTag.builder()
                 .build());
-		}
+        }
 
-		public CommentLikeTag asEntity() {
-			return asEntity(noInit());
-		}
+        public CommentLikeTag asEntity() {
+            return asEntity(noInit());
+        }
 
-		private <T> Function<? super T, ? extends T> noInit() {
-			return (arg) -> arg;
-		}
-	}
+        private <T> Function<? super T, ? extends T> noInit() {
+            return (arg) -> arg;
+        }
+    }
 
-	@With
+    @With
     record Result(
         @NotNull Long id, @NotNull Long ownerId, @NotNull Long commentId) {
 
@@ -44,18 +44,18 @@ public interface CommentLikeTagDto {
 
         }
 
-		public static Result of(CommentLikeTag entity) {
-			return Result.builder()
-				.id(entity.getId())
-				.ownerId(entity.getOwner().getId())
-				.commentId(entity.getComment().getId())
-				.build();
-		}
+        public static Result of(CommentLikeTag entity) {
+            return Result.builder()
+                .id(entity.getId())
+                .ownerId(entity.getOwner().getId())
+                .commentId(entity.getComment().getId())
+                .build();
+        }
 
-		public static List<Result> of(Streamable<CommentLikeTag> entities) {
-			return entities.stream()
-				.map(Result::of)
-				.collect(Collectors.toList());
-		}
-	}
+        public static List<Result> of(Streamable<CommentLikeTag> entities) {
+            return entities.stream()
+                .map(Result::of)
+                .collect(Collectors.toList());
+        }
+    }
 }
