@@ -603,6 +603,155 @@ public class AccountIntegrationTest {
             assertThat(passwordEncoder.matches("newPassw0rd", encodedPassword)).isTrue();
             assertThat(postOwnerId).isEqualTo(ownerId);
         }
+
+        @Test
+        void 이메일_형식이_아닌_Account_수정() throws Exception {
+
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount(it ->
+                    it.withEmail("test@email.com")
+                        .withPassword(passwordEncoder::encode, "this!sPassw0rd")
+                        .withNickname("pte1024")
+                        .withProfilePictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                        .withRole(UserRole.USER)
+                );
+
+                String token = accountAuthHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", account.getId());
+            });
+            String token = given.valueOf("token");
+            Long id = given.valueOf("id");
+
+            // When
+            Update dto = Update.builder()
+                .email("new_email_com")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/accounts/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_짧은_길이의_Password로_Account_수정() throws Exception {
+
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount(it ->
+                    it.withEmail("test@email.com")
+                        .withPassword(passwordEncoder::encode, "this!sPassw0rd")
+                        .withNickname("pte1024")
+                        .withProfilePictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                        .withRole(UserRole.USER)
+                );
+
+                String token = accountAuthHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", account.getId());
+            });
+            String token = given.valueOf("token");
+            Long id = given.valueOf("id");
+
+            // When
+            Update dto = Update.builder()
+                .password("short")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/accounts/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_긴_길이의_Nickname으로_Account_수정() throws Exception {
+
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount(it ->
+                    it.withEmail("test@email.com")
+                        .withPassword(passwordEncoder::encode, "this!sPassw0rd")
+                        .withNickname("pte1024")
+                        .withProfilePictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                        .withRole(UserRole.USER)
+                );
+
+                String token = accountAuthHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", account.getId());
+            });
+            String token = given.valueOf("token");
+            Long id = given.valueOf("id");
+
+            // When
+            Update dto = Update.builder()
+                .nickname(
+                    "And_so_I_wake_in_the_morning_and_I_step_Outside_and_I_take_a_deep_breath_And_I_get_real_high_Then_I_scream_from_the_top_of_my_lungs_What's_goin_on")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/accounts/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 공백으로_채워진_Nickname으로_Account_수정() throws Exception {
+
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount(it ->
+                    it.withEmail("test@email.com")
+                        .withPassword(passwordEncoder::encode, "this!sPassw0rd")
+                        .withNickname("pte1024")
+                        .withProfilePictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                        .withRole(UserRole.USER)
+                );
+
+                String token = accountAuthHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", account.getId());
+            });
+            String token = given.valueOf("token");
+            Long id = given.valueOf("id");
+
+            // When
+            Update dto = Update.builder()
+                .nickname("          ")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/accounts/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
     }
 
     @Nested
