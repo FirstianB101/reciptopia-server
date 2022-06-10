@@ -27,12 +27,11 @@ public interface MainIngredientDto {
         interface Create {
 
             record WithRecipe(
-                List<MainIngredientDto.Create.WithRecipe> mainIngredients
+                @NotEmpty List<MainIngredientDto.Create.WithRecipe> mainIngredients
             ) {
 
                 @Builder
                 public WithRecipe(
-                    @NotEmpty
                     @Singular
                         List<MainIngredientDto.Create.WithRecipe> mainIngredients
                 ) {
