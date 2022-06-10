@@ -149,10 +149,10 @@ public interface AccountDto {
 
         public static Result of(Account entity) {
             return Result.builder()
-				.id(entity.getId())
-				.email(entity.getEmail())
-				.nickname(entity.getNickname())
-				.profilePictureUrl(entity.getProfilePictureUrl())
+                .id(entity.getId())
+                .email(entity.getEmail())
+                .nickname(entity.getNickname())
+                .profilePictureUrl(entity.getProfilePictureUrl())
                 .role(entity.getRole())
                 .build();
         }
