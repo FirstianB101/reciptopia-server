@@ -8,18 +8,11 @@ import lombok.Builder;
 public interface AuthDto {
 
     record GenerateToken(
-        String email, String password) {
+        @NotEmpty @Email String email, @NotEmpty String password) {
 
         @Builder
-        public GenerateToken(
-            @NotEmpty
-            @Email
-                String email,
+        public GenerateToken {
 
-            @NotEmpty
-                String password) {
-            this.email = email;
-            this.password = password;
         }
     }
 
