@@ -12,24 +12,18 @@ import org.springframework.data.util.Streamable;
 public interface CommentLikeTagDto {
 
 	@With
-	record Create(
-		Long ownerId, Long commentId) {
+    record Create(
+        @NotNull Long ownerId, @NotNull Long commentId) {
 
-		@Builder
-		public Create(
-			@NotNull
-				Long ownerId,
+        @Builder
+        public Create {
 
-			@NotNull
-				Long commentId) {
-			this.ownerId = ownerId;
-			this.commentId = commentId;
-		}
+        }
 
-		public CommentLikeTag asEntity(
-			Function<? super CommentLikeTag, ? extends CommentLikeTag> initialize) {
-			return initialize.apply(CommentLikeTag.builder()
-				.build());
+        public CommentLikeTag asEntity(
+            Function<? super CommentLikeTag, ? extends CommentLikeTag> initialize) {
+            return initialize.apply(CommentLikeTag.builder()
+                .build());
 		}
 
 		public CommentLikeTag asEntity() {
