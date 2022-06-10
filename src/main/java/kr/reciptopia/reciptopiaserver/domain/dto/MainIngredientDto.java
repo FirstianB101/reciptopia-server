@@ -126,12 +126,11 @@ public interface MainIngredientDto {
 
             @With
             record Id(
-                Map<Long, MainIngredientDto.Result> mainIngredients
+                @NotEmpty Map<Long, MainIngredientDto.Result> mainIngredients
             ) {
 
                 @Builder
                 public Id(
-                    @NotEmpty
                     @Singular
                         Map<Long, MainIngredientDto.Result> mainIngredients
                 ) {
