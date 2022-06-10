@@ -184,6 +184,101 @@ public class AccountIntegrationTest {
                     DOC_FIELD_NICKNAME
                 )));
         }
+
+        @Test
+        void 이메일이_없는_Account_생성() throws Exception {
+            // When
+            Create dto = Create.builder()
+                .password("this!sPassw0rd")
+                .nickname("pte1024")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 이메일_형식이_아닌_Account_생성() throws Exception {
+            // When
+            Create dto = Create.builder()
+                .email("invalid_email_com")
+                .password("this!sPassw0rd")
+                .nickname("pte1024")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_짧은_길이의_Password로_Account_생성() throws Exception {
+            // When
+            Create dto = Create.builder()
+                .email("test@email.com")
+                .password("bad")
+                .nickname("pte1024")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_긴_길이의_Nickname으로_Account_생성() throws Exception {
+            // When
+            Create dto = Create.builder()
+                .email("test@email.com")
+                .password("this!sPassw0rd")
+                .nickname(
+                    "And_so_I_wake_in_the_morning_and_I_step_Outside_and_I_take_a_deep_breath_And_I_get_real_high_Then_I_scream_from_the_top_of_my_lungs_What's_goin_on")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 공백으로_채워진_Nickname으로_Account_생성() throws Exception {
+            // When
+            Create dto = Create.builder()
+                .email("test@email.com")
+                .password("this!sPassw0rd")
+                .nickname("        ")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
     }
 
     @Nested
