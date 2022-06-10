@@ -74,14 +74,13 @@ public interface MainIngredientDto {
 
         @With
         record Update(
-            Map<Long, MainIngredientDto.Update> mainIngredients
+            @NotEmpty Map<Long, MainIngredientDto.Update> mainIngredients
         ) {
 
             @Builder
             public Update(
-                @NotEmpty
                 @Singular
-                    Map<Long, MainIngredientDto.Update> mainIngredients
+                Map<Long, MainIngredientDto.Update> mainIngredients
             ) {
                 this.mainIngredients = mainIngredients;
             }
