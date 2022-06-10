@@ -67,13 +67,11 @@ public interface CommentDto {
     }
 
     @With
-    record Update(String content) {
+    record Update(@Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!") String content) {
 
         @Builder
-        public Update(
-            @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
-                String content) {
-            this.content = content;
+        public Update {
+
         }
     }
 
