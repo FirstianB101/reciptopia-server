@@ -51,7 +51,7 @@ public interface FavoriteDto {
 
         @Builder
         public Create {
-            
+
         }
 
         public Favorite asEntity(
@@ -71,21 +71,13 @@ public interface FavoriteDto {
 
     @With
     record Result(
-        Long id, Long ownerId, Long postId) {
+        @NotNull Long id,
+        @NotNull Long ownerId,
+        @NotNull Long postId) {
 
         @Builder
-        public Result(
-            @NotNull
-                Long id,
+        public Result {
 
-            @NotNull
-                Long ownerId,
-
-            @NotNull
-                Long postId) {
-            this.id = id;
-            this.ownerId = ownerId;
-            this.postId = postId;
         }
 
         public static Result of(Favorite favorite) {
