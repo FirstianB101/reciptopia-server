@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -203,6 +204,68 @@ public class FavoriteIntegrationTest {
             // Then
             actions
                 .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void owner_id가_없는_favorite_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+                Post post = entityHelper.generatePost();
+                String token = favoriteAuthHelper.generateToken(owner);
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("postId", post.getId());
+            });
+            String token = given.valueOf("token");
+            Long postId = given.valueOf("postId");
+
+            // When
+            Create dto = Create.builder()
+                .postId(postId)
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/account/favorites")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void post_id가_없는_favorite_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+                entityHelper.generatePost();
+                String token = favoriteAuthHelper.generateToken(owner);
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", owner.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            Create dto = Create.builder()
+                .ownerId(ownerId)
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/account/favorites")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
         }
     }
 
