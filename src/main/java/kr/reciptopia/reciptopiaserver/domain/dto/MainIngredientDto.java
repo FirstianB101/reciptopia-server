@@ -216,14 +216,6 @@ public interface MainIngredientDto {
                 return (arg) -> arg;
             }
 
-            public Single withRecipeId(Long recipeId) {
-                return this.recipeId != null && this.recipeId.equals(recipeId) ? this
-                    : Single.builder()
-                        .recipeId(recipeId)
-                        .name(name)
-                        .detail(detail)
-                        .build();
-            }
         }
     }
 
