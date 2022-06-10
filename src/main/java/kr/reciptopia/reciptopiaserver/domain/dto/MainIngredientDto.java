@@ -228,8 +228,8 @@ public interface MainIngredientDto {
     record Result(
         @NotNull Long id,
         @NotNull Long recipeId,
-        @NotEmpty String name,
-        @NotEmpty String detail
+        @NotBlank @Size(min = 1, max = 20, message = "name은 1 ~ 20자 이여야 합니다!") String name,
+        @NotBlank @Size(min = 1, max = 50, message = "detail은 1 ~ 50자 이여야 합니다!") String detail
     ) {
 
         @Builder
