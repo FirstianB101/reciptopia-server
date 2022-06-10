@@ -6,6 +6,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.CheckDuplicat
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Update;
+
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.AccountAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
 import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
@@ -64,7 +65,8 @@ public class AccountService {
 			entity.setPassword(passwordEncoder::encode, dto.password());
 		}
 		if (dto.nickname() != null) {
-			entity.setNickname(dto.nickname());
+            throwExceptionWhenBlankNickname(dto.nickname());
+            entity.setNickname(dto.nickname());
 		}
 		if (dto.profilePictureUrl() != null) {
 			entity.setProfilePictureUrl(dto.profilePictureUrl());
@@ -84,6 +86,13 @@ public class AccountService {
     public void throwExceptionWhenDuplicateEmail(String email) {
         if (accountRepository.existsByEmail(email)) {
             throw errorHelper.badRequest("Already enrolled account");
+        }
+    }
+
+    public void throwExceptionWhenBlankNickname(String nickname) {
+        if (nickname.isBlank()) {
+            throw errorHelper.badRequest(
+                "Nickname must not be null and must contain at least one non-whitespace character");
         }
     }
 
