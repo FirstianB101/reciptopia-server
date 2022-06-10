@@ -9,8 +9,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import kr.reciptopia.reciptopiaserver.domain.model.MainIngredient;
 import lombok.Builder;
 import lombok.Singular;
@@ -183,8 +185,8 @@ public interface MainIngredientDto {
         @With
         record Single(
             @NotNull Long recipeId,
-            @NotEmpty String name,
-            @NotEmpty String detail
+            @NotBlank @Size(min = 1, max = 20, message = "name은 1 ~ 20자 이여야 합니다!") String name,
+            @NotBlank @Size(min = 1, max = 50, message = "detail은 1 ~ 50자 이여야 합니다!") String detail
         ) {
 
             @Builder
