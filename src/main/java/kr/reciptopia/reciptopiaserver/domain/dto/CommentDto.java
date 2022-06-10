@@ -101,7 +101,7 @@ public interface CommentDto {
 
         public static List<Result> of(Streamable<Comment> entities) {
             return entities.stream()
-                .map(comment -> of(comment))
+                .map(Result::of)
                 .collect(Collectors.toList());
         }
     }
