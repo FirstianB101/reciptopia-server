@@ -52,12 +52,11 @@ public interface MainIngredientDto {
 
             @With
             record Single(
-                List<MainIngredientDto.Create.Single> mainIngredients
+                @NotEmpty List<MainIngredientDto.Create.Single> mainIngredients
             ) {
 
                 @Builder
                 public Single(
-                    @NotEmpty
                     @Singular
                         List<MainIngredientDto.Create.Single> mainIngredients
                 ) {
