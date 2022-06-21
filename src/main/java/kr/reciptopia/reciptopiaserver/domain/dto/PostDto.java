@@ -48,13 +48,12 @@ public interface PostDto {
 
         @With
         record ResultWithCommentAndLikeTagCount(
-            Map<Long, PostDto.ResultWithCommentAndLikeTagCount> postWithCommentAndLikeTagCounts) {
+            @NotEmpty Map<Long, PostDto.ResultWithCommentAndLikeTagCount> postWithCommentAndLikeTagCounts) {
 
             @Builder
             public ResultWithCommentAndLikeTagCount(
-                @NotEmpty
                 @Singular
-                    Map<Long, PostDto.ResultWithCommentAndLikeTagCount> postWithCommentAndLikeTagCounts
+                Map<Long, PostDto.ResultWithCommentAndLikeTagCount> postWithCommentAndLikeTagCounts
             ) {
                 this.postWithCommentAndLikeTagCounts = postWithCommentAndLikeTagCounts;
             }
