@@ -910,6 +910,84 @@ public class PostIntegrationTest {
                 .andExpect(status().isNotFound());
         }
 
+        @Test
+        void white_space_들로_채워진_title로_post_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Post post = entityHelper.generatePost(it -> it
+                    .withTitle("테스트 요리 만들기")
+                    .withContent("테스트 요리 컨텐츠")
+                    .withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                    .withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                );
+                String token = postAuthHelper.generateToken(post.getOwner());
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", post.getId());
+            });
+            Long id = given.valueOf("id");
+            String token = given.valueOf("token");
+
+            // When
+            Update dto = Update.builder()
+                .title("         ")
+                .content("새로운 요리 컨텐츠")
+                .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                .pictureUrl("C:\\Users\\silverstar\\Desktop\\temp\\picture")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/posts/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_긴_길이의_title로_post_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Post post = entityHelper.generatePost(it -> it
+                    .withTitle("테스트 요리 만들기")
+                    .withContent("테스트 요리 컨텐츠")
+                    .withPictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                    .withPictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                );
+                String token = postAuthHelper.generateToken(post.getOwner());
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", post.getId());
+            });
+            Long id = given.valueOf("id");
+            String token = given.valueOf("token");
+
+            // When
+            Update dto = Update.builder()
+                .title(
+                    "그릇에 버터 2스푼을 담고 전자레인지에 30초간 돌려 녹여주고 녹인 버터에 설탕 1.5 마요네즈 듬뿍 넣고 소금 2꼬집, 양꼬치 가루 2스푼을 넣어 섞어줍니고 사정없이 비벼 소소를 골고루 묻혀준 양꼬치를 에어프라이어에 넣고 슬라이스 치즈와 파슬리가루를 뿌려 180도에서 10분간 구워서 만든 마약 양꼬치")
+                .content("새로운 요리 컨텐츠")
+                .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                .pictureUrl("C:\\Users\\silverstar\\Desktop\\temp\\picture")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/posts/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
     }
 
     @Nested
