@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -183,6 +184,173 @@ public class PostIntegrationTest {
                     DOC_FIELD_CONTENT,
                     DOC_FIELD_PICTURE_URLS
                 )));
+        }
+
+        @Test
+        void 존재하지않는_owner_id로_post_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+
+                String token = postAuthHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", account.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("id");
+
+            // When
+            Create dto = Create.builder()
+                .ownerId(ownerId + 100L)
+                .title("미친듯이 당겨오는 에어프라이어 마약 양꼬치 만드는 법")
+                .content("양꼬치에 버터, 마요네즈, 설탕, 양꼬치가루(고춧가루)를 뿌려 에어프라이어에 구우면 미친듯이 당겨오는 마약 양꼬치가 된답니다!")
+                .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void owner_id가_없는_post_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+
+                String token = postAuthHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token);
+            });
+            String token = given.valueOf("token");
+
+            // When
+            Create dto = Create.builder()
+                .title("미친듯이 당겨오는 에어프라이어 마약 양꼬치 만드는 법")
+                .content("양꼬치에 버터, 마요네즈, 설탕, 양꼬치가루(고춧가루)를 뿌려 에어프라이어에 구우면 미친듯이 당겨오는 마약 양꼬치가 된답니다!")
+                .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void title이_없는_post_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+
+                String token = postAuthHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", account.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("id");
+
+            // When
+            Create dto = Create.builder()
+                .ownerId(ownerId)
+                .content("양꼬치에 버터, 마요네즈, 설탕, 양꼬치가루(고춧가루)를 뿌려 에어프라이어에 구우면 미친듯이 당겨오는 마약 양꼬치가 된답니다!")
+                .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void white_space_들로_채워진_title로_post_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+
+                String token = postAuthHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", account.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("id");
+
+            // When
+            Create dto = Create.builder()
+                .ownerId(ownerId)
+                .title("      ")
+                .content("양꼬치에 버터, 마요네즈, 설탕, 양꼬치가루(고춧가루)를 뿌려 에어프라이어에 구우면 미친듯이 당겨오는 마약 양꼬치가 된답니다!")
+                .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_긴_길이의_title로_post_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+
+                String token = postAuthHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", account.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("id");
+
+            // When
+            Create dto = Create.builder()
+                .ownerId(ownerId)
+                .title(
+                    "그릇에 버터 2스푼을 담고 전자레인지에 30초간 돌려 녹여주고 녹인 버터에 설탕 1.5 마요네즈 듬뿍 넣고 소금 2꼬집, 양꼬치 가루 2스푼을 넣어 섞어줍니고 사정없이 비벼 소소를 골고루 묻혀준 양꼬치를 에어프라이어에 넣고 슬라이스 치즈와 파슬리가루를 뿌려 180도에서 10분간 구워서 만든 마약 양꼬치")
+                .content("양꼬치에 버터, 마요네즈, 설탕, 양꼬치가루(고춧가루)를 뿌려 에어프라이어에 구우면 미친듯이 당겨오는 마약 양꼬치가 된답니다!")
+                .pictureUrl("C:\\Users\\eunsung\\Desktop\\temp\\picture")
+                .pictureUrl("C:\\Users\\tellang\\Desktop\\temp\\picture")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
         }
     }
 
