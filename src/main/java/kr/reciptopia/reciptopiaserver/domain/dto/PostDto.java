@@ -161,31 +161,16 @@ public interface PostDto {
 
     @With
     record Result(
-        Long id, Long ownerId,
-        String title, String content, List<String> pictureUrls, Long views) {
+        @NotNull Long id,
+        @NotNull Long ownerId,
+        @NotBlank @Size(min = 1, max = 30, message = "title은 1 ~ 30자 이여야 합니다!") String title,
+        String content,
+        List<String> pictureUrls,
+        Long views) {
 
         @Builder
-        public Result(
-            @NotNull
-                Long id,
+        public Result {
 
-            @NotNull
-                Long ownerId,
-
-            @NotEmpty
-                String title,
-
-            String content,
-
-            List<String> pictureUrls,
-
-            Long views) {
-            this.id = id;
-            this.ownerId = ownerId;
-            this.title = title;
-            this.content = content;
-            this.pictureUrls = pictureUrls;
-            this.views = views;
         }
 
         public static Result of(Post entity) {
