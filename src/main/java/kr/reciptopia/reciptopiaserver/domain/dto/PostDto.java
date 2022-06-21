@@ -124,7 +124,9 @@ public interface PostDto {
     }
 
     @With
-    record Update(String title, String content, List<String> pictureUrls) {
+    record Update(
+        @Size(min = 1, max = 30, message = "title은 1 ~ 30자 이여야 합니다!") String title,
+        String content, List<String> pictureUrls) {
 
         @Builder
         public Update(
@@ -133,7 +135,7 @@ public interface PostDto {
             String content,
 
             @Singular
-                List<String> pictureUrls) {
+            List<String> pictureUrls) {
             this.title = title;
             this.content = content;
             this.pictureUrls = pictureUrls;
