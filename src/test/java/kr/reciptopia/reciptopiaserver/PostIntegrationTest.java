@@ -72,7 +72,7 @@ public class PostIntegrationTest {
     private static final FieldDescriptor DOC_FIELD_ID =
         fieldWithPath("id").description("게시물 ID");
     private static final FieldDescriptor DOC_FIELD_TITLE =
-        fieldWithPath("title").description("게시물 제목");
+        fieldWithPath("title").description("게시물 제목, 1 ~ 30자 이며 공백으로만 이루어 지지않아야 합니다");
     private static final FieldDescriptor DOC_FIELD_CONTENT =
         fieldWithPath("content").description("게시물 내용");
     private static final FieldDescriptor DOC_FIELD_PICTURE_URLS =
