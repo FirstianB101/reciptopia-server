@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 import lombok.Builder;
 import lombok.Singular;
@@ -77,18 +79,15 @@ public interface PostDto {
 
     @With
     record Create(
-        Long ownerId, String title, String content, List<String> pictureUrls) {
+        @NotNull Long ownerId,
+        @NotBlank @Size(min = 1, max = 30, message = "title은 1 ~ 30자 이여야 합니다!") String title,
+        String content, List<String> pictureUrls) {
 
         @Builder
         public Create(
-            @NotNull
-                Long ownerId,
-
-            @NotEmpty
-                String title,
-
+            Long ownerId,
+            String title,
             String content,
-
             @Singular
                 List<String> pictureUrls) {
             this.ownerId = ownerId;
