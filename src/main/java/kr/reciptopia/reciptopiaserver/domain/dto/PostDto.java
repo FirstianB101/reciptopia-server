@@ -21,13 +21,13 @@ public interface PostDto {
     interface Bulk {
 
         @With
-        record Result(Map<Long, PostDto.Result> posts) {
+        record Result(
+            @NotEmpty Map<Long, PostDto.Result> posts) {
 
             @Builder
             public Result(
-                @NotEmpty
                 @Singular
-                    Map<Long, PostDto.Result> posts
+                Map<Long, PostDto.Result> posts
             ) {
                 this.posts = posts;
             }
