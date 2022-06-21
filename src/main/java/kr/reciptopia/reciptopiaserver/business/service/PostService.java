@@ -6,6 +6,7 @@ import static kr.reciptopia.reciptopiaserver.business.service.searchcondition.Po
 import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.PostAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
+import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostSearchCondition;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.RecipeSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Bulk;
@@ -38,6 +39,7 @@ public class PostService {
     private final RepositoryHelper repoHelper;
     private final PostAuthorizer postAuthorizer;
     private final RecipeService recipeService;
+    private final ServiceErrorHelper errorHelper;
 
     @Transactional
     public Result create(Create dto, Authentication authentication) {
@@ -87,7 +89,8 @@ public class PostService {
         if (dto.pictureUrls() != null) {
             post.setPictureUrls(dto.pictureUrls());
         }
-        if (dto.title() != null && !dto.title().isBlank()) {
+        if (dto.title() != null) {
+            throwExceptionWhenBlankTitle(dto.title());
             post.setTitle(dto.title());
         }
         if (dto.content() != null) {
@@ -103,5 +106,12 @@ public class PostService {
         postAuthorizer.requirePostOwner(authentication, post);
 
         postRepository.delete(post);
+    }
+
+    public void throwExceptionWhenBlankTitle(String title) {
+        if (title.isBlank()) {
+            throw errorHelper.badRequest(
+                "Title must not be null and must contain at least one non-whitespace character");
+        }
     }
 }
