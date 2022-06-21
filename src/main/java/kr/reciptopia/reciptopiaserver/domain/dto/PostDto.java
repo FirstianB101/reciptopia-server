@@ -108,15 +108,6 @@ public interface PostDto {
             return asEntity(noInit());
         }
 
-        public Create withOwnerId(Long ownerId) {
-            return this.ownerId != null && this.ownerId.equals(ownerId) ? this : Create.builder()
-                .ownerId(ownerId)
-                .title(title)
-                .content(content)
-                .pictureUrls(pictureUrls)
-                .build();
-        }
-
         private <T> Function<? super T, ? extends T> noInit() {
             return (arg) -> arg;
         }
