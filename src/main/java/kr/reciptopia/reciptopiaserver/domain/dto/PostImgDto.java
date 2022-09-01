@@ -3,6 +3,7 @@ package kr.reciptopia.reciptopiaserver.domain.dto;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import kr.reciptopia.reciptopiaserver.domain.model.PostImg;
@@ -13,67 +14,56 @@ import org.springframework.data.domain.Page;
 
 public interface PostImgDto {
 
-	interface Bulk {
+    interface Bulk {
 
-		@With
-		record Result(
-			Map<Long, PostImgDto.Result> postImgs) {
+        @With
+        record Result(
+            Map<Long, PostImgDto.Result> postImgs) {
 
-			@Builder
-			public Result(
-				@NotEmpty
-				@Singular
-					Map<Long, PostImgDto.Result> postImgs) {
-				this.postImgs = postImgs;
-			}
+            @Builder
+            public Result(
+                @NotEmpty
+                @Singular
+                Map<Long, PostImgDto.Result> postImgs) {
+                this.postImgs = postImgs;
+            }
 
-			public static Bulk.Result of(Page<PostImg> postImgs) {
-				return Bulk.Result.builder()
-					.postImgs((Map<? extends Long, ? extends PostImgDto.Result>)
-						postImgs.stream()
-							.map(PostImgDto.Result::of)
-							.collect(
-								Collectors.toMap(
-									PostImgDto.Result::id,
-									result -> result,
-									(x, y) -> y,
-									LinkedHashMap::new)))
-					.build();
-			}
-		}
-	}
+            public static Bulk.Result of(Page<PostImg> postImgs) {
+                return Bulk.Result.builder()
+                    .postImgs((Map<? extends Long, ? extends PostImgDto.Result>)
+                        postImgs.stream()
+                            .map(PostImgDto.Result::of)
+                            .collect(
+                                Collectors.toMap(
+                                    PostImgDto.Result::id,
+                                    result -> result,
+                                    (x, y) -> y,
+                                    LinkedHashMap::new)))
+                    .build();
+            }
+        }
+    }
 
-	@With
-	record Result(
-		Long id, String uploadFileName, String storeFileName, Long postId) {
+    @With
+    record Result(
+        @NotNull Long id,
+        @NotBlank String uploadFileName,
+        @NotBlank String storeFileName,
+        @NotNull Long postId) {
 
-		@Builder
-		public Result(
-			@NotNull
-				Long id,
+        @Builder
+        public Result {
 
-			@NotEmpty
-				String uploadFileName,
+        }
 
-			@NotEmpty
-				String storeFileName,
-
-			@NotEmpty
-				Long postId) {
-			this.id = id;
-			this.uploadFileName = uploadFileName;
-			this.storeFileName = storeFileName;
-			this.postId = postId;
-		}
-
-		public static Result of(PostImg entity) {
-			return Result.builder()
-				.id(entity.getId())
-				.uploadFileName(entity.getUploadFileName())
-				.storeFileName(entity.getStoreFileName())
-				.postId(entity.getPost().getId())
-				.build();
-		}
-	}
+        public static Result of(PostImg entity) {
+            return Result.builder()
+                .id(entity.getId())
+                .uploadFileName(entity.getUploadFileName())
+                .storeFileName(entity.getStoreFileName())
+                .postId(entity.getPost().getId())
+                .build();
+        }
+    }
 
 }
