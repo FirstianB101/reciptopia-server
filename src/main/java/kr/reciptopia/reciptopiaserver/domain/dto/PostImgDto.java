@@ -18,11 +18,10 @@ public interface PostImgDto {
 
         @With
         record Result(
-            Map<Long, PostImgDto.Result> postImgs) {
+            @NotEmpty Map<Long, PostImgDto.Result> postImgs) {
 
             @Builder
             public Result(
-                @NotEmpty
                 @Singular
                 Map<Long, PostImgDto.Result> postImgs) {
                 this.postImgs = postImgs;
