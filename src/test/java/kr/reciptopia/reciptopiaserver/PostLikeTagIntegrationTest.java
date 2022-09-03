@@ -170,6 +170,100 @@ public class PostLikeTagIntegrationTest {
                 .andExpect(status().isNotFound());
         }
 
+        @Test
+        void 존재하지않는_owner_id로_post_like_tag_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+                Post post = entityHelper.generatePost();
+
+                String token = likeTagAuthHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("postId", post.getId());
+            });
+            String token = given.valueOf("token");
+            Long postId = given.valueOf("postId");
+
+            // When
+            Create dto = aPostLikeTagCreateDto(it -> it
+                .withOwnerId(-1L)
+                .withPostId(postId)
+            );
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/likeTags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void owner_id가_없는_post_like_tag_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+                Post post = entityHelper.generatePost();
+
+                String token = likeTagAuthHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("postId", post.getId());
+            });
+            String token = given.valueOf("token");
+            Long postId = given.valueOf("postId");
+
+            // When
+            Create dto = aPostLikeTagCreateDto(it -> it
+                .withOwnerId(null)
+                .withPostId(postId)
+            );
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/likeTags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void post_id가_없는_post_like_tag_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account account = entityHelper.generateAccount();
+
+                String token = likeTagAuthHelper.generateToken(account);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", account.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            Create dto = aPostLikeTagCreateDto(it -> it
+                .withOwnerId(ownerId)
+                .withPostId(null)
+            );
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/likeTags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
     }
 
     @Nested
@@ -213,7 +307,7 @@ public class PostLikeTagIntegrationTest {
         @Test
         void getPostLikeTag_PostLikeTagNotFound_NotFoundStatus() throws Exception {
             // When
-            ResultActions actions = mockMvc.perform(get("/post/postLikeTags/{id}", 0L));
+            ResultActions actions = mockMvc.perform(get("/post/likeTags/{id}", 0L));
 
             // Then
             actions
