@@ -91,22 +91,13 @@ public interface PostLikeTagDto {
 
     @With
     record Result(
-        Long id, Long ownerId, Long postId
+        @NotNull Long id,
+        @NotNull Long ownerId,
+        @NotNull Long postId
     ) {
 
         @Builder
-        public Result(
-            @NotNull
-                Long id,
-
-            @NotNull
-                Long ownerId,
-
-            @NotNull
-                Long postId) {
-            this.id = id;
-            this.ownerId = ownerId;
-            this.postId = postId;
+        public Result {
         }
 
         public static Result of(PostLikeTag entity) {
