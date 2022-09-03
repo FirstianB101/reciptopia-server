@@ -20,12 +20,11 @@ public interface PostLikeTagDto {
     interface Bulk {
 
         record Result(
-            Map<Long, List<PostLikeTagDto.Result>> postLikeTags
+            @NotEmpty Map<Long, List<PostLikeTagDto.Result>> postLikeTags
         ) {
 
             @Builder
             public Result(
-                @NotEmpty
                 @Singular
                     Map<Long, List<PostLikeTagDto.Result>> postLikeTags
             ) {
