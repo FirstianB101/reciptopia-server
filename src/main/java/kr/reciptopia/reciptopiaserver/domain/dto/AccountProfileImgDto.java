@@ -15,10 +15,10 @@ public interface AccountProfileImgDto {
     interface Bulk {
 
         @With
+        @Builder
         record Result(
             @NotEmpty Map<Long, AccountProfileImgDto.Result> accountProfileImgs) {
 
-            @Builder
             public Result(
                 @Singular
                 Map<Long, AccountProfileImgDto.Result> accountProfileImgs) {
