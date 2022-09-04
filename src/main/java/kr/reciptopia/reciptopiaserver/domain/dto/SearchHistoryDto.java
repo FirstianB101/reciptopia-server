@@ -1,5 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.noInit;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -76,10 +77,6 @@ public interface SearchHistoryDto {
 
         public SearchHistory asEntity() {
             return asEntity(noInit());
-        }
-
-        private <T> Function<? super T, ? extends T> noInit() {
-            return (arg) -> arg;
         }
     }
 

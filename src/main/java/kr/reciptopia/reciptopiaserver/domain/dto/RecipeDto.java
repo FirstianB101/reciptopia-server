@@ -1,5 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.noInit;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,10 +35,6 @@ public interface RecipeDto {
 
         public Recipe asEntity() {
             return asEntity(noInit());
-        }
-
-        private <T> Function<? super T, ? extends T> noInit() {
-            return (arg) -> arg;
         }
     }
 
