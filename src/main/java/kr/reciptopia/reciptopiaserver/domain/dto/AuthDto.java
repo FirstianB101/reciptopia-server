@@ -15,14 +15,11 @@ public interface AuthDto {
 
     }
 
+    @Builder
     record GenerateTokenResult(
         @NotEmpty String token,
         @NotNull AccountDto.Result account) {
 
-        @Builder
-        public GenerateTokenResult {
-
-        }
     }
 
     record MeResult(@NotNull AccountDto.Result account) {
