@@ -21,9 +21,9 @@ public interface CommentDto {
     interface Bulk {
 
         @With
+        @Builder
         record Result(@NotEmpty Map<Long, CommentDto.Result> comments) {
 
-            @Builder
             public Result(
                 @Singular
                 Map<Long, CommentDto.Result> comments
