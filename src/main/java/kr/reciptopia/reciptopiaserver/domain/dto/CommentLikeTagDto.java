@@ -1,5 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.noInit;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -24,10 +25,6 @@ public interface CommentLikeTagDto {
 
         public CommentLikeTag asEntity() {
             return asEntity(noInit());
-        }
-
-        private <T> Function<? super T, ? extends T> noInit() {
-            return (arg) -> arg;
         }
     }
 

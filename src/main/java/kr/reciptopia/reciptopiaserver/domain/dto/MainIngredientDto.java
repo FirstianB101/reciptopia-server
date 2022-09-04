@@ -1,5 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.noInit;
 import com.querydsl.core.Tuple;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -193,11 +194,6 @@ public interface MainIngredientDto {
             public MainIngredient asEntity() {
                 return asEntity(noInit());
             }
-
-            private <T> Function<? super T, ? extends T> noInit() {
-                return (arg) -> arg;
-            }
-
         }
     }
 
