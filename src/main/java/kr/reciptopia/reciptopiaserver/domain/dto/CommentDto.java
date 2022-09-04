@@ -68,6 +68,7 @@ public interface CommentDto {
     }
 
     @With
+    @Builder
     record Result(
         @NotNull Long id,
         @NotNull Long ownerId,
@@ -75,11 +76,6 @@ public interface CommentDto {
         @NotBlank @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!") String content,
         LocalDateTime createTime,
         @NotNull LocalDateTime modifiedTime) {
-
-        @Builder
-        public Result {
-
-        }
 
         public static Result of(Comment entity) {
             return Result.builder()
