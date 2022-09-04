@@ -111,15 +111,12 @@ public interface AccountDto {
     }
 
     @With
+    @Builder
     record Update(
         @Email(message = "이메일 형식이 아닙니다.") String email,
         @Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!") String password,
         @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!") String nickname,
         String profilePictureUrl) {
-
-        @Builder
-        public Update {
-        }
     }
 
     @With
