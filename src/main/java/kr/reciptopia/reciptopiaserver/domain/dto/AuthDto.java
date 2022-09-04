@@ -8,14 +8,11 @@ import lombok.Builder;
 
 public interface AuthDto {
 
+    @Builder
     record GenerateToken(
         @NotEmpty @Email String email,
         @NotEmpty @Size(min = 8, max = 16, message = "password는 8 ~ 16자 이여야 합니다!") String password) {
 
-        @Builder
-        public GenerateToken {
-
-        }
     }
 
     record GenerateTokenResult(
