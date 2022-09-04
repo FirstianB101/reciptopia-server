@@ -46,16 +46,12 @@ public interface AccountProfileImgDto {
 
 
     @With
+    @Builder
     record Result(
         @NotNull Long id,
         @NotEmpty String uploadFileName,
         @NotEmpty String storeFileName,
         @NotNull Long ownerId) {
-
-        @Builder
-        public Result {
-
-        }
 
         public static Result of(AccountProfileImg entity) {
             return Result.builder()
