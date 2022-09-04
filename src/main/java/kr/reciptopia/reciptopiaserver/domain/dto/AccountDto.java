@@ -27,12 +27,12 @@ public interface AccountDto {
     interface Bulk {
 
         @With
+        @Builder
         record Result(
             @NotEmpty Map<Long, AccountDto.Result> accounts
         ) {
             private static int POST_ID_TUPLE_INDEX = 0, ACCOUNT_TUPLE_INDEX = 1;
 
-            @Builder
             public Result(
                 @Singular
                     Map<Long, AccountDto.Result> accounts
