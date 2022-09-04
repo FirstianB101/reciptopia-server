@@ -1,4 +1,4 @@
-package kr.reciptopia.reciptopiaserver.domain.dto;
+package kr.reciptopia.reciptopiaserver.domain.dto.helper;
 
 import com.querydsl.core.Tuple;
 import java.util.ArrayList;
