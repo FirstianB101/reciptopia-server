@@ -1,7 +1,7 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.CollectorHelper.byLinkedHashMapWithKey;
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,14 +33,9 @@ public interface CommentDto {
 
             public static Result of(Page<Comment> comments) {
                 return Result.builder()
-                    .comments((Map<? extends Long, ? extends CommentDto.Result>) comments.stream()
+                    .comments(comments.stream()
                         .map(CommentDto.Result::of)
-                        .collect(
-                            Collectors.toMap(
-                                CommentDto.Result::id,
-                                result -> result,
-                                (x, y) -> y,
-                                LinkedHashMap::new)))
+                        .collect(byLinkedHashMapWithKey(CommentDto.Result::id)))
                     .build();
             }
         }
