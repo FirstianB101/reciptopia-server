@@ -22,11 +22,8 @@ public interface AuthDto {
 
     }
 
+    @Builder
     record MeResult(@NotNull AccountDto.Result account) {
 
-        @Builder
-        public MeResult {
-
-        }
     }
 }
