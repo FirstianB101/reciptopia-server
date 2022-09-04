@@ -1,8 +1,7 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
-import java.util.LinkedHashMap;
+import static kr.reciptopia.reciptopiaserver.domain.dto.CollectorHelper.byLinkedHashMapWithKey;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import kr.reciptopia.reciptopiaserver.domain.model.AccountProfileImg;
@@ -28,16 +27,9 @@ public interface AccountProfileImgDto {
 
             public static Bulk.Result of(Page<AccountProfileImg> accountProfileImgs) {
                 return Bulk.Result.builder()
-                    .accountProfileImgs(
-                        (Map<? extends Long, ? extends AccountProfileImgDto.Result>)
-                            accountProfileImgs.stream()
-                                .map(AccountProfileImgDto.Result::of)
-                                .collect(
-                                    Collectors.toMap(
-                                        AccountProfileImgDto.Result::id,
-                                        result -> result,
-                                        (x, y) -> y,
-                                        LinkedHashMap::new)))
+                    .accountProfileImgs(accountProfileImgs.stream()
+                        .map(AccountProfileImgDto.Result::of)
+                        .collect(byLinkedHashMapWithKey(AccountProfileImgDto.Result::id)))
                     .build();
             }
         }
