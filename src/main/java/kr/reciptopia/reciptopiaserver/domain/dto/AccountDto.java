@@ -128,17 +128,13 @@ public interface AccountDto {
     }
 
     @With
+    @Builder
     record Result(
         @NotNull Long id,
         @NotNull @Email(message = "이메일 형식이 아닙니다.") String email,
         @NotBlank @Size(min = 5, max = 16, message = "nickname은 5 ~ 16자 이여야 합니다!") String nickname,
         String profilePictureUrl,
         UserRole role) {
-
-        @Builder
-        public Result {
-
-        }
 
         public static Result of(Account entity) {
             return Result.builder()
