@@ -1,7 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.CollectorHelper.byListValueLinkedHashMapWithKey;
-
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.byListValueLinkedHashMapWithKey;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
