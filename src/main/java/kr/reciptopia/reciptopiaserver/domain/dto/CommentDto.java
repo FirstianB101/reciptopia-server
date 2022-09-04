@@ -47,15 +47,11 @@ public interface CommentDto {
     }
 
     @With
+    @Builder
     record Create(
         @NotNull Long ownerId,
         @NotNull Long postId,
         @NotBlank @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!") String content) {
-
-        @Builder
-        public Create {
-
-        }
 
         public Comment asEntity() {
             return Comment.builder()
