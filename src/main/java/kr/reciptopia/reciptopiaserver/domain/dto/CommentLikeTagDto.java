@@ -12,13 +12,9 @@ import org.springframework.data.util.Streamable;
 public interface CommentLikeTagDto {
 
     @With
+    @Builder
     record Create(
         @NotNull Long ownerId, @NotNull Long commentId) {
-
-        @Builder
-        public Create {
-
-        }
 
         public CommentLikeTag asEntity(
             Function<? super CommentLikeTag, ? extends CommentLikeTag> initialize) {
