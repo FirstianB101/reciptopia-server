@@ -120,11 +120,8 @@ public interface AccountDto {
     }
 
     @With
+    @Builder
     record CheckDuplicationResult(@NotNull Boolean exists) {
-
-        @Builder
-        public CheckDuplicationResult {
-        }
     }
 
     @With
