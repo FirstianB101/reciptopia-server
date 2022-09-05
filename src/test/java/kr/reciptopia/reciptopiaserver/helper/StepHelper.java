@@ -4,7 +4,7 @@ import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Create.WithRecipe;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.StepDto.Update;
-import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.noInit;
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.InitializationHelper.noInit;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
 
 import java.util.function.Function;

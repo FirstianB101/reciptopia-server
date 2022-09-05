@@ -1,6 +1,6 @@
 package kr.reciptopia.reciptopiaserver.helper;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.noInit;
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.InitializationHelper.noInit;
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
 import static kr.reciptopia.reciptopiaserver.helper.AccountProfileImgHelper.anAccountProfileImg;
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aComment;

@@ -3,7 +3,7 @@ package kr.reciptopia.reciptopiaserver.helper;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Update;
-import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.noInit;
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.InitializationHelper.noInit;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
 
 import java.util.function.Function;

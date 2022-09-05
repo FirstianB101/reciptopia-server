@@ -1,6 +1,7 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.noInit;
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.InitializationHelper.noInit;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
