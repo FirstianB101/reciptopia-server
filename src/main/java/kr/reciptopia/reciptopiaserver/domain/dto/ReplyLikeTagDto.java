@@ -1,6 +1,7 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.noInit;
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.InitializationHelper.noInit;
+
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;

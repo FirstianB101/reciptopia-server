@@ -67,7 +67,4 @@ public class CollectorHelper {
         return tuple -> tuple.get(ID_TUPLE_INDEX, Long.class);
     }
 
-    public static <T> Function<? super T, ? extends T> noInit() {
-        return (arg) -> arg;
-    }
 }

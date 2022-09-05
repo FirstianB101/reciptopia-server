@@ -2,9 +2,10 @@ package kr.reciptopia.reciptopiaserver.helper;
 
 import static kr.reciptopia.reciptopiaserver.domain.dto.PostLikeTagDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.PostLikeTagDto.Result;
-import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.noInit;
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.InitializationHelper.noInit;
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPost;
+import static kr.reciptopia.reciptopiaserver.helper.fieldfilter.FilterHelper.getNonNull;
 
 import java.util.function.Function;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
@@ -44,9 +45,5 @@ public class PostLikeTagHelper {
             .ownerId(ARBITRARY_OWNER_ID)
             .postId(ARBITRARY_POST_ID)
             .build();
-    }
-
-    private static Long getNonNull(Long inputValue, Long arbitraryValue) {
-        return inputValue == null ? arbitraryValue : inputValue;
     }
 }
