@@ -3,6 +3,7 @@ package kr.reciptopia.reciptopiaserver.helper;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.MainIngredientDto.Update;
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.noInit;
 import static kr.reciptopia.reciptopiaserver.helper.RecipeHelper.aRecipe;
 
 import java.util.function.Function;
@@ -66,10 +67,6 @@ public class MainIngredientHelper {
             .name(ARBITRARY_NAME)
             .detail(ARBITRARY_DETAIL)
             .build();
-    }
-
-    private static <T> Function<? super T, ? extends T> noInit() {
-        return (arg) -> arg;
     }
 
     public interface Bulk {
