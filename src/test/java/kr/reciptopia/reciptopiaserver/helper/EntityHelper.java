@@ -1,5 +1,6 @@
 package kr.reciptopia.reciptopiaserver.helper;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.noInit;
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
 import static kr.reciptopia.reciptopiaserver.helper.AccountProfileImgHelper.anAccountProfileImg;
 import static kr.reciptopia.reciptopiaserver.helper.CommentHelper.aComment;
@@ -16,6 +17,7 @@ import static kr.reciptopia.reciptopiaserver.helper.SearchHistoryHelper.aSearchH
 import static kr.reciptopia.reciptopiaserver.helper.StepHelper.aStep;
 import static kr.reciptopia.reciptopiaserver.helper.StepImgHelper.aStepImg;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredient;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -315,10 +317,6 @@ public record EntityHelper(EntityManager em) {
 
         em.persist(stepImg);
         return stepImg;
-    }
-
-    private <T> Function<? super T, ? extends T> noInit() {
-        return (arg) -> arg;
     }
 
     public SearchHistory generateSearchHistory() {
