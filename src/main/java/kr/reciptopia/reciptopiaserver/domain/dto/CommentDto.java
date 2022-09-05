@@ -1,6 +1,7 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
-import static kr.reciptopia.reciptopiaserver.domain.dto.CollectorHelper.byLinkedHashMapWithKey;
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.byLinkedHashMapWithKey;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
