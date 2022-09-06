@@ -19,14 +19,10 @@ import org.springframework.data.util.Streamable;
 public interface RecipeDto {
 
     @With
+    @Builder
     record Create(
-        Long postId
+        @NotNull Long postId
     ) {
-
-        @Builder
-        public Create(@NotNull Long postId) {
-            this.postId = postId;
-        }
 
         public Recipe asEntity(
             Function<? super Recipe, ? extends Recipe> initialize) {
