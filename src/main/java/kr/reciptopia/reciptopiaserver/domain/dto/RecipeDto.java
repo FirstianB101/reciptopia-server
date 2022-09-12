@@ -1,9 +1,9 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.byLinkedHashMapWithKey;
 import static kr.reciptopia.reciptopiaserver.domain.dto.helper.InitializationHelper.noInit;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -17,6 +17,30 @@ import lombok.With;
 import org.springframework.data.util.Streamable;
 
 public interface RecipeDto {
+
+    interface Bulk {
+
+        @With
+        record Result(
+            @NotEmpty Map<Long, RecipeDto.Result> recipes) {
+
+            @Builder
+            public Result(
+                @Singular
+                Map<Long, RecipeDto.Result> recipes
+            ) {
+                this.recipes = recipes;
+            }
+
+            public static Result of(Collection<Recipe> recipes) {
+                return Result.builder()
+                    .recipes(recipes.stream()
+                        .map(RecipeDto.Result::of)
+                        .collect(byLinkedHashMapWithKey(RecipeDto.Result::id)))
+                    .build();
+            }
+        }
+    }
 
     @With
     @Builder
@@ -53,36 +77,6 @@ public interface RecipeDto {
             return entities.stream()
                 .map(Result::of)
                 .collect(Collectors.toList());
-        }
-    }
-
-    interface Bulk {
-
-        @With
-        record Result(
-            Map<Long, RecipeDto.Result> recipes) {
-
-            @Builder
-            public Result(
-                @NotEmpty
-                @Singular
-                    Map<Long, RecipeDto.Result> recipes
-            ) {
-                this.recipes = recipes;
-            }
-
-            public static Result of(Collection<Recipe> recipes) {
-                return Result.builder()
-                    .recipes((Map<? extends Long, ? extends RecipeDto.Result>) recipes.stream()
-                        .map(RecipeDto.Result::of)
-                        .collect(
-                            Collectors.toMap(
-                                RecipeDto.Result::id,
-                                result -> result,
-                                (x, y) -> y,
-                                LinkedHashMap::new)))
-                    .build();
-            }
         }
     }
 
