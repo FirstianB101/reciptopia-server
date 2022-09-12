@@ -158,6 +158,63 @@ public class RecipeIntegrationTest {
             actions
                 .andExpect(status().isNotFound());
         }
+
+        @Test
+        void post_id가_없는_recipe_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Post post = entityHelper.generatePost();
+
+                String token = recipeAuthHelper.generateToken(post);
+                return new Struct()
+                    .withValue("token", token);
+            });
+            String token = given.valueOf("token");
+
+            // When
+            Create dto = aRecipeCreateDto()
+                .withPostId(null);
+
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/recipes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void 존재하지않는_post_id로_recipe_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Post post = entityHelper.generatePost();
+
+                String token = recipeAuthHelper.generateToken(post);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("postId", post.getId());
+            });
+            String token = given.valueOf("token");
+
+            // When
+            Create dto = aRecipeCreateDto()
+                .withPostId(-1L);
+
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/recipes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
     }
 
     @Nested
