@@ -229,7 +229,7 @@ public class PostLikeTagIntegrationTest {
 
             // Then
             actions
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
         }
 
         @Test
@@ -259,7 +259,7 @@ public class PostLikeTagIntegrationTest {
 
             // Then
             actions
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
         }
     }
 
