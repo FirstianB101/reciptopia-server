@@ -2,12 +2,9 @@ package kr.reciptopia.reciptopiaserver.helper;
 
 import static kr.reciptopia.reciptopiaserver.domain.dto.PostLikeTagDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.PostLikeTagDto.Result;
-import static kr.reciptopia.reciptopiaserver.domain.dto.helper.InitializationHelper.noInit;
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPost;
-import static kr.reciptopia.reciptopiaserver.helper.fieldfilter.FilterHelper.getNonNull;
 
-import java.util.function.Function;
 import kr.reciptopia.reciptopiaserver.domain.model.PostLikeTag;
 
 public class PostLikeTagHelper {
@@ -24,20 +21,11 @@ public class PostLikeTagHelper {
             .withId(ARBITRARY_ID);
     }
 
-    public static Create aPostLikeTagCreateDto(
-        Function<? super Create, ? extends Create> initialize) {
-        Create createDto = Create.builder()
-            .build();
-
-        createDto = initialize.apply(createDto);
-        return Create.builder()
-            .ownerId(getNonNull(createDto.ownerId(), ARBITRARY_OWNER_ID))
-            .postId(getNonNull(createDto.postId(), ARBITRARY_POST_ID))
-            .build();
-    }
-
     public static Create aPostLikeTagCreateDto() {
-        return aPostLikeTagCreateDto(noInit());
+        return Create.builder()
+            .ownerId(ARBITRARY_OWNER_ID)
+            .postId(ARBITRARY_POST_ID)
+            .build();
     }
 
     public static Result aPostLikeTagResultDto() {

@@ -186,10 +186,9 @@ public class PostLikeTagIntegrationTest {
             Long postId = given.valueOf("postId");
 
             // When
-            Create dto = aPostLikeTagCreateDto(it -> it
+            Create dto = aPostLikeTagCreateDto()
                 .withOwnerId(-1L)
-                .withPostId(postId)
-            );
+                .withPostId(postId);
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/post/likeTags")
@@ -218,10 +217,9 @@ public class PostLikeTagIntegrationTest {
             Long postId = given.valueOf("postId");
 
             // When
-            Create dto = aPostLikeTagCreateDto(it -> it
+            Create dto = aPostLikeTagCreateDto()
                 .withOwnerId(null)
-                .withPostId(postId)
-            );
+                .withPostId(postId);
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/post/likeTags")
@@ -249,10 +247,9 @@ public class PostLikeTagIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            Create dto = aPostLikeTagCreateDto(it -> it
+            Create dto = aPostLikeTagCreateDto()
                 .withOwnerId(ownerId)
-                .withPostId(null)
-            );
+                .withPostId(null);
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/post/likeTags")
