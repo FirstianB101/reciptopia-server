@@ -36,20 +36,11 @@ public interface RecipeDto {
     }
 
     @With
+    @Builder
     record Result(
-        Long id, Long postId
+        @NotNull Long id,
+        @NotNull Long postId
     ) {
-
-        @Builder
-        public Result(
-            @NotNull
-                Long id,
-
-            @NotNull
-                Long postId) {
-            this.id = id;
-            this.postId = postId;
-        }
 
         public static Result of(Recipe recipe) {
             return builder()
