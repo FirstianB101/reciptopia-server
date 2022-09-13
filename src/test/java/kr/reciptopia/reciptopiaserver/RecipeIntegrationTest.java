@@ -184,7 +184,7 @@ public class RecipeIntegrationTest {
 
             // Then
             actions
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
         }
 
         @Test
@@ -213,7 +213,7 @@ public class RecipeIntegrationTest {
 
             // Then
             actions
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
         }
     }
 
