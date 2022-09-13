@@ -7,24 +7,14 @@ import lombok.With;
 public interface RecipePostDto {
 
     @With
+    @Builder
     record Create(
-        PostDto.Create post, MainIngredientDto.Bulk.Create.WithRecipe mainIngredients,
-        SubIngredientDto.Bulk.Create.WithRecipe subIngredients, StepDto.Bulk.Create.WithRecipe steps
+        @NotNull PostDto.Create post,
+        MainIngredientDto.Bulk.Create.WithRecipe mainIngredients,
+        SubIngredientDto.Bulk.Create.WithRecipe subIngredients,
+        StepDto.Bulk.Create.WithRecipe steps
     ) {
 
-        @Builder
-        public Create(
-            @NotNull
-                PostDto.Create post,
-
-            MainIngredientDto.Bulk.Create.WithRecipe mainIngredients,
-            SubIngredientDto.Bulk.Create.WithRecipe subIngredients,
-            StepDto.Bulk.Create.WithRecipe steps) {
-            this.post = post;
-            this.mainIngredients = mainIngredients;
-            this.subIngredients = subIngredients;
-            this.steps = steps;
-        }
     }
 
     @With
