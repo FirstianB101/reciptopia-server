@@ -2,10 +2,8 @@ package kr.reciptopia.reciptopiaserver;
 
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static kr.reciptopia.reciptopiaserver.domain.dto.RecipePostDto.Create;
-import static kr.reciptopia.reciptopiaserver.helper.MainIngredientHelper.Bulk.tripleMainIngredientsBulkCreateWithRecipeDto;
 import static kr.reciptopia.reciptopiaserver.helper.PostHelper.aPostCreateDto;
-import static kr.reciptopia.reciptopiaserver.helper.StepHelper.Bulk.tripleStepsBulkCreateWithRecipeDto;
-import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.Bulk.tripleSubIngredientsBulkCreateWithRecipeDto;
+import static kr.reciptopia.reciptopiaserver.helper.RecipePostHelper.aRecipePostCreateDto;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -111,12 +109,11 @@ public class RecipePostIntegrationTest {
             Long ownerId = given.valueOf("id");
 
             // When
-            Create dto = Create.builder()
-                .post(aPostCreateDto(it -> it.withOwnerId(ownerId)))
-                .mainIngredients(tripleMainIngredientsBulkCreateWithRecipeDto())
-                .subIngredients(tripleSubIngredientsBulkCreateWithRecipeDto())
-                .steps(tripleStepsBulkCreateWithRecipeDto())
-                .build();
+            Create dto = aRecipePostCreateDto()
+                .withPost(aPostCreateDto()
+                    .withOwnerId(ownerId)
+                );
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/recipePosts")
