@@ -205,5 +205,67 @@ public class RecipePostIntegrationTest {
                 .andExpect(status().isNotFound());
         }
 
+
+        @Test
+        void 권한이_없는_owner_id로_recipe_post_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account ownerA = entityHelper.generateAccount();
+                Account ownerB = entityHelper.generateAccount();
+
+                String token = postAuthHelper.generateToken(ownerA);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerAId", ownerA.getId())
+                    .withValue("ownerBId", ownerB.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerBId = given.valueOf("ownerBId");
+
+            // When
+            Create dto = aRecipePostCreateDto()
+                .withPost(aPostCreateDto()
+                    .withOwnerId(ownerBId)
+                );
+
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/recipePosts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void token이_없는_recipe_post_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                return new Struct()
+                    .withValue("ownerId", owner.getId());
+            });
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            Create dto = aRecipePostCreateDto()
+                .withPost(aPostCreateDto()
+                    .withOwnerId(ownerId)
+                );
+
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/recipePosts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isUnauthorized());
+        }
     }
 }
