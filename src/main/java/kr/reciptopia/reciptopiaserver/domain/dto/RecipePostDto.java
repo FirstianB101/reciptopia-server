@@ -18,14 +18,11 @@ public interface RecipePostDto {
     }
 
     @With
+    @Builder
     record Result(
         PostDto.Result post, RecipeDto.Result recipe,
         MainIngredientDto.Bulk.ResultGroupBy.Id bulkMainIngredient,
         SubIngredientDto.Bulk.Result bulkSubIngredient, StepDto.Bulk.Result bulkStep
     ) {
-
-        @Builder
-        public Result {
-        }
     }
 }
