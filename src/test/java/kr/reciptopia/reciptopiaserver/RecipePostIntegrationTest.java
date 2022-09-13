@@ -146,5 +146,64 @@ public class RecipePostIntegrationTest {
                     DOC_FIELD_BULK_STEPS_RESPONSE
                 )));
         }
+
+        @Test
+        void post가_없는_recipe_post_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                String token = postAuthHelper.generateToken(owner);
+                return new Struct()
+                    .withValue("token", token);
+            });
+            String token = given.valueOf("token");
+
+            // When
+            Create dto = aRecipePostCreateDto()
+                .withPost(null);
+
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/recipePosts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 존재하지않는_owner_id로_recipe_post_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                String token = postAuthHelper.generateToken(owner);
+                return new Struct()
+                    .withValue("token", token);
+            });
+            String token = given.valueOf("token");
+
+            // When
+            Create dto = aRecipePostCreateDto()
+                .withPost(aPostCreateDto()
+                    .withOwnerId(-1L)
+                );
+
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/recipePosts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
+
     }
 }
