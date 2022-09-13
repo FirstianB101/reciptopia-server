@@ -2,7 +2,7 @@ package kr.reciptopia.reciptopiaserver.helper;
 
 import static kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Create;
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccount;
-import java.util.function.Function;
+
 import kr.reciptopia.reciptopiaserver.domain.dto.PostDto.Update;
 import kr.reciptopia.reciptopiaserver.domain.model.Post;
 
@@ -23,13 +23,9 @@ public class PostHelper {
             .withId(ARBITRARY_ID);
     }
 
-    public static Create aPostCreateDto(Function<? super Create, ? extends Create> initialize) {
-        Create createDto = Create.builder()
-            .build();
-
-        createDto = initialize.apply(createDto);
+    public static Create aPostCreateDto() {
         return Create.builder()
-            .ownerId(createDto.ownerId() == null ? ARBITRARY_OWNER_ID : createDto.ownerId())
+            .ownerId(ARBITRARY_OWNER_ID)
             .title(ARBITRARY_TITLE)
             .content(ARBITRARY_CONTENT)
             .build();
