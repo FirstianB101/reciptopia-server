@@ -24,4 +24,12 @@ public record RecipeSearchCondition(
     public boolean isEmpty() {
         return this.mainIngredientNames.isEmpty() && this.subIngredientNames.isEmpty();
     }
+
+    public boolean isEmptyCondition() {
+        return this.mainIngredientNames.isEmpty() &&
+            this.subIngredientNames.isEmpty() &&
+            this.ids.isEmpty() &&
+            this.postIds.isEmpty();
+
+    }
 }
