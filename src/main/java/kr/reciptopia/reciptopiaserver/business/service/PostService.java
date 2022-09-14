@@ -1,8 +1,5 @@
 package kr.reciptopia.reciptopiaserver.business.service;
 
-import static kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostSearchCondition.getRecipeSearchCondition;
-import static kr.reciptopia.reciptopiaserver.business.service.searchcondition.PostSearchCondition.updateConditionWithRecipeCondition;
-
 import java.util.List;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.PostAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
@@ -61,10 +58,10 @@ public class PostService {
 
     public Bulk.ResultWithCommentAndLikeTagCount search(PostSearchCondition condition,
         Pageable pageable) {
-        RecipeSearchCondition recipeSearchCondition = getRecipeSearchCondition(condition);
+        RecipeSearchCondition recipeSearchCondition = condition.getRecipeSearchCondition();
         List<Long> postIds = getPostIdsFromRecipeCondition(pageable, recipeSearchCondition);
         PageImpl<Post> posts = postRepositoryImpl.search(
-            updateConditionWithRecipeCondition(condition, recipeSearchCondition, postIds),
+            condition.updateConditionWithRecipeCondition(recipeSearchCondition, postIds),
             pageable);
 
         return Bulk.ResultWithCommentAndLikeTagCount.of(
