@@ -23,34 +23,32 @@ public record PostSearchCondition(
 	}
 
 
-	public static RecipeSearchCondition getRecipeSearchCondition(
-		PostSearchCondition postSearchCondition) {
-		return RecipeSearchCondition.builder()
-			.mainIngredientNames(postSearchCondition.mainIngredientNames())
-			.subIngredientNames(postSearchCondition.subIngredientNames()).build();
-	}
+	public RecipeSearchCondition getRecipeSearchCondition() {
+        return RecipeSearchCondition.builder()
+            .mainIngredientNames(this.mainIngredientNames())
+            .subIngredientNames(this.subIngredientNames()).build();
+    }
 
-	private static PostSearchCondition withIds(PostSearchCondition condition, List<Long> ids) {
-		return PostSearchCondition.builder()
-			.ownerId(condition.ownerId())
-			.titleLike(condition.titleLike())
-			.mainIngredientNames(condition.mainIngredientNames())
-			.subIngredientNames(condition.subIngredientNames())
-			.ids(ids)
-			.build();
-	}
+    private PostSearchCondition withIds(List<Long> ids) {
+        return PostSearchCondition.builder()
+            .ownerId(this.ownerId())
+            .titleLike(this.titleLike())
+            .mainIngredientNames(this.mainIngredientNames())
+            .subIngredientNames(this.subIngredientNames())
+            .ids(ids)
+            .build();
+    }
 
-	public static PostSearchCondition updateConditionWithRecipeCondition(
-		PostSearchCondition condition,
-		RecipeSearchCondition recipeSearchCondition, List<Long> postIds) {
-		if (!recipeSearchCondition.isEmpty()) {
-			List<Long> conditionIds = condition.ids();
-			if (!conditionIds.isEmpty())
-				conditionIds.retainAll(postIds);
-			else
-				conditionIds = postIds;
-			condition = withIds(condition, conditionIds);
-		}
-		return condition;
+    public PostSearchCondition updateConditionWithRecipeCondition(
+        RecipeSearchCondition recipeSearchCondition, List<Long> postIds) {
+        if (!recipeSearchCondition.isEmpty()) {
+            List<Long> conditionIds = this.ids();
+            if (!this.ids().isEmpty())
+                conditionIds.retainAll(postIds);
+            else
+                conditionIds = postIds;
+            return this.withIds(conditionIds);
+        }
+        return this;
 	}
 }
