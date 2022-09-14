@@ -416,6 +416,73 @@ public class RecipeIntegrationTest {
         }
 
         @Test
+        void 일치하는_recipe가_없는_mainIngredients로_reicpe검색() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Recipe recipeA = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeA));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeA));
+
+                Recipe recipeB = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeB));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeB));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeB));
+
+                Recipe recipeC = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeC));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("양파")
+                        .withRecipe(recipeC));
+
+                Recipe recipeD = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("감자")
+                        .withRecipe(recipeD));
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("고추장")
+                        .withRecipe(recipeD));
+
+                Recipe recipeE = entityHelper.generateRecipe();
+                entityHelper.generateMainIngredient(
+                    ig -> ig.withName("닭다리")
+                        .withRecipe(recipeE));
+                return new Struct()
+                    .withValue("recipeBId", recipeB.getId())
+                    .withValue("recipeCId", recipeC.getId());
+            });
+            Long recipeBId = given.valueOf("recipeBId");
+            Long recipeCId = given.valueOf("recipeCId");
+
+            // When
+            ResultActions actions = mockMvc.perform(get("/post/recipes")
+                .param("mainIngredientNames", "딸기, 수박, 참외")
+            );
+
+            // Then
+            actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.recipes").value(aMapWithSize(0)));
+        }
+
+        @Test
         void subIngredients로_정렬() throws Exception {
             // Given
             Struct given = trxHelper.doInTransaction(() -> {
