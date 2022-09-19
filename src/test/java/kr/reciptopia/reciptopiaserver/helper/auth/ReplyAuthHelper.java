@@ -5,7 +5,7 @@ import kr.reciptopia.reciptopiaserver.domain.model.Reply;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReplyAuthHelper extends AuthHelper {
+public class ReplyAuthHelper extends CommentAuthHelper {
 
     public ReplyAuthHelper(JwtService jwtService) {
         super(jwtService);
