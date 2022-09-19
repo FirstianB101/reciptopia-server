@@ -51,24 +51,13 @@ public interface ReplyDto {
     }
 
     @With
+    @Builder
     record Create(
-        Long ownerId, Long commentId, String content) {
-
-        @Builder
-        public Create(
-            @NotNull
-                Long ownerId,
-
-            @NotNull
-                Long commentId,
-
-            @NotBlank
-            @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
-                String content) {
-            this.ownerId = ownerId;
-            this.commentId = commentId;
-            this.content = content;
-        }
+        @NotNull Long ownerId,
+        @NotNull Long commentId,
+        @NotBlank
+        @Size(min = 1, max = 50, message = "content는 1 ~ 50자 이여야 합니다!")
+        String content) {
 
         public Reply asEntity(
             Function<? super Reply, ? extends Reply> initialize) {
