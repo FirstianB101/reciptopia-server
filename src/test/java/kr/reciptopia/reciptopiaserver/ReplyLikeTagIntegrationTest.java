@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -142,18 +143,172 @@ public class ReplyLikeTagIntegrationTest {
 		@Test
 		void postReplyLikeTag_ReplyLikeTagNotFound_NotFoundStatus() throws Exception {
 			// When
-			String body = jsonHelper.toJson(aReplyLikeTagCreateDto());
+            String body = jsonHelper.toJson(aReplyLikeTagCreateDto());
 
-			ResultActions actions = mockMvc.perform(post("/post/comment/reply/likeTags")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(body));
+            ResultActions actions = mockMvc.perform(post("/post/comment/reply/likeTags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
 
-			// Then
-			actions
-				.andExpect(status().isNotFound());
-		}
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
 
-	}
+        @Test
+        void owner_id가_없는_post_reply_like_tag_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+                Reply reply = entityHelper.generateReply();
+
+                String token = likeTagAuthHelper.generateToken(owner);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("replyId", reply.getId());
+            });
+            String token = given.valueOf("token");
+            Long replyId = given.valueOf("replyId");
+
+            // When
+            Create dto = aReplyLikeTagCreateDto()
+                .withOwnerId(null)
+                .withReplyId(replyId);
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/reply/likeTags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 존재하지않는_owner_id로_post_reply_like_tag_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+                Reply reply = entityHelper.generateReply();
+
+                String token = likeTagAuthHelper.generateToken(owner);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("replyId", reply.getId());
+            });
+            String token = given.valueOf("token");
+            Long replyId = given.valueOf("replyId");
+
+            // When
+            Create dto = aReplyLikeTagCreateDto()
+                .withOwnerId(-1L)
+                .withReplyId(replyId);
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/reply/likeTags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
+
+
+        @Test
+        void token이_없는_post_reply_like_tag_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+                Reply reply = entityHelper.generateReply();
+
+                return new Struct()
+                    .withValue("ownerId", owner.getId())
+                    .withValue("replyId", reply.getId());
+            });
+            Long ownerId = given.valueOf("ownerId");
+            Long replyId = given.valueOf("replyId");
+
+            // When
+            Create dto = aReplyLikeTagCreateDto()
+                .withOwnerId(ownerId)
+                .withReplyId(replyId);
+
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/reply/likeTags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        void reply_id가_없는_reply_like_tag_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+                Reply reply = entityHelper.generateReply();
+
+                String token = likeTagAuthHelper.generateToken(owner);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", owner.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            Create dto = aReplyLikeTagCreateDto()
+                .withOwnerId(ownerId)
+                .withReplyId(null);
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/reply/likeTags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 존재하지않는_reply_id로_reply_like_tag_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+                Reply reply = entityHelper.generateReply();
+
+                String token = likeTagAuthHelper.generateToken(owner);
+                return new Struct()
+                    .withValue("ownerId", owner.getId())
+                    .withValue("token", token);
+            });
+            Long ownerId = given.valueOf("ownerId");
+            String token = given.valueOf("token");
+
+            // When
+            Create dto = aReplyLikeTagCreateDto()
+                .withOwnerId(ownerId)
+                .withReplyId(-1L);
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/reply/likeTags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
+    }
 
 	@Nested
 	class GetReplyLikeTag {
