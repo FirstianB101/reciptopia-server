@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -611,6 +612,70 @@ public class ReplyIntegrationTest {
             // Then
             actions
                 .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void 공백으로_채워진_content로_reply_수정() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Reply reply = entityHelper.generateReply(it ->
+                    it.withContent("테스트 답글 내용")
+                );
+                String token = replyAuthHelper.generateToken(reply);
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", reply.getId());
+            });
+            String token = given.valueOf("token");
+            Long id = given.valueOf("id");
+
+            // When
+            Update dto = aReplyUpdateDto()
+                .withContent("      ");
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/post/comment/replies/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_긴_길이의_content로_reply_수정() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Reply reply = entityHelper.generateReply(it ->
+                    it.withContent("테스트 답글 내용")
+                );
+                String token = replyAuthHelper.generateToken(reply);
+
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", reply.getId());
+            });
+            String token = given.valueOf("token");
+            Long id = given.valueOf("id");
+
+            // When
+            Update dto = aReplyUpdateDto()
+                .withContent("And_so_I_wake_in_the_morning_and_I_step_Outside_"
+                    + "and_I_take_a_deep_breath_And_I_get_real_high_"
+                    + "Then_I_scream_from_the_top_of_my_lungs_What's_goin_on");
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/post/comment/replies/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
         }
 
     }
