@@ -30,33 +30,21 @@ public interface ReplyLikeTagDto {
     }
 
 	@With
-	record Result(
-		Long id, Long ownerId, Long replyId) {
+    @Builder
+    record Result(
+        @NotNull Long id,
+        @NotNull Long ownerId,
+        @NotNull Long replyId) {
 
-		@Builder
-		public Result(
-			@NotNull
-				Long id,
+        public static Result of(ReplyLikeTag entity) {
+            return Result.builder()
+                .id(entity.getId())
+                .ownerId(entity.getOwner().getId())
+                .replyId(entity.getReply().getId())
+                .build();
+        }
 
-			@NotNull
-				Long ownerId,
-
-			@NotNull
-				Long replyId) {
-			this.id = id;
-			this.ownerId = ownerId;
-			this.replyId = replyId;
-		}
-
-		public static Result of(ReplyLikeTag entity) {
-			return Result.builder()
-				.id(entity.getId())
-				.ownerId(entity.getOwner().getId())
-				.replyId(entity.getReply().getId())
-				.build();
-		}
-
-		public static List<Result> of(Streamable<ReplyLikeTag> entities) {
+        public static List<Result> of(Streamable<ReplyLikeTag> entities) {
 			return entities.stream()
 				.map(Result::of)
 				.collect(Collectors.toList());
