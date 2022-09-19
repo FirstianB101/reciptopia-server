@@ -2,6 +2,7 @@ package kr.reciptopia.reciptopiaserver.business.service;
 
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.ReplyAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
+import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.ReplySearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Bulk;
 import kr.reciptopia.reciptopiaserver.domain.dto.ReplyDto.Create;
@@ -28,6 +29,7 @@ public class ReplyService {
     private final ReplyRepositoryImpl replyRepositoryImpl;
     private final RepositoryHelper repoHelper;
     private final ReplyAuthorizer replyAuthorizer;
+    private final ServiceErrorHelper errorHelper;
 
     @Transactional
     public Result create(Create dto, Authentication authentication) {
@@ -58,6 +60,7 @@ public class ReplyService {
         replyAuthorizer.requireReplyOwner(authentication, reply);
 
         if (dto.content() != null) {
+            throwExceptionWhenBlankContent(dto.content());
             reply.setContent(dto.content());
         }
 
@@ -70,5 +73,12 @@ public class ReplyService {
         replyAuthorizer.requireReplyOwner(authentication, reply);
 
         ReplyRepository.delete(reply);
+    }
+
+    public void throwExceptionWhenBlankContent(String content) {
+        if (content.isBlank()) {
+            throw errorHelper.badRequest(
+                "Content must not be null and must contain at least one non-whitespace character");
+        }
     }
 }
