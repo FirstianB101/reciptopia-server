@@ -1,8 +1,8 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.byLinkedHashMapWithKey;
 import static kr.reciptopia.reciptopiaserver.domain.dto.helper.InitializationHelper.noInit;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -23,28 +23,21 @@ public interface ReplyDto {
     interface Bulk {
 
         @With
-        record Result(Map<Long, ReplyDto.Result> replies) {
+        record Result(@NotEmpty Map<Long, ReplyDto.Result> replies) {
 
             @Builder
             public Result(
-                @NotEmpty
                 @Singular
-                    Map<Long, ReplyDto.Result> replies
+                Map<Long, ReplyDto.Result> replies
             ) {
                 this.replies = replies;
             }
 
             public static Result of(Page<Reply> replies) {
                 return Result.builder()
-                    .replies((Map<? extends Long, ? extends ReplyDto.Result>) replies.stream()
+                    .replies(replies.stream()
                         .map(ReplyDto.Result::of)
-                        .collect(
-                            Collectors.toMap(
-                                ReplyDto.Result::id,
-                                result -> result,
-                                (x, y) -> y,
-                                LinkedHashMap::new
-                            )))
+                        .collect(byLinkedHashMapWithKey(ReplyDto.Result::id)))
                     .build();
             }
         }
