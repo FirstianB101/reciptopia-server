@@ -14,29 +14,20 @@ import org.springframework.data.util.Streamable;
 public interface ReplyLikeTagDto {
 
 	@With
-	record Create(
-		Long ownerId, Long replyId) {
+    @Builder
+    record Create(
+        @NotNull Long ownerId,
+        @NotNull Long replyId) {
 
-		@Builder
-		public Create(
-			@NotNull
-				Long ownerId,
+        public ReplyLikeTag asEntity(
+            Function<? super ReplyLikeTag, ? extends ReplyLikeTag> initialize) {
+            return initialize.apply(ReplyLikeTag.builder().build());
+        }
 
-			@NotNull
-				Long replyId) {
-			this.ownerId = ownerId;
-			this.replyId = replyId;
-		}
-
-		public ReplyLikeTag asEntity(
-			Function<? super ReplyLikeTag, ? extends ReplyLikeTag> initialize) {
-			return initialize.apply(ReplyLikeTag.builder().build());
-		}
-
-		public ReplyLikeTag asEntity() {
-			return asEntity(noInit());
-		}
-	}
+        public ReplyLikeTag asEntity() {
+            return asEntity(noInit());
+        }
+    }
 
 	@With
 	record Result(
