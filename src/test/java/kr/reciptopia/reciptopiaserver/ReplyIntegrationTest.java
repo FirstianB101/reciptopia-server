@@ -169,6 +169,219 @@ public class ReplyIntegrationTest {
                 .andExpect(status().isNotFound());
         }
 
+        @Test
+        void 존재하지않는_owner_id로_reply_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+                Comment comment = entityHelper.generateComment();
+
+                String token = replyAuthHelper.generateToken(owner);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("commentId", comment.getId());
+            });
+            String token = given.valueOf("token");
+            Long commentId = given.valueOf("commentId");
+
+            // When
+            Create dto = aReplyCreateDto()
+                .withOwnerId(-1L)
+                .withCommentId(commentId);
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/replies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void owner_id가_없는_reply_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+                Comment comment = entityHelper.generateComment();
+
+                String token = replyAuthHelper.generateToken(owner);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("commentId", comment.getId());
+            });
+            String token = given.valueOf("token");
+            Long commentId = given.valueOf("commentId");
+
+            // When
+            Create dto = aReplyCreateDto()
+                .withOwnerId(null)
+                .withCommentId(commentId);
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/replies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 존재하지않는_comment_id로_reply_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                String token = replyAuthHelper.generateToken(owner);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", owner.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            Create dto = aReplyCreateDto()
+                .withOwnerId(ownerId)
+                .withCommentId(-1L);
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/replies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void comment_id가_없는_reply_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                String token = replyAuthHelper.generateToken(owner);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("ownerId", owner.getId());
+            });
+            String token = given.valueOf("token");
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            Create dto = aReplyCreateDto()
+                .withOwnerId(ownerId)
+                .withCommentId(null);
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/replies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void content가_없는_reply_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Comment comment = entityHelper.generateComment();
+
+                String token = replyAuthHelper.generateToken(comment);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("commentId", comment.getId());
+            });
+            String token = given.valueOf("token");
+            Long commentId = given.valueOf("commentId");
+
+            // When
+            Create dto = aReplyCreateDto()
+                .withCommentId(commentId)
+                .withContent(null);
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/replies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 공백으로_채워진_content로_reply_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Comment comment = entityHelper.generateComment();
+
+                String token = replyAuthHelper.generateToken(comment);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("commentId", comment.getId());
+            });
+            String token = given.valueOf("token");
+            Long commentId = given.valueOf("commentId");
+
+            // When
+            Create dto = aReplyCreateDto()
+                .withCommentId(commentId)
+                .withContent("      ");
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/replies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_긴_길이의_content로_reply_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Comment comment = entityHelper.generateComment();
+
+                String token = replyAuthHelper.generateToken(comment);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("commentId", comment.getId());
+            });
+            String token = given.valueOf("token");
+            Long commentId = given.valueOf("commentId");
+
+            // When
+            Create dto = aReplyCreateDto()
+                .withCommentId(commentId)
+                .withContent("And_so_I_wake_in_the_morning_and_I_step_Outside_"
+                    + "and_I_take_a_deep_breath_And_I_get_real_high_"
+                    + "Then_I_scream_from_the_top_of_my_lungs_What's_goin_on");
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/post/comment/replies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
     }
 
     @Nested
