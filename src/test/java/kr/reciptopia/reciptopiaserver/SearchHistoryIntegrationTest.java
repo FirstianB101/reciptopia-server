@@ -136,6 +136,86 @@ public class SearchHistoryIntegrationTest {
             actions
                 .andExpect(status().isNotFound());
         }
+
+        @Test
+        void owner_id가_없는_post_search_history_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                String token = searchHistoryAuthHelper.generateToken(owner);
+                return new Struct()
+                    .withValue("token", token);
+            });
+            String token = given.valueOf("token");
+
+            // When
+            Create dto = aSearchHistoryCreateDto()
+                .withOwnerId(null);
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/account/searchHistories")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 존재하지않는_owner_id로_post_search_history_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                String token = searchHistoryAuthHelper.generateToken(owner);
+                return new Struct()
+                    .withValue("token", token);
+            });
+            String token = given.valueOf("token");
+
+            // When
+            Create dto = aSearchHistoryCreateDto()
+                .withOwnerId(-1L);
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/account/searchHistories")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void token이_없는_post_search_history_생성() throws Exception {
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                Account owner = entityHelper.generateAccount();
+
+                return new Struct()
+                    .withValue("ownerId", owner.getId());
+            });
+            Long ownerId = given.valueOf("ownerId");
+
+            // When
+            Create dto = aSearchHistoryCreateDto()
+                .withOwnerId(ownerId);
+
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(post("/account/searchHistories")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isUnauthorized());
+        }
     }
 
     @Nested
