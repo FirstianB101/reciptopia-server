@@ -1,9 +1,9 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
+import static kr.reciptopia.reciptopiaserver.domain.dto.helper.CollectorHelper.byLinkedHashMapWithKey;
 import static kr.reciptopia.reciptopiaserver.domain.dto.helper.InitializationHelper.noInit;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,15 +37,9 @@ public interface SearchHistoryDto {
 
             public static Result of(Page<SearchHistory> searchHistories) {
                 return Result.builder()
-                    .searchHistories(
-                        (Map<? extends Long, ? extends SearchHistoryDto.Result>) searchHistories.stream()
-                            .map(SearchHistoryDto.Result::of)
-                            .collect(
-                                Collectors.toMap(
-                                    SearchHistoryDto.Result::id,
-                                    result -> result,
-                                    (x, y) -> y,
-                                    LinkedHashMap::new)))
+                    .searchHistories(searchHistories.stream()
+                        .map(SearchHistoryDto.Result::of)
+                        .collect(byLinkedHashMapWithKey(SearchHistoryDto.Result::id)))
                     .build();
             }
         }
