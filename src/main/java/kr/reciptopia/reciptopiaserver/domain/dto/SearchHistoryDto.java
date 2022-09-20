@@ -81,13 +81,16 @@ public interface SearchHistoryDto {
 
     @With
     record Result(
-        Long id, Long ownerId, Set<String> ingredientNames, LocalDateTime createdDate
+        @NotNull Long id,
+        @NotNull Long ownerId,
+        Set<String> ingredientNames,
+        @NotNull LocalDateTime createdDate
     ) {
 
         @Builder
         public Result(
-            @NotNull Long id,
-            @NotNull Long ownerId,
+            Long id,
+            Long ownerId,
             @Singular Set<String> ingredientNames,
             LocalDateTime createdDate) {
             this.id = id;
