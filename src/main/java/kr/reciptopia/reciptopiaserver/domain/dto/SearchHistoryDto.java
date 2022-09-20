@@ -24,12 +24,11 @@ public interface SearchHistoryDto {
 
         @With
         record Result(
-            Map<Long, SearchHistoryDto.Result> searchHistories
+            @NotEmpty Map<Long, SearchHistoryDto.Result> searchHistories
         ) {
 
             @Builder
             public Result(
-                @NotEmpty
                 @Singular
                     Map<Long, SearchHistoryDto.Result> searchHistories
             ) {
