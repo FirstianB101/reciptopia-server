@@ -55,16 +55,14 @@ public interface SearchHistoryDto {
 
     @With
     record Create(
-        Long ownerId, Set<String> ingredientNames
+        @NotNull Long ownerId, Set<String> ingredientNames
     ) {
 
         @Builder
         public Create(
-            @NotNull
-                Long ownerId,
-
+            Long ownerId,
             @Singular
-                Set<String> ingredientNames) {
+            Set<String> ingredientNames) {
             this.ownerId = ownerId;
             this.ingredientNames = ingredientNames;
         }
