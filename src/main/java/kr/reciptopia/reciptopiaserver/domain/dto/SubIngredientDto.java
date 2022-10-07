@@ -37,12 +37,12 @@ public interface SubIngredientDto {
                     this.subIngredients = subIngredients;
                 }
 
-                public SubIngredientDto.Bulk.Create.Single asSingleDto(
+                public Bulk.Create.Single asSingleDto(
                     Function<? super SubIngredientDto.Create.Single, ? extends SubIngredientDto.Create.Single> initialize) {
                     List<SubIngredientDto.Create.Single> singleDtos = this.subIngredients.stream()
                         .map(m -> m.asSingleDto(initialize))
                         .collect(Collectors.toList());
-                    return SubIngredientDto.Bulk.Create.Single.builder()
+                    return Bulk.Create.Single.builder()
                         .subIngredients(singleDtos)
                         .build();
                 }
@@ -124,17 +124,17 @@ public interface SubIngredientDto {
             public WithRecipe(
 
                 @NotEmpty
-                    String name,
+                String name,
 
                 @NotEmpty
-                    String detail) {
+                String detail) {
                 this.name = name;
                 this.detail = detail;
             }
 
-            public SubIngredientDto.Create.Single asSingleDto(
-                Function<? super SubIngredientDto.Create.Single, ? extends SubIngredientDto.Create.Single> initialize) {
-                return initialize.apply(SubIngredientDto.Create.Single.builder()
+            public Create.Single asSingleDto(
+                Function<? super Create.Single, ? extends Create.Single> initialize) {
+                return initialize.apply(Create.Single.builder()
                     .name(name)
                     .detail(detail)
                     .build());
