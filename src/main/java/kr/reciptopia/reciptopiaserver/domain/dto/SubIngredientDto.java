@@ -165,13 +165,11 @@ public interface SubIngredientDto {
     }
 
     @With
+    @Builder
     record Update(
-        String name, String detail
+        @Size(min = 1, max = 20, message = "name은 1 ~ 20자 이여야 합니다!") String name,
+        @Size(min = 1, max = 50, message = "detail은 1 ~ 50자 이여야 합니다!") String detail
     ) {
-
-        @Builder
-        public Update {
-        }
     }
 
     @With
