@@ -1,7 +1,6 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
 import static kr.reciptopia.reciptopiaserver.domain.dto.helper.InitializationHelper.noInit;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -170,15 +169,6 @@ public interface SubIngredientDto {
 
             public SubIngredient asEntity() {
                 return asEntity(noInit());
-            }
-
-            public Single withRecipeId(Long recipeId) {
-                return this.recipeId != null && this.recipeId.equals(recipeId) ? this
-                    : Single.builder()
-                        .recipeId(recipeId)
-                        .name(name)
-                        .detail(detail)
-                        .build();
             }
 
         }
