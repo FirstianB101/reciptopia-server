@@ -11,4 +11,8 @@ public class MockHttpServletRequestBuilderHelper {
             .contentType(MediaType.APPLICATION_JSON)
             .content(body);
     }
+
+    public static MockHttpServletRequestBuilder get(String url, Long id) {
+        return MockMvcRequestBuilders.get(url, id);
+    }
 }

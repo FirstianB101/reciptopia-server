@@ -19,7 +19,6 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -133,6 +132,7 @@ public class AccountIntegrationTest {
     PasswordEncoder passwordEncoder;
 
     private static final String baseUrl = "/accounts";
+    private static final String idUrl = baseUrl + "/{id}";
 
     @BeforeEach
     void setUp(WebApplicationContext webApplicationContext,
@@ -147,6 +147,10 @@ public class AccountIntegrationTest {
 
     private MockHttpServletRequestBuilder post(String body) {
         return MockHttpServletRequestBuilderHelper.post(baseUrl, body);
+    }
+
+    private MockHttpServletRequestBuilder get(Long id) {
+        return MockHttpServletRequestBuilderHelper.get(idUrl, id);
     }
 
     @Nested
@@ -296,7 +300,7 @@ public class AccountIntegrationTest {
 
             // When
             ResultActions actions = mockMvc
-                .perform(get("/accounts/{id}", id));
+                .perform(get(id));
 
             // Then
             actions
@@ -321,7 +325,7 @@ public class AccountIntegrationTest {
         @Test
         void getAccount_AccountNotFound_NotFoundStatus() throws Exception {
             // When
-            ResultActions actions = mockMvc.perform(get("/accounts/{id}", 0L));
+            ResultActions actions = mockMvc.perform(get(0L));
 
             // Then
             actions
