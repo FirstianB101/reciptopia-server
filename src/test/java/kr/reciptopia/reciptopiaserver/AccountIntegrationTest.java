@@ -21,7 +21,6 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,6 +51,7 @@ import kr.reciptopia.reciptopiaserver.helper.auth.PostAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.ReplyAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.SearchHistoryAuthHelper;
 import kr.reciptopia.reciptopiaserver.helper.auth.UploadFileAuthHelper;
+import kr.reciptopia.reciptopiaserver.helper.integrationtest.MockHttpServletRequestBuilderHelper;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountProfileImgRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.AccountRepository;
 import kr.reciptopia.reciptopiaserver.persistence.repository.CommentLikeTagRepository;
@@ -78,6 +78,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -131,6 +132,8 @@ public class AccountIntegrationTest {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    private static final String baseUrl = "/accounts";
+
     @BeforeEach
     void setUp(WebApplicationContext webApplicationContext,
         RestDocumentationContextProvider restDocumentation) throws SQLException {
@@ -140,6 +143,10 @@ public class AccountIntegrationTest {
             .apply(springSecurity())
             .apply(basicDocumentationConfiguration(restDocumentation))
             .build();
+    }
+
+    private MockHttpServletRequestBuilder post(String body) {
+        return MockHttpServletRequestBuilderHelper.post(baseUrl, body);
     }
 
     @Nested
@@ -155,9 +162,7 @@ public class AccountIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(post("/accounts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body));
+            ResultActions actions = mockMvc.perform(post(body));
 
             // Then
             MvcResult mvcResult = actions
@@ -195,9 +200,7 @@ public class AccountIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(post("/accounts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body));
+            ResultActions actions = mockMvc.perform(post(body));
 
             // Then
             actions
@@ -214,9 +217,7 @@ public class AccountIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(post("/accounts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body));
+            ResultActions actions = mockMvc.perform(post(body));
 
             // Then
             actions
@@ -233,9 +234,7 @@ public class AccountIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(post("/accounts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body));
+            ResultActions actions = mockMvc.perform(post(body));
 
             // Then
             actions
@@ -253,9 +252,7 @@ public class AccountIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(post("/accounts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body));
+            ResultActions actions = mockMvc.perform(post(body));
 
             // Then
             actions
@@ -272,9 +269,7 @@ public class AccountIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(post("/accounts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body));
+            ResultActions actions = mockMvc.perform(post(body));
 
             // Then
             actions
