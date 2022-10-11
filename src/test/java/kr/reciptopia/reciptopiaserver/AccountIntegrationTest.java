@@ -4,6 +4,7 @@ import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocument
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Create;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Result;
 import static kr.reciptopia.reciptopiaserver.domain.dto.AccountDto.Update;
+import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccountCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.AccountHelper.anAccountUpdateDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
@@ -221,10 +222,9 @@ public class AccountIntegrationTest {
         @Test
         void email이_없는_account_생성() throws Exception {
             // When
-            Create dto = Create.builder()
-                .password("this!sPassw0rd")
-                .nickname("pte1024")
-                .build();
+            Create dto = anAccountCreateDto()
+                .withEmail(null);
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post(body));
@@ -237,11 +237,9 @@ public class AccountIntegrationTest {
         @Test
         void email_형식이_아닌_account_생성() throws Exception {
             // When
-            Create dto = Create.builder()
-                .email("invalid_email_com")
-                .password("this!sPassw0rd")
-                .nickname("pte1024")
-                .build();
+            Create dto = anAccountCreateDto()
+                .withEmail("invalid_email_com");
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post(body));
@@ -254,11 +252,9 @@ public class AccountIntegrationTest {
         @Test
         void 너무_짧은_길이의_password로_account_생성() throws Exception {
             // When
-            Create dto = Create.builder()
-                .email("test@email.com")
-                .password("bad")
-                .nickname("pte1024")
-                .build();
+            Create dto = anAccountCreateDto()
+                .withPassword("bad");
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post(body));
@@ -271,12 +267,11 @@ public class AccountIntegrationTest {
         @Test
         void 너무_긴_길이의_nickname으로_account_생성() throws Exception {
             // When
-            Create dto = Create.builder()
-                .email("test@email.com")
-                .password("this!sPassw0rd")
-                .nickname(
-                    "And_so_I_wake_in_the_morning_and_I_step_Outside_and_I_take_a_deep_breath_And_I_get_real_high_Then_I_scream_from_the_top_of_my_lungs_What's_goin_on")
-                .build();
+            Create dto = anAccountCreateDto()
+                .withNickname("And_so_I_wake_in_the_morning_and_I_step_Outside_"
+                    + "and_I_take_a_deep_breath_And_I_get_real_high_"
+                    + "Then_I_scream_from_the_top_of_my_lungs_What's_goin_on");
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post(body));
@@ -289,11 +284,9 @@ public class AccountIntegrationTest {
         @Test
         void 공백으로_채워진_nickname으로_account_생성() throws Exception {
             // When
-            Create dto = Create.builder()
-                .email("test@email.com")
-                .password("this!sPassw0rd")
-                .nickname("        ")
-                .build();
+            Create dto = anAccountCreateDto()
+                .withNickname("        ");
+            
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post(body));
