@@ -31,4 +31,13 @@ public class MockHttpServletRequestBuilderHelper {
             .contentType(MediaType.APPLICATION_JSON)
             .content(body);
     }
+
+    public static MockHttpServletRequestBuilder delete(String url, Long id, String token) {
+        return delete(url, id)
+            .header("Authorization", "Bearer " + token);
+    }
+
+    public static MockHttpServletRequestBuilder delete(String url, Long id) {
+        return MockMvcRequestBuilders.delete(url, id);
+    }
 }

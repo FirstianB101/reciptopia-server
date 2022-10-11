@@ -166,6 +166,14 @@ public class AccountIntegrationTest {
         return MockHttpServletRequestBuilderHelper.patch(idUrl, id, body);
     }
 
+    private MockHttpServletRequestBuilder delete(Long id, String token) {
+        return MockHttpServletRequestBuilderHelper.delete(idUrl, id, token);
+    }
+
+    private MockHttpServletRequestBuilder delete() {
+        return MockHttpServletRequestBuilderHelper.delete(idUrl, 0L);
+    }
+
     @Nested
     class PostAccount {
 
@@ -772,8 +780,8 @@ public class AccountIntegrationTest {
             Long id = given.valueOf("id");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", id)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(id, token));
 
             // Then
             actions
@@ -789,7 +797,8 @@ public class AccountIntegrationTest {
         @Test
         void deleteAccount_AccountNotFound_NotFound_Status() throws Exception {
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", 0L));
+            ResultActions actions = mockMvc.perform(
+                delete());
 
             // Then
             actions
@@ -816,8 +825,8 @@ public class AccountIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -855,8 +864,8 @@ public class AccountIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -891,8 +900,8 @@ public class AccountIntegrationTest {
             Long postId = given.valueOf("postId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -931,8 +940,8 @@ public class AccountIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -967,8 +976,8 @@ public class AccountIntegrationTest {
             Long commentId = given.valueOf("commentId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -1007,8 +1016,8 @@ public class AccountIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -1043,8 +1052,8 @@ public class AccountIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -1083,8 +1092,8 @@ public class AccountIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -1116,8 +1125,8 @@ public class AccountIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -1155,8 +1164,8 @@ public class AccountIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -1191,8 +1200,8 @@ public class AccountIntegrationTest {
             Long postId = given.valueOf("postId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -1231,8 +1240,8 @@ public class AccountIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -1268,8 +1277,8 @@ public class AccountIntegrationTest {
             Long commentLikeTagId = given.valueOf("commentLikeTagId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -1307,8 +1316,8 @@ public class AccountIntegrationTest {
             Long commentLikeTagBId = given.valueOf("commentLikeTagBId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -1343,8 +1352,8 @@ public class AccountIntegrationTest {
             Long replyLikeTagId = given.valueOf("replyLikeTagId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -1382,8 +1391,8 @@ public class AccountIntegrationTest {
             Long replyLikeTagBId = given.valueOf("replyLikeTagBId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
@@ -1415,8 +1424,8 @@ public class AccountIntegrationTest {
             Long accountProfileImgId = given.valueOf("accountProfileImgId");
 
             // When
-            ResultActions actions = mockMvc.perform(delete("/accounts/{id}", ownerId)
-                .header("Authorization", "Bearer " + token));
+            ResultActions actions = mockMvc.perform(
+                delete(ownerId, token));
 
             // Then
             actions
