@@ -18,8 +18,6 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.subsecti
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -68,7 +66,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.FieldDescriptor;
@@ -133,6 +130,7 @@ public class AccountIntegrationTest {
 
     private static final String baseUrl = "/accounts";
     private static final String idUrl = baseUrl + "/{id}";
+    private static final String emailExistUrl = baseUrl + "/{email}/exists";
 
     @BeforeEach
     void setUp(WebApplicationContext webApplicationContext,
@@ -172,6 +170,10 @@ public class AccountIntegrationTest {
 
     private MockHttpServletRequestBuilder delete() {
         return MockHttpServletRequestBuilderHelper.delete(idUrl, 0L);
+    }
+
+    private MockHttpServletRequestBuilder checkDuplicateUsername(String email) {
+        return MockHttpServletRequestBuilderHelper.get(emailExistUrl, email);
     }
 
     @Nested
@@ -1444,7 +1446,8 @@ public class AccountIntegrationTest {
         @Test
         void 중복되지_않는_email_중복확인조회() throws Exception {
             //When
-            ResultActions actions = mockMvc.perform(get("/accounts/{email}/exists", "newUser"));
+            ResultActions actions = mockMvc.perform(
+                checkDuplicateUsername("newUser"));
 
             //Then
             actions
@@ -1467,8 +1470,8 @@ public class AccountIntegrationTest {
             });
 
             // When
-            ResultActions actions = mockMvc.perform(get("/accounts/{email}/exists",
-                email));
+            ResultActions actions = mockMvc.perform(
+                checkDuplicateUsername(email));
 
             // Then
             actions
