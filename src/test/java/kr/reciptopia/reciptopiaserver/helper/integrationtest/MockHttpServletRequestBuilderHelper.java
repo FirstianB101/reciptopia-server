@@ -19,4 +19,16 @@ public class MockHttpServletRequestBuilderHelper {
     public static MockHttpServletRequestBuilder get(String url, Long id) {
         return MockMvcRequestBuilders.get(url, id);
     }
+
+    public static MockHttpServletRequestBuilder patch(String url, Long id, String token,
+        String body) {
+        return patch(url, id, body)
+            .header("Authorization", "Bearer " + token);
+    }
+
+    public static MockHttpServletRequestBuilder patch(String url, Long id, String body) {
+        return MockMvcRequestBuilders.patch(url, id)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(body);
+    }
 }

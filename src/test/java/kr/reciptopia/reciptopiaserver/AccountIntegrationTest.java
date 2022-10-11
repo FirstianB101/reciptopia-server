@@ -157,6 +157,15 @@ public class AccountIntegrationTest {
         return MockHttpServletRequestBuilderHelper.get(baseUrl);
     }
 
+    private MockHttpServletRequestBuilder patch(Long id, String token,
+        String body) {
+        return MockHttpServletRequestBuilderHelper.patch(idUrl, id, token, body);
+    }
+
+    private MockHttpServletRequestBuilder patch(String body, Long id) {
+        return MockHttpServletRequestBuilderHelper.patch(idUrl, id, body);
+    }
+
     @Nested
     class PostAccount {
 
@@ -501,10 +510,8 @@ public class AccountIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(patch("/accounts/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(body));
+            ResultActions actions = mockMvc.perform(
+                patch(id, token, body));
 
             // Then
             MvcResult mvcResult = actions
@@ -540,9 +547,8 @@ public class AccountIntegrationTest {
             // When
             String body = jsonHelper.toJson(anAccountUpdateDto());
 
-            ResultActions actions = mockMvc.perform(patch("/accounts/{id}", 0)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body));
+            ResultActions actions = mockMvc.perform(
+                patch(body, 0L));
 
             // Then
             actions
@@ -576,10 +582,8 @@ public class AccountIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(patch("/accounts/{id}", ownerId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(body));
+            ResultActions actions = mockMvc.perform(
+                patch(ownerId, token, body));
 
             // Then
             MvcResult mvcResult = actions
@@ -635,10 +639,8 @@ public class AccountIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(patch("/accounts/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(body));
+            ResultActions actions = mockMvc.perform(
+                patch(id, token, body));
 
             // Then
             actions
@@ -672,10 +674,8 @@ public class AccountIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(patch("/accounts/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(body));
+            ResultActions actions = mockMvc.perform(
+                patch(id, token, body));
 
             // Then
             actions
@@ -710,10 +710,8 @@ public class AccountIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(patch("/accounts/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(body));
+            ResultActions actions = mockMvc.perform(
+                patch(id, token, body));
 
             // Then
             actions
@@ -747,10 +745,8 @@ public class AccountIntegrationTest {
                 .build();
             String body = jsonHelper.toJson(dto);
 
-            ResultActions actions = mockMvc.perform(patch("/accounts/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(body));
+            ResultActions actions = mockMvc.perform(
+                patch(id, token, body));
 
             // Then
             actions
