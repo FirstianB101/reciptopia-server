@@ -12,6 +12,10 @@ public class MockHttpServletRequestBuilderHelper {
             .content(body);
     }
 
+    public static MockHttpServletRequestBuilder get(String url) {
+        return MockMvcRequestBuilders.get(url);
+    }
+
     public static MockHttpServletRequestBuilder get(String url, Long id) {
         return MockMvcRequestBuilders.get(url, id);
     }

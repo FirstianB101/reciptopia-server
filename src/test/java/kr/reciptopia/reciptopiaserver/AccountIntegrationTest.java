@@ -153,6 +153,10 @@ public class AccountIntegrationTest {
         return MockHttpServletRequestBuilderHelper.get(idUrl, id);
     }
 
+    private MockHttpServletRequestBuilder search() {
+        return MockHttpServletRequestBuilderHelper.get(baseUrl);
+    }
+
     @Nested
     class PostAccount {
 
@@ -352,7 +356,7 @@ public class AccountIntegrationTest {
             Long accountBId = given.valueOf("accountBId");
 
             // When
-            ResultActions actions = mockMvc.perform(get("/accounts"));
+            ResultActions actions = mockMvc.perform(search());
 
             // Then
             actions
@@ -394,7 +398,7 @@ public class AccountIntegrationTest {
             Long accountCId = given.valueOf("accountCId");
 
             // When
-            ResultActions actions = mockMvc.perform(get("/accounts")
+            ResultActions actions = mockMvc.perform(search()
                 .param("size", "2")
                 .param("page", "1")
                 .param("sort", "id,desc"));
@@ -440,7 +444,7 @@ public class AccountIntegrationTest {
 
             // When
             String postIdsParam = postBId + ", " + postCId + ", " + postEId;
-            ResultActions actions = mockMvc.perform(get("/accounts")
+            ResultActions actions = mockMvc.perform(search()
                 .param("postIds", postIdsParam));
 
             // Then
