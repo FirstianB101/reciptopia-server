@@ -20,6 +20,10 @@ public class MockHttpServletRequestBuilderHelper {
         return MockMvcRequestBuilders.get(url, id);
     }
 
+    public static MockHttpServletRequestBuilder get(String url, String email) {
+        return MockMvcRequestBuilders.get(url, email);
+    }
+
     public static MockHttpServletRequestBuilder patch(String url, Long id, String token,
         String body) {
         return patch(url, id, body)
