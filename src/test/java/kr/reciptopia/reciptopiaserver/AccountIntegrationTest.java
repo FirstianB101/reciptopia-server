@@ -286,7 +286,7 @@ public class AccountIntegrationTest {
             // When
             Create dto = anAccountCreateDto()
                 .withNickname("        ");
-            
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post(body));
@@ -637,9 +637,9 @@ public class AccountIntegrationTest {
             Long id = given.valueOf("id");
 
             // When
-            Update dto = Update.builder()
-                .email("new_email_com")
-                .build();
+            Update dto = anAccountUpdateDto()
+                .withEmail("new_bad_email_com");
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(
@@ -672,9 +672,9 @@ public class AccountIntegrationTest {
             Long id = given.valueOf("id");
 
             // When
-            Update dto = Update.builder()
-                .password("short")
-                .build();
+            Update dto = anAccountUpdateDto()
+                .withPassword("short");
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(
@@ -707,10 +707,11 @@ public class AccountIntegrationTest {
             Long id = given.valueOf("id");
 
             // When
-            Update dto = Update.builder()
-                .nickname(
-                    "And_so_I_wake_in_the_morning_and_I_step_Outside_and_I_take_a_deep_breath_And_I_get_real_high_Then_I_scream_from_the_top_of_my_lungs_What's_goin_on")
-                .build();
+            Update dto = anAccountUpdateDto()
+                .withNickname("And_so_I_wake_in_the_morning_and_I_step_Outside_"
+                    + "and_I_take_a_deep_breath_And_I_get_real_high_"
+                    + "Then_I_scream_from_the_top_of_my_lungs_What's_goin_on");
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(
@@ -743,9 +744,9 @@ public class AccountIntegrationTest {
             Long id = given.valueOf("id");
 
             // When
-            Update dto = Update.builder()
-                .nickname("          ")
-                .build();
+            Update dto = anAccountUpdateDto()
+                .withNickname("          ");
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(
