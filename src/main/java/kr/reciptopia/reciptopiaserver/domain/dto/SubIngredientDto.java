@@ -26,12 +26,11 @@ public interface SubIngredientDto {
         interface Create {
 
             record WithRecipe(
-                List<SubIngredientDto.Create.WithRecipe> subIngredients
+                @NotEmpty List<SubIngredientDto.Create.WithRecipe> subIngredients
             ) {
 
                 @Builder
                 public WithRecipe(
-                    @NotEmpty
                     @Singular
                     List<SubIngredientDto.Create.WithRecipe> subIngredients
                 ) {
