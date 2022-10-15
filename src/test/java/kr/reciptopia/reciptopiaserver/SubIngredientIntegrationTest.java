@@ -705,6 +705,143 @@ public class SubIngredientIntegrationTest {
             actions
                 .andExpect(status().isNotFound());
         }
+
+        @Test
+        void white_space_들로_채워진_name으로_subIngredient_수정() throws Exception {
+
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                SubIngredient subIngredient = entityHelper.generateSubIngredient();
+
+                String token = ingredientAuthHelper.generateToken(subIngredient);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", subIngredient.getId())
+                    .withValue("recipeId", subIngredient.getRecipe().getId());
+            });
+            String token = given.valueOf("token");
+            Long id = given.valueOf("id");
+
+            // When
+            Update dto = Update.builder()
+                .name("         ")
+                .detail("20g")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/post/recipe/subIngredients/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_긴_길이의_name으로_subIngredient_수정() throws Exception {
+
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                SubIngredient subIngredient = entityHelper.generateSubIngredient();
+
+                String token = ingredientAuthHelper.generateToken(subIngredient);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", subIngredient.getId())
+                    .withValue("recipeId", subIngredient.getRecipe().getId());
+            });
+            String token = given.valueOf("token");
+            Long id = given.valueOf("id");
+
+            // When
+            Update dto = Update.builder()
+                .name(
+                    "압력밥솥에 물 2000ml정도와 한방팩, 대추, 마늘, 과 같이 뚜껑을 잘 닫은 뒤 "
+                        + "센불에서 끓여 주시다가 추가 움직이기 시작하면 중불로 낮춰 10분간 삶아주고 "
+                        + "바로 김을 빼준뒤 꺼낸 닭에 뿌릴 고추장")
+                .detail("20g")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/post/recipe/subIngredients/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void white_space_들로_채워진_detail로_subIngredient_수정() throws Exception {
+
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                SubIngredient subIngredient = entityHelper.generateSubIngredient();
+
+                String token = ingredientAuthHelper.generateToken(subIngredient);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", subIngredient.getId())
+                    .withValue("recipeId", subIngredient.getRecipe().getId());
+            });
+            String token = given.valueOf("token");
+            Long id = given.valueOf("id");
+
+            // When
+            Update dto = Update.builder()
+                .name("불고기 고추장")
+                .detail("         ")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/post/recipe/subIngredients/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 너무_긴_길이의_detail로_subIngredient_수정() throws Exception {
+
+            // Given
+            Struct given = trxHelper.doInTransaction(() -> {
+                SubIngredient subIngredient = entityHelper.generateSubIngredient();
+
+                String token = ingredientAuthHelper.generateToken(subIngredient);
+                return new Struct()
+                    .withValue("token", token)
+                    .withValue("id", subIngredient.getId())
+                    .withValue("recipeId", subIngredient.getRecipe().getId());
+            });
+            String token = given.valueOf("token");
+            Long id = given.valueOf("id");
+
+            // When
+            Update dto = Update.builder()
+                .name("불고기 고추장")
+                .detail(
+                    "불고기 조각1/4컵, 고춧가루1/4컵, 겨자조금, 간장2T, 식초2T, "
+                        + "설탕1/3T, 다진마늘1T 과 대파 약간을 잘 섞어서만든 고추장 소스 20g")
+                .build();
+            String body = jsonHelper.toJson(dto);
+
+            ResultActions actions = mockMvc.perform(patch("/post/recipe/subIngredients/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(body));
+
+            // Then
+            actions
+                .andExpect(status().isBadRequest());
+        }
     }
 
     @Nested
