@@ -4,6 +4,7 @@ import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocument
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Create.Single;
 import static kr.reciptopia.reciptopiaserver.domain.dto.SubIngredientDto.Update;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.Bulk.tripleSubIngredientsBulkCreateDto;
+import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.Bulk.tripleSubIngredientsBulkUpdateDto;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredientCreateDto;
 import static kr.reciptopia.reciptopiaserver.helper.SubIngredientHelper.aSubIngredientUpdateDto;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import kr.reciptopia.reciptopiaserver.docs.ApiDocumentation;
@@ -1095,6 +1097,41 @@ public class SubIngredientIntegrationTest {
                     "바뀌기 전 SubIngredientB");
                 assertThat(repository.findById(subIngredientCId).get().getName()).isEqualTo(
                     "바뀌기 전 SubIngredientC");
+            }
+
+
+            @Test
+            void subIngredients가_없는_subIngredient_다중_수정() throws Exception {
+
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipe = entityHelper.generateRecipe();
+                    entityHelper.generateSubIngredient(
+                        it -> it.withRecipe(recipe).withName("바꾸기 전 SubIngredientA"));
+                    entityHelper.generateSubIngredient(
+                        it -> it.withRecipe(recipe).withName("바꾸기 전 SubIngredientB"));
+                    entityHelper.generateSubIngredient(
+                        it -> it.withRecipe(recipe).withName("바꾸기 전 SubIngredientC"));
+
+                    String token = ingredientAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("token", token);
+                });
+                String token = given.valueOf("token");
+
+                // When
+                Bulk.Update dto = tripleSubIngredientsBulkUpdateDto()
+                    .withSubIngredients(null);
+                String body = jsonHelper.toJson(dto);
+
+                ResultActions actions = mockMvc.perform(patch("/post/recipe/bulk-subIngredient")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(body));
+
+                // Then
+                actions
+                    .andExpect(status().isBadRequest());
             }
         }
 
