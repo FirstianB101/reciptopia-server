@@ -51,12 +51,11 @@ public interface SubIngredientDto {
 
             @With
             record Single(
-                List<SubIngredientDto.Create.Single> subIngredients
+                @NotEmpty List<SubIngredientDto.Create.Single> subIngredients
             ) {
 
                 @Builder
                 public Single(
-                    @NotEmpty
                     @Singular
                     List<SubIngredientDto.Create.Single> subIngredients
                 ) {
