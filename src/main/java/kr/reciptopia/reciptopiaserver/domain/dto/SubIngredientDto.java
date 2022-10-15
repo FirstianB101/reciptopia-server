@@ -1,6 +1,7 @@
 package kr.reciptopia.reciptopiaserver.domain.dto;
 
 import static kr.reciptopia.reciptopiaserver.domain.dto.helper.InitializationHelper.noInit;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ public interface SubIngredientDto {
                 public WithRecipe(
                     @NotEmpty
                     @Singular
-                        List<SubIngredientDto.Create.WithRecipe> subIngredients
+                    List<SubIngredientDto.Create.WithRecipe> subIngredients
                 ) {
                     this.subIngredients = subIngredients;
                 }
@@ -57,7 +58,7 @@ public interface SubIngredientDto {
                 public Single(
                     @NotEmpty
                     @Singular
-                        List<SubIngredientDto.Create.Single> subIngredients
+                    List<SubIngredientDto.Create.Single> subIngredients
                 ) {
                     this.subIngredients = subIngredients;
                 }
@@ -79,7 +80,7 @@ public interface SubIngredientDto {
             public Update(
                 @NotEmpty
                 @Singular
-                    Map<Long, SubIngredientDto.Update> subIngredients
+                Map<Long, SubIngredientDto.Update> subIngredients
             ) {
                 this.subIngredients = subIngredients;
             }
@@ -94,7 +95,7 @@ public interface SubIngredientDto {
             public Result(
                 @NotEmpty
                 @Singular
-                    Map<Long, SubIngredientDto.Result> subIngredients
+                Map<Long, SubIngredientDto.Result> subIngredients
             ) {
                 this.subIngredients = subIngredients;
             }
@@ -170,31 +171,17 @@ public interface SubIngredientDto {
         @Size(min = 1, max = 20, message = "name은 1 ~ 20자 이여야 합니다!") String name,
         @Size(min = 1, max = 50, message = "detail은 1 ~ 50자 이여야 합니다!") String detail
     ) {
+
     }
 
     @With
+    @Builder
     record Result(
-        Long id, Long recipeId, String name, String detail
+        @NotNull Long id,
+        @NotNull Long recipeId,
+        @NotBlank @Size(min = 1, max = 20, message = "name은 1 ~ 20자 이여야 합니다!") String name,
+        @NotBlank @Size(min = 1, max = 50, message = "detail은 1 ~ 50자 이여야 합니다!") String detail
     ) {
-
-        @Builder
-        public Result(
-            @NotNull
-                Long id,
-
-            @NotNull
-                Long recipeId,
-
-            @NotEmpty
-                String name,
-
-            @NotEmpty
-                String detail) {
-            this.id = id;
-            this.recipeId = recipeId;
-            this.name = name;
-            this.detail = detail;
-        }
 
         public static Result of(SubIngredient entity) {
             return Result.builder()
