@@ -979,6 +979,32 @@ public class SubIngredientIntegrationTest {
                     .andExpect(status().isForbidden())
                     .andReturn();
             }
+
+            @Test
+            void subIngredients가_없는_subIngredient_다중_생성() throws Exception {
+                // Given
+                Struct given = trxHelper.doInTransaction(() -> {
+                    Recipe recipe = entityHelper.generateRecipe();
+                    String token = ingredientAuthHelper.generateToken(recipe);
+                    return new Struct()
+                        .withValue("token", token);
+                });
+                String token = given.valueOf("token");
+
+                // When
+                Bulk.Create.Single dto = tripleSubIngredientsBulkCreateDto()
+                    .withSubIngredients(null);
+                String body = jsonHelper.toJson(dto);
+
+                ResultActions actions = mockMvc.perform(post("/post/recipe/bulk-subIngredient")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(body));
+
+                // Then
+                actions
+                    .andExpect(status().isBadRequest());
+            }
         }
 
         @Nested
