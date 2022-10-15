@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import kr.reciptopia.reciptopiaserver.business.service.authorizer.IngredientAuthorizer;
 import kr.reciptopia.reciptopiaserver.business.service.helper.RepositoryHelper;
+import kr.reciptopia.reciptopiaserver.business.service.helper.ServiceErrorHelper;
 import kr.reciptopia.reciptopiaserver.business.service.searchcondition.SubIngredientSearchCondition;
 import kr.reciptopia.reciptopiaserver.domain.dto.RecipeDto;
 import kr.reciptopia.reciptopiaserver.domain.dto.RecipePostDto;
@@ -31,6 +32,7 @@ public class SubIngredientService {
     private final SubIngredientRepositoryImpl subIngredientRepositoryImpl;
     private final RepositoryHelper repoHelper;
     private final IngredientAuthorizer ingredientAuthorizer;
+    private final ServiceErrorHelper errorHelper;
 
     @Transactional
     public Result create(Single dto, Authentication authentication) {
@@ -56,12 +58,13 @@ public class SubIngredientService {
         ingredientAuthorizer.requireIngredientOwner(authentication, subIngredient);
 
         if (dto.name() != null) {
+            throwExceptionWhenBlankName(dto.name());
             subIngredient.setName(dto.name());
         }
         if (dto.detail() != null) {
+            throwExceptionWhenBlankDetail(dto.detail());
             subIngredient.setDetail(dto.detail());
         }
-
         return Result.of(subIngredientRepository.save(subIngredient));
     }
 
@@ -106,4 +109,18 @@ public class SubIngredientService {
         ids.forEach(id -> delete(id, authentication));
     }
 
+
+    public void throwExceptionWhenBlankName(String name) {
+        if (name.isBlank()) {
+            throw errorHelper.badRequest(
+                "Name must not be null and must contain at least one non-whitespace character");
+        }
+    }
+
+    public void throwExceptionWhenBlankDetail(String detail) {
+        if (detail.isBlank()) {
+            throw errorHelper.badRequest(
+                "Detail must not be null and must contain at least one non-whitespace character");
+        }
+    }
 }
