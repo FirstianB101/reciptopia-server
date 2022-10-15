@@ -88,12 +88,11 @@ public interface SubIngredientDto {
 
         @With
         record Result(
-            Map<Long, SubIngredientDto.Result> subIngredients
+            @NotEmpty Map<Long, SubIngredientDto.Result> subIngredients
         ) {
 
             @Builder
             public Result(
-                @NotEmpty
                 @Singular
                 Map<Long, SubIngredientDto.Result> subIngredients
             ) {
