@@ -73,12 +73,11 @@ public interface SubIngredientDto {
 
         @With
         record Update(
-            Map<Long, SubIngredientDto.Update> subIngredients
+            @NotEmpty Map<Long, SubIngredientDto.Update> subIngredients
         ) {
 
             @Builder
             public Update(
-                @NotEmpty
                 @Singular
                 Map<Long, SubIngredientDto.Update> subIngredients
             ) {
