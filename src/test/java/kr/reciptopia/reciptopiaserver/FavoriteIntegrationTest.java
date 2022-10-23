@@ -2,6 +2,7 @@ package kr.reciptopia.reciptopiaserver;
 
 import static kr.reciptopia.reciptopiaserver.docs.ApiDocumentation.basicDocumentationConfiguration;
 import static kr.reciptopia.reciptopiaserver.domain.dto.FavoriteDto.Create;
+import static kr.reciptopia.reciptopiaserver.helper.FavoriteHelper.aFavoriteCreateDto;
 import static kr.reciptopia.reciptopiaserver.util.H2DbCleaner.clean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
@@ -163,10 +164,10 @@ public class FavoriteIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            Create dto = Create.builder()
-                .postId(5L)
-                .ownerId(ownerId)
-                .build();
+            Create dto = aFavoriteCreateDto()
+                .withOwnerId(ownerId)
+                .withPostId(-1L);
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/account/favorites/")
@@ -191,10 +192,10 @@ public class FavoriteIntegrationTest {
             Long postId = given.valueOf("postId");
 
             // When
-            Create dto = Create.builder()
-                .postId(postId)
-                .ownerId(5L)
-                .build();
+            Create dto = aFavoriteCreateDto()
+                .withOwnerId(-1L)
+                .withPostId(postId);
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/account/favorites/")
@@ -222,9 +223,10 @@ public class FavoriteIntegrationTest {
             Long postId = given.valueOf("postId");
 
             // When
-            Create dto = Create.builder()
-                .postId(postId)
-                .build();
+            Create dto = aFavoriteCreateDto()
+                .withOwnerId(null)
+                .withPostId(postId);
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/account/favorites")
@@ -253,9 +255,10 @@ public class FavoriteIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            Create dto = Create.builder()
-                .ownerId(ownerId)
-                .build();
+            Create dto = aFavoriteCreateDto()
+                .withOwnerId(ownerId)
+                .withPostId(null);
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/account/favorites")
