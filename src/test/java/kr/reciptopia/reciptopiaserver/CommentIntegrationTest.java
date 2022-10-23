@@ -72,7 +72,7 @@ public class CommentIntegrationTest {
         fieldWithPath("content").description("댓글 내용, 1 ~ 50자 이며 공백으로만 이루어 지지않아야 합니다");
     private static final FieldDescriptor DOC_FIELD_CREATE_TIME =
         fieldWithPath("createTime").description("댓글 생성 시간");
-    private static final FieldDescriptor DOC_FIELD_MODIFIIED_TIME =
+    private static final FieldDescriptor DOC_FIELD_MODIFIED_TIME =
         fieldWithPath("modifiedTime").type("String").description("댓글 수정 시간").optional();
 
     private static final ParameterDescriptor DOC_PARAMETER_POST_ID =
@@ -387,7 +387,7 @@ public class CommentIntegrationTest {
                     DOC_FIELD_POST_ID,
                     DOC_FIELD_CONTENT,
                     DOC_FIELD_CREATE_TIME,
-                    DOC_FIELD_MODIFIIED_TIME
+                    DOC_FIELD_MODIFIED_TIME
                 )));
         }
 
