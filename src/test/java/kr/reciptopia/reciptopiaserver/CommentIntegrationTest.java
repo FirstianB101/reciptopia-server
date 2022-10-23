@@ -190,10 +190,10 @@ public class CommentIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            Create dto = Create.builder()
-                .ownerId(ownerId)
-                .content("테스트 댓글 내용")
-                .build();
+            Create dto = aCommentCreateDto()
+                .withOwnerId(ownerId)
+                .withPostId(null);
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/post/comments")
@@ -222,10 +222,10 @@ public class CommentIntegrationTest {
             Long postId = given.valueOf("postId");
 
             // When
-            Create dto = Create.builder()
-                .postId(postId)
-                .content("테스트 댓글 내용")
-                .build();
+            Create dto = aCommentCreateDto()
+                .withOwnerId(null)
+                .withPostId(postId);
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/post/comments")
@@ -256,10 +256,11 @@ public class CommentIntegrationTest {
             Long postId = given.valueOf("postId");
 
             // When
-            Create dto = Create.builder()
-                .ownerId(ownerId)
-                .postId(postId)
-                .build();
+            Create dto = aCommentCreateDto()
+                .withOwnerId(ownerId)
+                .withPostId(postId)
+                .withContent(null);
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/post/comments")
@@ -290,11 +291,11 @@ public class CommentIntegrationTest {
             Long postId = given.valueOf("postId");
 
             // When
-            Create dto = Create.builder()
-                .ownerId(ownerId)
-                .postId(postId)
-                .content("        ")
-                .build();
+            Create dto = aCommentCreateDto()
+                .withOwnerId(ownerId)
+                .withPostId(postId)
+                .withContent("        ");
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/post/comments")
@@ -325,12 +326,14 @@ public class CommentIntegrationTest {
             Long postId = given.valueOf("postId");
 
             // When
-            Create dto = Create.builder()
-                .ownerId(ownerId)
-                .postId(postId)
-                .content(
-                    "And_so_I_wake_in_the_morning_and_I_step_Outside_and_I_take_a_deep_breath_And_I_get_real_high_Then_I_scream_from_the_top_of_my_lungs_What's_goin_on")
-                .build();
+            Create dto = aCommentCreateDto()
+                .withOwnerId(ownerId)
+                .withPostId(postId)
+                .withContent(
+                    "And_so_I_wake_in_the_morning_and_I_step_Outside"
+                        + "_and_I_take_a_deep_breath_And_I_get_real_high"
+                        + "_Then_I_scream_from_the_top_of_my_lungs_What's_goin_on");
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/post/comments")
