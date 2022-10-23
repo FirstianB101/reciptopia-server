@@ -170,9 +170,10 @@ public class CommentLikeTagIntegrationTest {
             Long commentId = given.valueOf("commentId");
 
             // When
-            Create dto = Create.builder()
-                .commentId(commentId)
-                .build();
+            Create dto = aCommentLikeTagCreateDto()
+                .withOwnerId(null)
+                .withCommentId(commentId);
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/post/comment/likeTags")
@@ -201,9 +202,10 @@ public class CommentLikeTagIntegrationTest {
             Long ownerId = given.valueOf("ownerId");
 
             // When
-            Create dto = Create.builder()
-                .ownerId(ownerId)
-                .build();
+            Create dto = aCommentLikeTagCreateDto()
+                .withOwnerId(ownerId)
+                .withCommentId(null);
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(post("/post/comment/likeTags")
