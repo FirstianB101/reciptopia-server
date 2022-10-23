@@ -595,9 +595,9 @@ public class CommentIntegrationTest {
             Long id = given.valueOf("id");
 
             // When
-            Update dto = Update.builder()
-                .content("         ")
-                .build();
+            Update dto = aCommentUpdateDto()
+                .withContent("          ");
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(patch("/post/comments/{id}", id)
@@ -628,10 +628,12 @@ public class CommentIntegrationTest {
             Long id = given.valueOf("id");
 
             // When
-            Update dto = Update.builder()
-                .content(
-                    "And_so_I_wake_in_the_morning_and_I_step_Outside_and_I_take_a_deep_breath_And_I_get_real_high_Then_I_scream_from_the_top_of_my_lungs_What's_goin_on")
-                .build();
+            Update dto = aCommentUpdateDto()
+                .withContent(
+                    "And_so_I_wake_in_the_morning_and_I_step_Outside"
+                        + "_and_I_take_a_deep_breath_And_I_get_real_high"
+                        + "_Then_I_scream_from_the_top_of_my_lungs_What's_goin_on");
+
             String body = jsonHelper.toJson(dto);
 
             ResultActions actions = mockMvc.perform(patch("/post/comments/{id}", id)
